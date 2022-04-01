@@ -1,0 +1,642 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>782</width>
+    <height>624</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>LAS TRX</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QWidget" name="widget_options" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QCheckBox" name="checkBox_epoch_trans">
+         <property name="text">
+          <string>Epoch Transformation</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="checkBox_vd_trans">
+         <property name="text">
+          <string>Vertical Datum Transformation</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QFrame" name="frame_input">
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_5">
+       <item>
+        <widget class="QLabel" name="label_input">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>12</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Origin</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="Line" name="line_input">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QWidget" name="widget_input_file" native="true">
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="label_input_file">
+            <property name="text">
+             <string>Input File</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="lineEdit_input_file"/>
+          </item>
+          <item>
+           <widget class="QToolButton" name="toolButton_input_file">
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QWidget" name="widget_input_options" native="true">
+         <layout class="QGridLayout" name="gridLayout">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <item row="0" column="1">
+           <widget class="QLabel" name="label_input_epoch">
+            <property name="text">
+             <string>Epoch (YYYY-MM-DD)</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QDateEdit" name="dateEdit_input_epoch">
+            <property name="time">
+             <time>
+              <hour>8</hour>
+              <minute>0</minute>
+              <second>0</second>
+             </time>
+            </property>
+            <property name="maximumDateTime">
+             <datetime>
+              <hour>15</hour>
+              <minute>59</minute>
+              <second>59</second>
+              <year>9998</year>
+              <month>1</month>
+              <day>1</day>
+             </datetime>
+            </property>
+            <property name="calendarPopup">
+             <bool>true</bool>
+            </property>
+            <property name="timeSpec">
+             <enum>Qt::UTC</enum>
+            </property>
+            <property name="date">
+             <date>
+              <year>2010</year>
+              <month>1</month>
+              <day>1</day>
+             </date>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QComboBox" name="comboBox_input_reference">
+            <property name="currentIndex">
+             <number>1</number>
+            </property>
+            <item>
+             <property name="text">
+              <string>NAD83(CSRS)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ITRF2014</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ITRF2008</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ITRF2005</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ITRF2000</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ITRF97</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ITRF96</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ITRF94</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ITRF93</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ITRF92</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ITRF91</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ITRF90</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ITRF89</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ITRF88</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_input_reference">
+            <property name="text">
+             <string>Reference Frame</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLabel" name="label_input_utm_zone">
+            <property name="text">
+             <string>UTM Zone</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_input_coordinates">
+            <property name="text">
+             <string>Coordinates</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QComboBox" name="comboBox_input_coordinates">
+            <item>
+             <property name="text">
+              <string>Geographic</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Cartesian</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>UTM</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="5" column="1">
+           <widget class="QSpinBox" name="spinBox_input_utm_zone">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="minimum">
+             <number>7</number>
+            </property>
+            <property name="maximum">
+             <number>22</number>
+            </property>
+            <property name="value">
+             <number>10</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QFrame" name="frame_output">
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_6">
+       <item>
+        <widget class="QLabel" name="label_output">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>12</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Destination</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="Line" name="line_output">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QWidget" name="widget_output_file" native="true">
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="label_output_file">
+            <property name="text">
+             <string>Output file</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="lineEdit_output_file"/>
+          </item>
+          <item>
+           <widget class="QToolButton" name="toolButton_output_file">
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QWidget" name="widget_output_options" native="true">
+         <layout class="QGridLayout" name="gridLayout_2">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="verticalSpacing">
+           <number>6</number>
+          </property>
+          <item row="2" column="0">
+           <widget class="QComboBox" name="comboBox_output_reference">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <item>
+             <property name="text">
+              <string>NAD83(CSRS)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ITRF2014</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ITRF2008</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ITRF2005</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ITRF2000</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ITRF97</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ITRF96</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ITRF94</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ITRF93</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ITRF92</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ITRF91</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ITRF90</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ITRF89</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ITRF88</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="6" column="0">
+           <widget class="QLabel" name="label_output_vertical_datum">
+            <property name="text">
+             <string>Vertical Datum</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_output_reference">
+            <property name="text">
+             <string>Reference Frame</string>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="0">
+           <widget class="QComboBox" name="comboBox_vertical_datum">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <item>
+             <property name="text">
+              <string>CGVD2013</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>CGVD28</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLabel" name="label_output_epoch">
+            <property name="text">
+             <string>Epoch (YYYY-MM-DD)</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QDateEdit" name="dateEdit_output_epoch">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="time">
+             <time>
+              <hour>8</hour>
+              <minute>0</minute>
+              <second>0</second>
+             </time>
+            </property>
+            <property name="calendarPopup">
+             <bool>true</bool>
+            </property>
+            <property name="timeSpec">
+             <enum>Qt::UTC</enum>
+            </property>
+            <property name="date">
+             <date>
+              <year>2010</year>
+              <month>1</month>
+              <day>1</day>
+             </date>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_output_coordinates">
+            <property name="text">
+             <string>Coordinates</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QComboBox" name="comboBox_output_coordinates">
+            <item>
+             <property name="text">
+              <string>Geographic</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Cartesian</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>UTM</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLabel" name="label_output_utm_zone">
+            <property name="text">
+             <string>UTM Zone</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QSpinBox" name="spinBox_output_utm_zone">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="minimum">
+             <number>7</number>
+            </property>
+            <property name="maximum">
+             <number>22</number>
+            </property>
+            <property name="value">
+             <number>10</number>
+            </property>
+            <property name="displayIntegerBase">
+             <number>10</number>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="1">
+           <widget class="QLabel" name="label_output_geoid">
+            <property name="text">
+             <string>Geoid</string>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="1">
+           <widget class="QComboBox" name="comboBox_output_geoid">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <item>
+             <property name="text">
+              <string>CGG2013a</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>CGG2013</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QWidget" name="widget_actions" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QProgressBar" name="progressBar">
+         <property name="value">
+          <number>0</number>
+         </property>
+         <property name="textVisible">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pushButton_convert">
+         <property name="text">
+          <string>Convert</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
