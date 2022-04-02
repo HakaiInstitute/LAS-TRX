@@ -381,13 +381,14 @@
           <item row="2" column="0">
            <widget class="QComboBox" name="comboBox_output_reference">
             <property name="enabled">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <item>
              <property name="text">
               <string>NAD83(CSRS)</string>
              </property>
             </item>
+            <!--
             <item>
              <property name="text">
               <string>ITRF2014</string>
@@ -453,6 +454,7 @@
               <string>ITRF88</string>
              </property>
             </item>
+            -->
            </widget>
           </item>
           <item row="6" column="0">
