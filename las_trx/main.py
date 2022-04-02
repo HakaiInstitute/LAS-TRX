@@ -2,7 +2,7 @@ import math
 import os.path
 import sys
 from datetime import date
-from typing import Optional
+from typing import Callable, Optional
 
 import laspy
 import numpy as np
@@ -131,48 +131,17 @@ class MainWindow(QMainWindow):
     def output_file(self) -> str:
         return self.ui.lineEdit_output_file.text()
 
-    def update_progress(self, value):
-        self.ui.progressBar.setValue(value)
+    def update_progress(self, value: float):
+        self.ui.progressBar.setValue(int(value * 100))
 
     def set_convert_button_enabled(self, enabled):
         self.ui.pushButton_convert.setEnabled(enabled)
-
-    def _transform(self):
-        transformer = CSRSTransformer(**self.transform_config.dict(exclude_none=True))
-
-        with laspy.open(self.input_file) as in_las, \
-                laspy.open(self.output_file, mode='w', header=in_las.header) as out_las:
-
-            out_las.header.offsets = None  # Adjusted later using first batch
-            if self.transform_config.out == "geog":
-                out_las.header.scales = np.array([1e-6, 1e-6, 0.001])
-            else:
-                out_las.header.scales = np.array([0.01, 0.01, 0.01])
-
-            total_iters = math.ceil(in_las.header.point_count / CHUNK_SIZE)
-            for i, points in enumerate(in_las.chunk_iterator(CHUNK_SIZE)):
-                # Convert the coordinates
-                data = np.stack((points.x.scaled_array(), points.y.scaled_array(), points.z.scaled_array())).T
-                data = np.array(list(transformer.forward(data)))
-
-                # Update header offsets
-                if out_las.header.offsets is None:
-                    out_las.header.offsets = np.min(data, axis=0)
-
-                # Create new point records
-                points.change_scaling(offsets=out_las.header.offsets)
-                points.x = data[:, 0]
-                points.y = data[:, 1]
-                points.z = data[:, 2]
-                out_las.write_points(points)
-
-                self.update_progress(((i + 1) * 100 // total_iters))
 
     def convert(self):
         self.set_convert_button_enabled(False)
 
         try:
-            self._transform()
+            transform_file(self.transform_config, self.input_file, self.output_file, self.update_progress)
             self.done_msg_box.exec()
         except Exception as e:
             self.err_msg_box.showMessage(str(e))
@@ -180,6 +149,38 @@ class MainWindow(QMainWindow):
 
         self.update_progress(0)
         self.set_convert_button_enabled(True)
+
+
+def transform_file(config: TransformConfig, input_file: str, output_file: str, iter_callback: Callable[[float], None]):
+    transformer = CSRSTransformer(**config.dict(exclude_none=True))
+
+    with laspy.open(input_file) as in_las, \
+            laspy.open(output_file, mode='w', header=in_las.header) as out_las:
+
+        out_las.header.offsets = None  # Adjusted later using first batch
+        if config.out == "geog":
+            out_las.header.scales = np.array([1e-6, 1e-6, 0.001])
+        else:
+            out_las.header.scales = np.array([0.01, 0.01, 0.01])
+
+        total_iters = math.ceil(in_las.header.point_count / CHUNK_SIZE)
+        for i, points in enumerate(in_las.chunk_iterator(CHUNK_SIZE)):
+            # Convert the coordinates
+            data = np.stack((points.x.scaled_array(), points.y.scaled_array(), points.z.scaled_array())).T
+            data = np.array(list(transformer.forward(data)))
+
+            # Update header offsets
+            if out_las.header.offsets is None:
+                out_las.header.offsets = np.min(data, axis=0)
+
+            # Create new point records
+            points.change_scaling(offsets=out_las.header.offsets)
+            points.x = data[:, 0]
+            points.y = data[:, 1]
+            points.z = data[:, 2]
+            out_las.write_points(points)
+
+            iter_callback(((i + 1) / float(total_iters)))
 
 
 if __name__ == "__main__":
