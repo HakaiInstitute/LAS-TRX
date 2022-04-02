@@ -6,13 +6,12 @@ from typing import Optional
 
 import laspy
 import numpy as np
-import pyproj.exceptions
-from PySide6.QtWidgets import QApplication, QFileDialog, QMainWindow, QMessageBox, QErrorMessage
+from PySide6.QtWidgets import QApplication, QErrorMessage, QFileDialog, QMainWindow, QMessageBox
 from csrspy import CSRSTransformer, enums
 
-from config import TransformConfig
-from ui_mainwindow import Ui_MainWindow
-from utils import GEOID_LOOKUP, REFERENCE_LOOKUP
+from las_trx.config import TransformConfig
+from las_trx.ui_mainwindow import Ui_MainWindow
+from las_trx.utils import GEOID_LOOKUP, REFERENCE_LOOKUP
 
 CHUNK_SIZE = 1_000
 
@@ -41,13 +40,15 @@ class MainWindow(QMainWindow):
         self.dialog_directory = os.path.expanduser("~")
 
     def handle_select_input_file(self):
-        path, _ = QFileDialog.getOpenFileName(self, "Select input LAS file", dir=self.dialog_directory, filter="LAS Files (*.las, *.laz)")
+        path, _ = QFileDialog.getOpenFileName(self, "Select input LAS file", dir=self.dialog_directory,
+                                              filter="LAS Files (*.las, *.laz)")
         if path:
             self.ui.lineEdit_input_file.setText(path)
             self.dialog_directory = os.path.dirname(path)
 
     def handle_select_output_file(self):
-        path, _ = QFileDialog.getSaveFileName(self, "Select output LAS file", dir=self.dialog_directory, filter="LAS Files (*.las, *.laz)")
+        path, _ = QFileDialog.getSaveFileName(self, "Select output LAS file", dir=self.dialog_directory,
+                                              filter="LAS Files (*.las, *.laz)")
         if path:
             self.ui.lineEdit_output_file.setText(path)
             self.dialog_directory = os.path.dirname(path)

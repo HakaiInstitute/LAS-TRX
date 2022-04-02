@@ -4,7 +4,7 @@ from typing import Literal, Union
 from csrspy import enums
 from pydantic import BaseModel, validator
 
-from utils import date_to_decimal_year
+from las_trx.utils import date_to_decimal_year
 
 VALID_OUTPUT_STRINGS = tuple(["geog", "cart"] + [f"utm{z}" for z in range(7, 23)])
 
