@@ -39,6 +39,12 @@ class MainWindow(QMainWindow):
 
         self.dialog_directory = os.path.expanduser("~")
 
+        self.sync_grid_files()
+
+    @staticmethod
+    def sync_grid_files():
+        os.system('pyproj sync --area-of-use=Canada')
+
     def handle_select_input_file(self):
         path, _ = QFileDialog.getOpenFileName(self, "Select input LAS file", dir=self.dialog_directory,
                                               filter="LAS Files (*.las, *.laz)")
