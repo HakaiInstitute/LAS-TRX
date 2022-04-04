@@ -163,11 +163,9 @@ def transform_file(config: TransformConfig, input_file: str, output_file: str, i
     with laspy.open(input_file) as in_las, \
             laspy.open(output_file, mode='w', header=in_las.header) as out_las:
 
+        # TODO: Automate setting these values in a way that matches PDALs writers.las
         out_las.header.offsets = None  # Adjusted later using first batch
-        if config.out == "geog":
-            out_las.header.scales = np.array([1e-6, 1e-6, 0.001])
-        else:
-            out_las.header.scales = np.array([0.01, 0.01, 0.01])
+        out_las.header.scales = np.array([1e-7, 1e-7, 1e-7])
 
         total_iters = math.ceil(in_las.header.point_count / CHUNK_SIZE)
         for i, points in enumerate(in_las.chunk_iterator(CHUNK_SIZE)):
