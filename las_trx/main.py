@@ -90,7 +90,7 @@ class MainWindow(QMainWindow):
     @property
     def t_epoch(self) -> Optional[date]:
         if self.ui.checkBox_epoch_trans.isChecked():
-            return self.ui.dateEdit_input_epoch.date().toPython()
+            return self.ui.dateEdit_output_epoch.date().toPython()
 
     @property
     def out_coordinates(self) -> str:
@@ -104,7 +104,7 @@ class MainWindow(QMainWindow):
 
     @property
     def t_vd(self) -> Optional[enums.Geoid]:
-        if self.ui.checkBox_vd_trans:
+        if self.ui.checkBox_vd_trans.isChecked():
             return GEOID_LOOKUP[self.ui.comboBox_output_geoid.currentText()]
 
     @property
