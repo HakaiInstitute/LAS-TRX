@@ -6,7 +6,6 @@ from typing import Optional
 
 import laspy
 import numpy as np
-import pyproj.sync
 from PySide6.QtCore import QThread, Signal
 from PySide6.QtWidgets import QApplication, QErrorMessage, QFileDialog, QMainWindow, QMessageBox
 from csrspy import CSRSTransformer, enums
@@ -14,6 +13,7 @@ from csrspy import CSRSTransformer, enums
 from las_trx.config import TransformConfig
 from las_trx.ui_mainwindow import Ui_MainWindow
 from las_trx.utils import GEOID_LOOKUP, REFERENCE_LOOKUP
+from utils import sync_missing_grid_files
 
 CHUNK_SIZE = 1_000
 
@@ -49,22 +49,7 @@ class MainWindow(QMainWindow):
         self.thread.finished.connect(lambda: self.ui.pushButton_convert.setEnabled(True))
         self.thread.finished.connect(lambda: self.ui.progressBar.setValue(0))
 
-        self.sync_missing_grid_files()
-
-    @staticmethod
-    def sync_missing_grid_files():
-        target_directory = pyproj.sync.get_data_dir().split(os.path.sep)[0]
-        endpoint = pyproj.sync.get_proj_endpoint()
-        grids = pyproj.sync.get_transform_grid_list(area_of_use="Canada")
-
-        for grid in grids:
-            filename = grid["properties"]["name"]
-            pyproj.sync._download_resource_file(
-                file_url=f"{endpoint}/{filename}",
-                short_name=filename,
-                directory=target_directory,
-                sha256=grid["properties"]["sha256sum"],
-            )
+        sync_missing_grid_files()
 
     def handle_select_input_file(self):
         path, _ = QFileDialog.getOpenFileName(self, "Select input LAS file", dir=self.dialog_directory,

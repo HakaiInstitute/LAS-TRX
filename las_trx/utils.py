@@ -1,6 +1,8 @@
+import os
 from datetime import date
 from typing import TypeVar, overload
 
+import pyproj.sync
 from csrspy import enums
 
 T = TypeVar('T')
@@ -40,3 +42,18 @@ REFERENCE_LOOKUP = {
     "ITRF89": enums.Ref.ITRF89,
     "ITRF88": enums.Ref.ITRF88
 }
+
+
+def sync_missing_grid_files():
+    target_directory = pyproj.sync.get_data_dir().split(os.path.sep)[0]
+    endpoint = pyproj.sync.get_proj_endpoint()
+    grids = pyproj.sync.get_transform_grid_list(area_of_use="Canada")
+
+    for grid in grids:
+        filename = grid["properties"]["name"]
+        pyproj.sync._download_resource_file(
+            file_url=f"{endpoint}/{filename}",
+            short_name=filename,
+            directory=target_directory,
+            sha256=grid["properties"]["sha256sum"],
+        )
