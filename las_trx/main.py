@@ -6,7 +6,8 @@ from typing import Optional
 
 import laspy
 import numpy as np
-from PySide6.QtCore import QThread, Signal
+from PySide6.QtCore import QSize, QThread, Signal
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication, QErrorMessage, QFileDialog, QMainWindow, QMessageBox
 from csrspy import CSRSTransformer, enums
 
@@ -17,11 +18,20 @@ from las_trx.utils import GEOID_LOOKUP, REFERENCE_LOOKUP, sync_missing_grid_file
 CHUNK_SIZE = 1_000
 
 
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path, relative_path)
+
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        icon = QIcon()
+        icon.addFile(resource_path(u"resources/las-trx.ico"), QSize(), QIcon.Normal, QIcon.Off)
+        self.setWindowIcon(icon)
 
         self.done_msg_box = QMessageBox(self)
         self.done_msg_box.setText("File was converted successfully")

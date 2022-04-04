@@ -26,10 +26,6 @@ class Ui_MainWindow(object):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(782, 624)
-        MainWindow.setCursor(QCursor(Qt.ArrowCursor))
-        icon = QIcon()
-        icon.addFile(u"lastrx.ico", QSize(), QIcon.Normal, QIcon.Off)
-        MainWindow.setWindowIcon(icon)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.verticalLayout = QVBoxLayout(self.centralwidget)
@@ -119,7 +115,7 @@ class Ui_MainWindow(object):
 
         self.dateEdit_input_epoch = QDateEdit(self.widget_input_options)
         self.dateEdit_input_epoch.setObjectName(u"dateEdit_input_epoch")
-        self.dateEdit_input_epoch.setTime(QTime(16, 0, 0))
+        self.dateEdit_input_epoch.setTime(QTime(8, 0, 0))
         self.dateEdit_input_epoch.setMaximumDateTime(QDateTime(QDate(9998, 1, 1), QTime(23, 59, 59)))
         self.dateEdit_input_epoch.setCalendarPopup(True)
         self.dateEdit_input_epoch.setTimeSpec(Qt.UTC)
@@ -267,7 +263,7 @@ class Ui_MainWindow(object):
         self.dateEdit_output_epoch = QDateEdit(self.widget_output_options)
         self.dateEdit_output_epoch.setObjectName(u"dateEdit_output_epoch")
         self.dateEdit_output_epoch.setEnabled(False)
-        self.dateEdit_output_epoch.setTime(QTime(16, 0, 0))
+        self.dateEdit_output_epoch.setTime(QTime(8, 0, 0))
         self.dateEdit_output_epoch.setCalendarPopup(True)
         self.dateEdit_output_epoch.setTimeSpec(Qt.UTC)
         self.dateEdit_output_epoch.setDate(QDate(2010, 1, 1))
