@@ -1,5 +1,6 @@
 import math
 import os.path
+import subprocess
 import sys
 from datetime import date
 from typing import Optional
@@ -52,7 +53,8 @@ class MainWindow(QMainWindow):
 
     @staticmethod
     def sync_grid_files():
-        os.system('pyproj sync --area-of-use=Canada')
+        p = subprocess.Popen(['pyproj', 'sync', '--area-of-use=Canada'])
+        p.wait()
 
     def handle_select_input_file(self):
         path, _ = QFileDialog.getOpenFileName(self, "Select input LAS file", dir=self.dialog_directory,
