@@ -10,8 +10,15 @@
     <height>624</height>
    </rect>
   </property>
+  <property name="cursor">
+   <cursorShape>ArrowCursor</cursorShape>
+  </property>
   <property name="windowTitle">
    <string>LAS TRX</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>lastrx.ico</normaloff>lastrx.ico</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -97,6 +104,9 @@
             <property name="text">
              <string>Input File</string>
             </property>
+            <property name="buddy">
+             <cstring>lineEdit_input_file</cstring>
+            </property>
            </widget>
           </item>
           <item>
@@ -126,20 +136,23 @@
             <property name="text">
              <string>Epoch (YYYY-MM-DD)</string>
             </property>
+            <property name="buddy">
+             <cstring>dateEdit_input_epoch</cstring>
+            </property>
            </widget>
           </item>
           <item row="1" column="1">
            <widget class="QDateEdit" name="dateEdit_input_epoch">
             <property name="time">
              <time>
-              <hour>8</hour>
+              <hour>16</hour>
               <minute>0</minute>
               <second>0</second>
              </time>
             </property>
             <property name="maximumDateTime">
              <datetime>
-              <hour>15</hour>
+              <hour>23</hour>
               <minute>59</minute>
               <second>59</second>
               <year>9998</year>
@@ -244,6 +257,9 @@
             <property name="text">
              <string>Reference Frame</string>
             </property>
+            <property name="buddy">
+             <cstring>comboBox_input_reference</cstring>
+            </property>
            </widget>
           </item>
           <item row="3" column="1">
@@ -251,12 +267,18 @@
             <property name="text">
              <string>UTM Zone</string>
             </property>
+            <property name="buddy">
+             <cstring>spinBox_input_utm_zone</cstring>
+            </property>
            </widget>
           </item>
           <item row="3" column="0">
            <widget class="QLabel" name="label_input_coordinates">
             <property name="text">
              <string>Coordinates</string>
+            </property>
+            <property name="buddy">
+             <cstring>comboBox_input_coordinates</cstring>
             </property>
            </widget>
           </item>
@@ -351,6 +373,9 @@
             <property name="text">
              <string>Output file</string>
             </property>
+            <property name="buddy">
+             <cstring>lineEdit_output_file</cstring>
+            </property>
            </widget>
           </item>
           <item>
@@ -388,73 +413,6 @@
               <string>NAD83(CSRS)</string>
              </property>
             </item>
-            <!--
-            <item>
-             <property name="text">
-              <string>ITRF2014</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>ITRF2008</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>ITRF2005</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>ITRF2000</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>ITRF97</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>ITRF96</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>ITRF94</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>ITRF93</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>ITRF92</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>ITRF91</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>ITRF90</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>ITRF89</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>ITRF88</string>
-             </property>
-            </item>
-            -->
            </widget>
           </item>
           <item row="6" column="0">
@@ -462,12 +420,18 @@
             <property name="text">
              <string>Vertical Datum</string>
             </property>
+            <property name="buddy">
+             <cstring>comboBox_vertical_datum</cstring>
+            </property>
            </widget>
           </item>
           <item row="0" column="0">
            <widget class="QLabel" name="label_output_reference">
             <property name="text">
              <string>Reference Frame</string>
+            </property>
+            <property name="buddy">
+             <cstring>comboBox_output_reference</cstring>
             </property>
            </widget>
           </item>
@@ -493,6 +457,9 @@
             <property name="text">
              <string>Epoch (YYYY-MM-DD)</string>
             </property>
+            <property name="buddy">
+             <cstring>dateEdit_output_epoch</cstring>
+            </property>
            </widget>
           </item>
           <item row="2" column="1">
@@ -502,7 +469,7 @@
             </property>
             <property name="time">
              <time>
-              <hour>8</hour>
+              <hour>16</hour>
               <minute>0</minute>
               <second>0</second>
              </time>
@@ -526,6 +493,9 @@
            <widget class="QLabel" name="label_output_coordinates">
             <property name="text">
              <string>Coordinates</string>
+            </property>
+            <property name="buddy">
+             <cstring>comboBox_output_coordinates</cstring>
             </property>
            </widget>
           </item>
@@ -553,6 +523,9 @@
             <property name="text">
              <string>UTM Zone</string>
             </property>
+            <property name="buddy">
+             <cstring>spinBox_output_utm_zone</cstring>
+            </property>
            </widget>
           </item>
           <item row="4" column="1">
@@ -578,6 +551,9 @@
            <widget class="QLabel" name="label_output_geoid">
             <property name="text">
              <string>Geoid</string>
+            </property>
+            <property name="buddy">
+             <cstring>comboBox_output_geoid</cstring>
             </property>
            </widget>
           </item>
@@ -639,6 +615,25 @@
    </layout>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>checkBox_epoch_trans</tabstop>
+  <tabstop>checkBox_vd_trans</tabstop>
+  <tabstop>lineEdit_input_file</tabstop>
+  <tabstop>toolButton_input_file</tabstop>
+  <tabstop>comboBox_input_reference</tabstop>
+  <tabstop>dateEdit_input_epoch</tabstop>
+  <tabstop>comboBox_input_coordinates</tabstop>
+  <tabstop>spinBox_input_utm_zone</tabstop>
+  <tabstop>lineEdit_output_file</tabstop>
+  <tabstop>toolButton_output_file</tabstop>
+  <tabstop>comboBox_output_reference</tabstop>
+  <tabstop>dateEdit_output_epoch</tabstop>
+  <tabstop>comboBox_output_coordinates</tabstop>
+  <tabstop>spinBox_output_utm_zone</tabstop>
+  <tabstop>comboBox_vertical_datum</tabstop>
+  <tabstop>comboBox_output_geoid</tabstop>
+  <tabstop>pushButton_convert</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

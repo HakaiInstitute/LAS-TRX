@@ -66,7 +66,7 @@ jobs:
           poetry run pip install --upgrade setuptools
       - name: Building GUI
         run: |
-          poetry run pyinstaller --name=LAS-TRX-${{ steps.tag.outputs.tag }} --onefile --windowed --icon=resources\lastrx.ico las_trx\main.py
+          poetry run pyinstaller --name=LAS-TRX-${{ steps.tag.outputs.tag }} --onefile --windowed --icon=resources\lastrx.ico --add-data='resources\lastrx.ico;lastrx.ico' las_trx\main.py
       - name: Zip release
         run: |
           cd dist
