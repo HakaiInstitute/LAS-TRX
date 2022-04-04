@@ -53,8 +53,7 @@ class MainWindow(QMainWindow):
 
     @staticmethod
     def sync_grid_files():
-        p = subprocess.Popen(['pyproj', 'sync', '--area-of-use=Canada'])
-        p.wait()
+        subprocess.check_output('pyproj sync --area-of-use=Canada', shell=True)
 
     def handle_select_input_file(self):
         path, _ = QFileDialog.getOpenFileName(self, "Select input LAS file", dir=self.dialog_directory,
