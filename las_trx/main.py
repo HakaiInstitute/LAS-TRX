@@ -40,11 +40,13 @@ class MainWindow(QMainWindow):
 
         self.dialog_directory = os.path.expanduser("~")
 
-        self.thread = TransformWorker(self)
+        self.thread = TransformWorker()
         self.thread.progress.connect(self.ui.progressBar.setValue)
         self.thread.success.connect(self.on_process_success)
         self.thread.error.connect(self.on_process_error)
-        self.thread.running.connect(self.on_process_running)
+        self.thread.started.connect(lambda: self.ui.pushButton_convert.setEnabled(False))
+        self.thread.finished.connect(lambda: self.ui.pushButton_convert.setEnabled(True))
+        self.thread.finished.connect(lambda: self.ui.progressBar.setValue(0))
 
         self.sync_grid_files()
 
@@ -153,11 +155,6 @@ class MainWindow(QMainWindow):
         if self.do_compress_output:
             return laspy.LazBackend.Laszip
 
-    def on_process_running(self, running: bool):
-        self.ui.pushButton_convert.setEnabled(not running)
-        if not running:
-            self.ui.progressBar.setValue(0)
-
     def on_process_success(self):
         self.done_msg_box.exec()
 
@@ -171,10 +168,11 @@ class MainWindow(QMainWindow):
 
 
 class TransformWorker(QThread):
-    running = Signal(bool)
+    started = Signal()
+    finished = Signal()
     progress = Signal(int)
-    error = Signal(BaseException)
     success = Signal()
+    error = Signal(BaseException)
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
@@ -219,7 +217,7 @@ class TransformWorker(QThread):
                 self.progress.emit(int(100 * (i + 1) / float(total_iters)))
 
     def run(self):
-        self.running.emit(True)
+        self.started.emit()
 
         try:
             self._do_transform()
@@ -227,7 +225,7 @@ class TransformWorker(QThread):
         except Exception as e:
             self.error.emit(e)
 
-        self.running.emit(False)
+        self.finished.emit()
 
 
 if __name__ == "__main__":
