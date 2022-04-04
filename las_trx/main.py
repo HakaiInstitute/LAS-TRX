@@ -47,14 +47,14 @@ class MainWindow(QMainWindow):
 
     def handle_select_input_file(self):
         path, _ = QFileDialog.getOpenFileName(self, "Select input LAS file", dir=self.dialog_directory,
-                                              filter="LAS Files (*.las, *.laz)")
+                                              filter="LAS Files (*.las *.laz)")
         if path:
             self.ui.lineEdit_input_file.setText(path)
             self.dialog_directory = os.path.dirname(path)
 
     def handle_select_output_file(self):
         path, _ = QFileDialog.getSaveFileName(self, "Select output LAS file", dir=self.dialog_directory,
-                                              filter="LAS Files (*.las, *.laz)")
+                                              filter="LAS Files (*.las *.laz)")
         if path:
             self.ui.lineEdit_output_file.setText(path)
             self.dialog_directory = os.path.dirname(path)
