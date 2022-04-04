@@ -49,7 +49,7 @@ class MainWindow(QMainWindow):
         self.thread.finished.connect(lambda: self.ui.pushButton_convert.setEnabled(True))
         self.thread.finished.connect(lambda: self.ui.progressBar.setValue(0))
 
-        self.sync_grid_files()
+        # self.sync_grid_files()
 
     @staticmethod
     def sync_grid_files():
