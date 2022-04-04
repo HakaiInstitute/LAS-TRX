@@ -1,0 +1,137 @@
+name: Build GUI
+
+on:
+  push:
+    branches-ignore:
+      - '**'
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+rc[0-9]+'
+jobs:
+
+  Linux:
+    name: Build Linux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Get tag
+        id: tag
+        run: |
+          echo ::set-output name=tag::${GITHUB_REF#refs/tags/}
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Setup Poetry
+        uses: abatilo/actions-poetry@v2.0.0
+        with:
+          poetry-version: 1.1.13
+      - name: Install dependencies
+        run: |
+          poetry update
+          poetry run pip install --upgrade setuptools
+      - name: Building GUI
+        run: |
+          poetry run pyinstaller --name=LAS-TRX-${{ steps.tag.outputs.tag }} --onefile las_trx/main.py
+      - name: Gzip release
+        run: |
+          tar -czvf dist/LAS-TRX-${{ steps.tag.outputs.tag }}-linux.tar.gz -C dist LAS-TRX-${{ steps.tag.outputs.tag }}
+      - name: Upload Gzip artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: LAS-TRX-${{ steps.tag.outputs.tag }}-linux.tar.gz
+          path: dist/LAS-TRX-${{ steps.tag.outputs.tag }}-linux.tar.gz
+
+  Windows:
+    name: Build Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Get tag
+        id: tag
+        shell: bash
+        run: |
+          echo ::set-output name=tag::${GITHUB_REF#refs/tags/}
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Setup Poetry
+        uses: abatilo/actions-poetry@v2.0.0
+        with:
+          poetry-version: 1.1.13
+      - name: Install dependencies
+        run: |
+          poetry update
+          poetry run pip install --upgrade setuptools
+      - name: Building GUI
+        run: |
+          poetry run pyinstaller --name=LAS-TRX-${{ steps.tag.outputs.tag }} --onefile --windowed --icon="resources\lastrx.ico" las_trx/main.py
+      - name: Zip release
+        run: |
+          cd dist
+          7z a LAS-TRX-${{ steps.tag.outputs.tag }}-win64.zip LAS-TRX-${{ steps.tag.outputs.tag }}.exe.exe
+          cd -
+      - name: Upload Zip artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: LAS-TRX-${{ steps.tag.outputs.tag }}-win64.zip
+          path: dist/LAS-TRX-${{ steps.tag.outputs.tag }}-win64.zip
+
+  Release:
+    needs: [Linux, Windows]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Get tag
+        id: tag
+        run: |
+          echo ::set-output name=tag::${GITHUB_REF#refs/tags/}
+      - name: Detect prerelease
+        id: prerelease
+        run: |
+          if echo ${{ steps.tag.outputs.tag }} | grep -qe '?*.*.*rc*'; then
+              echo ::set-output name=prerelease::true
+          else
+              echo ::set-output name=prerelease::false
+          fi
+      - name: Download Linux gzip release file
+        uses: actions/download-artifact@master
+        with:
+          name: LAS-TRX-${{ steps.tag.outputs.tag }}-linux.tar.gz
+          path: dist/LAS-TRX-${{ steps.tag.outputs.tag }}-linux.tar.gz
+      - name: Download Windows zip release file
+        uses: actions/download-artifact@master
+        with:
+          name: LAS-TRX-${{ steps.tag.outputs.tag }}-win64.zip
+          path: dist/LAS-TRX-${{ steps.tag.outputs.tag }}-win64.zip
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          release_name: ${{ steps.tag.outputs.tag }}
+          draft: false
+          prerelease: ${{ steps.prerelease.outputs.prerelease }}
+      - name: Upload Linux gzip release file asset
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: dist/LAS-TRX-${{ steps.tag.outputs.tag }}-linux.tar.gz/LAS-TRX-${{ steps.tag.outputs.tag }}-linux.tar.gz
+          asset_name: LAS-TRX-${{ steps.tag.outputs.tag }}-linux.tar.gz
+          asset_content_type: application/gzip
+      - name: Upload Windows zip release file asset
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: dist/LAS-TRX-${{ steps.tag.outputs.tag }}-win64.zip/LAS-TRX-${{ steps.tag.outputs.tag }}-win64.zip
+          asset_name: LAS-TRX-${{ steps.tag.outputs.tag }}-win64.zip
+          asset_content_type: application/zip
