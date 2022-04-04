@@ -66,11 +66,11 @@ jobs:
           poetry run pip install --upgrade setuptools
       - name: Building GUI
         run: |
-          poetry run pyinstaller --name=LAS-TRX-${{ steps.tag.outputs.tag }} --onefile --windowed --icon="resources\lastrx.ico" las_trx/main.py
+          poetry run pyinstaller --name=LAS-TRX-${{ steps.tag.outputs.tag }} --onefile --windowed --icon=resources\lastrx.ico las_trx\main.py
       - name: Zip release
         run: |
           cd dist
-          7z a LAS-TRX-${{ steps.tag.outputs.tag }}-win64.zip LAS-TRX-${{ steps.tag.outputs.tag }}.exe.exe
+          7z a LAS-TRX-${{ steps.tag.outputs.tag }}-win64.zip LAS-TRX-${{ steps.tag.outputs.tag }}.exe
           cd -
       - name: Upload Zip artifact
         uses: actions/upload-artifact@v1
