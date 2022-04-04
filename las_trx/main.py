@@ -137,6 +137,15 @@ class MainWindow(QMainWindow):
     def output_file(self) -> str:
         return self.ui.lineEdit_output_file.text()
 
+    @property
+    def do_compress_output(self) -> bool:
+        return self.input_file[-4:] == ".laz"
+
+    @property
+    def laz_backend(self) -> Optional[laspy.LazBackend]:
+        if self.do_compress_output:
+            return laspy.LazBackend.Laszip
+
     def update_progress(self, value: float):
         self.ui.progressBar.setValue(int(value * 100))
 
@@ -147,7 +156,7 @@ class MainWindow(QMainWindow):
         self.set_convert_button_enabled(False)
 
         try:
-            transform_file(self.transform_config, self.input_file, self.output_file, self.update_progress)
+            transform_file(self.transform_config, self.input_file, self.output_file, self.laz_backend, self.update_progress)
             self.done_msg_box.exec()
         except Exception as e:
             self.err_msg_box.showMessage(str(e))
@@ -157,11 +166,12 @@ class MainWindow(QMainWindow):
         self.set_convert_button_enabled(True)
 
 
-def transform_file(config: TransformConfig, input_file: str, output_file: str, iter_callback: Callable[[float], None]):
+def transform_file(config: TransformConfig, input_file: str, output_file: str, compression=None,
+                   iter_callback: Callable[[float], None] = lambda x: None):
     transformer = CSRSTransformer(**config.dict(exclude_none=True))
 
     with laspy.open(input_file) as in_las, \
-            laspy.open(output_file, mode='w', header=in_las.header) as out_las:
+            laspy.open(output_file, mode='w', header=in_las.header, laz_backend=compression) as out_las:
 
         # TODO: Automate setting these values in a way that matches PDALs writers.las
         out_las.header.offsets = None  # Adjusted later using first batch
