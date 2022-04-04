@@ -9,8 +9,6 @@ python = "^3.9,<3.11"
 csrspy = "^0.1.0"
 laspy = "^2.1.2"
 laszip = "^0.1.0"
-lazrs = "^0.4.1"
-tqdm = "^4.63.1"
 pydantic = "^1.9.0"
 PySide6 = "^6.2.4"
 
