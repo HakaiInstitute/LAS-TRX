@@ -12,8 +12,7 @@ from csrspy import CSRSTransformer, enums
 
 from las_trx.config import TransformConfig
 from las_trx.ui_mainwindow import Ui_MainWindow
-from las_trx.utils import GEOID_LOOKUP, REFERENCE_LOOKUP
-from utils import sync_missing_grid_files
+from las_trx.utils import GEOID_LOOKUP, REFERENCE_LOOKUP, sync_missing_grid_files
 
 CHUNK_SIZE = 1_000
 
