@@ -1,12 +1,12 @@
 import math
 import os.path
-import subprocess
 import sys
 from datetime import date
 from typing import Optional
 
 import laspy
 import numpy as np
+import pyproj.sync
 from PySide6.QtCore import QThread, Signal
 from PySide6.QtWidgets import QApplication, QErrorMessage, QFileDialog, QMainWindow, QMessageBox
 from csrspy import CSRSTransformer, enums
@@ -49,11 +49,22 @@ class MainWindow(QMainWindow):
         self.thread.finished.connect(lambda: self.ui.pushButton_convert.setEnabled(True))
         self.thread.finished.connect(lambda: self.ui.progressBar.setValue(0))
 
-        # self.sync_grid_files()
+        self.sync_missing_grid_files()
 
     @staticmethod
-    def sync_grid_files():
-        subprocess.check_output('pyproj sync --area-of-use=Canada', shell=True)
+    def sync_missing_grid_files():
+        target_directory = pyproj.sync.get_data_dir().split(os.path.sep)[0]
+        endpoint = pyproj.sync.get_proj_endpoint()
+        grids = pyproj.sync.get_transform_grid_list(area_of_use="Canada")
+
+        for grid in grids:
+            filename = grid["properties"]["name"]
+            pyproj.sync._download_resource_file(
+                file_url=f"{endpoint}/{filename}",
+                short_name=filename,
+                directory=target_directory,
+                sha256=grid["properties"]["sha256sum"],
+            )
 
     def handle_select_input_file(self):
         path, _ = QFileDialog.getOpenFileName(self, "Select input LAS file", dir=self.dialog_directory,
