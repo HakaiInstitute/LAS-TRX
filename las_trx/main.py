@@ -111,12 +111,12 @@ class MainWindow(QMainWindow):
     def s_crs(self) -> str:
         coords = self.ui.comboBox_input_coordinates.currentText()
         if coords == "Cartesian":
-            return "+proj=cart +ellps=GRS80"
+            return "+proj=cart +datum=WGS84 +no_defs"
         elif coords == "Geographic":
-            return "+proj=latlon +datum=WGS84"
+            return "+proj=longlat +datum=WGS84 +no_defs"
         else:
             zone = self.ui.spinBox_input_utm_zone.value()
-            return f"+proj=utm +zone={zone} +ellps=GRS80"
+            return f"+proj=utm +zone={zone} +datum=WGS84 +units=m +no_defs"
 
     @property
     def transform_config(self) -> TransformConfig:
