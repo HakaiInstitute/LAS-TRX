@@ -45,7 +45,7 @@ REFERENCE_LOOKUP = {
 
 
 def sync_missing_grid_files():
-    target_directory = pyproj.sync.get_data_dir().split(os.path.sep)[0]
+    target_directory = pyproj.sync.get_user_data_dir(True)
     endpoint = pyproj.sync.get_proj_endpoint()
     grids = pyproj.sync.get_transform_grid_list(area_of_use="Canada")
 
