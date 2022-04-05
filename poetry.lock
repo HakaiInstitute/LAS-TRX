@@ -16,7 +16,7 @@ python-versions = "*"
 
 [[package]]
 name = "csrspy"
-version = "0.1.0"
+version = "0.2.1"
 description = ""
 category = "main"
 optional = false
@@ -178,7 +178,7 @@ python-versions = ">=3.6"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9,<3.11"
-content-hash = "1e7a804c8c38600d4730b52382777113786b44559c61009e591736feb4e49c1d"
+content-hash = "184b07cedd8c3e5db103b225560aadc792b0e36d3464a97b0055022a56fc0623"
 
 [metadata.files]
 altgraph = [
@@ -190,8 +190,8 @@ certifi = [
     {file = "certifi-2021.10.8.tar.gz", hash = "sha256:78884e7c1d4b00ce3cea67b44566851c4343c120abd683433ce934a68ea58872"},
 ]
 csrspy = [
-    {file = "csrspy-0.1.0-py3-none-any.whl", hash = "sha256:ec701142a3f3ae3727a2c3d8a0e7b3217004d92a5b7c90ba8588e17d8288431a"},
-    {file = "csrspy-0.1.0.tar.gz", hash = "sha256:df9abb0265512a665619ed775227bcdc88bf9be156d50e21e975e5cc35637d71"},
+    {file = "csrspy-0.2.1-py3-none-any.whl", hash = "sha256:3f43fe39e4289d14e94b2c66ea507db41bf383ce9b68f2d2c0ad50be076c7281"},
+    {file = "csrspy-0.2.1.tar.gz", hash = "sha256:965cc57ee4a8bfae68cee413127ddf99723f45fd9b5325a0fc4315b7a8272e81"},
 ]
 future = [
     {file = "future-0.18.2.tar.gz", hash = "sha256:b1bead90b70cf6ec3f0710ae53a525360fa360d306a86583adc6bf83a4db537d"},

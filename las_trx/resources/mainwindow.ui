@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>782</width>
-    <height>624</height>
+    <width>750</width>
+    <height>678</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,38 +15,6 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
-    <item>
-     <widget class="QWidget" name="widget_options" native="true">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_3">
-       <property name="leftMargin">
-        <number>0</number>
-       </property>
-       <property name="rightMargin">
-        <number>0</number>
-       </property>
-       <item>
-        <widget class="QCheckBox" name="checkBox_epoch_trans">
-         <property name="text">
-          <string>Epoch Transformation</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="checkBox_vd_trans">
-         <property name="text">
-          <string>Vertical Datum Transformation</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
     <item>
      <widget class="QFrame" name="frame_input">
       <property name="frameShape">
@@ -124,48 +92,39 @@
           <property name="rightMargin">
            <number>0</number>
           </property>
-          <item row="0" column="1">
-           <widget class="QLabel" name="label_input_epoch">
-            <property name="text">
-             <string>Epoch (YYYY-MM-DD)</string>
+          <item row="5" column="1">
+           <widget class="QSpinBox" name="spinBox_input_utm_zone">
+            <property name="enabled">
+             <bool>false</bool>
             </property>
-            <property name="buddy">
-             <cstring>dateEdit_input_epoch</cstring>
+            <property name="minimum">
+             <number>7</number>
+            </property>
+            <property name="maximum">
+             <number>22</number>
+            </property>
+            <property name="value">
+             <number>10</number>
             </property>
            </widget>
           </item>
-          <item row="1" column="1">
-           <widget class="QDateEdit" name="dateEdit_input_epoch">
-            <property name="time">
-             <time>
-              <hour>8</hour>
-              <minute>0</minute>
-              <second>0</second>
-             </time>
-            </property>
-            <property name="maximumDateTime">
-             <datetime>
-              <hour>23</hour>
-              <minute>59</minute>
-              <second>59</second>
-              <year>9998</year>
-              <month>1</month>
-              <day>1</day>
-             </datetime>
-            </property>
-            <property name="calendarPopup">
-             <bool>true</bool>
-            </property>
-            <property name="timeSpec">
-             <enum>Qt::UTC</enum>
-            </property>
-            <property name="date">
-             <date>
-              <year>2010</year>
-              <month>1</month>
-              <day>1</day>
-             </date>
-            </property>
+          <item row="5" column="0">
+           <widget class="QComboBox" name="comboBox_input_coordinates">
+            <item>
+             <property name="text">
+              <string>Geographic</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Cartesian</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>UTM</string>
+             </property>
+            </item>
            </widget>
           </item>
           <item row="1" column="0">
@@ -245,6 +204,40 @@
             </item>
            </widget>
           </item>
+          <item row="1" column="1">
+           <widget class="QDateEdit" name="dateEdit_input_epoch">
+            <property name="time">
+             <time>
+              <hour>16</hour>
+              <minute>0</minute>
+              <second>0</second>
+             </time>
+            </property>
+            <property name="maximumDateTime">
+             <datetime>
+              <hour>7</hour>
+              <minute>59</minute>
+              <second>59</second>
+              <year>9998</year>
+              <month>1</month>
+              <day>3</day>
+             </datetime>
+            </property>
+            <property name="calendarPopup">
+             <bool>true</bool>
+            </property>
+            <property name="timeSpec">
+             <enum>Qt::UTC</enum>
+            </property>
+            <property name="date">
+             <date>
+              <year>2010</year>
+              <month>1</month>
+              <day>1</day>
+             </date>
+            </property>
+           </widget>
+          </item>
           <item row="0" column="0">
            <widget class="QLabel" name="label_input_reference">
             <property name="text">
@@ -275,39 +268,33 @@
             </property>
            </widget>
           </item>
-          <item row="5" column="0">
-           <widget class="QComboBox" name="comboBox_input_coordinates">
-            <item>
-             <property name="text">
-              <string>Geographic</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Cartesian</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>UTM</string>
-             </property>
-            </item>
+          <item row="0" column="1">
+           <widget class="QLabel" name="label_input_epoch">
+            <property name="text">
+             <string>Epoch (YYYY-MM-DD)</string>
+            </property>
+            <property name="buddy">
+             <cstring>dateEdit_input_epoch</cstring>
+            </property>
            </widget>
           </item>
-          <item row="5" column="1">
-           <widget class="QSpinBox" name="spinBox_input_utm_zone">
-            <property name="enabled">
-             <bool>false</bool>
+          <item row="6" column="0">
+           <widget class="QLabel" name="label_input_vertical_reference">
+            <property name="text">
+             <string>Vertical Reference</string>
             </property>
-            <property name="minimum">
-             <number>7</number>
+            <property name="buddy">
+             <cstring>comboBox_input_vertical_reference</cstring>
             </property>
-            <property name="maximum">
-             <number>22</number>
-            </property>
-            <property name="value">
-             <number>10</number>
-            </property>
+           </widget>
+          </item>
+          <item row="7" column="0">
+           <widget class="QComboBox" name="comboBox_input_vertical_reference">
+            <item>
+             <property name="text">
+              <string>WGS84</string>
+             </property>
+            </item>
            </widget>
           </item>
          </layout>
@@ -396,7 +383,17 @@
           <property name="verticalSpacing">
            <number>6</number>
           </property>
-          <item row="2" column="0">
+          <item row="7" column="0">
+           <widget class="QLabel" name="label_output_vertical_reference">
+            <property name="text">
+             <string>Vertical Reference</string>
+            </property>
+            <property name="buddy">
+             <cstring>comboBox_output_vertical_reference</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
            <widget class="QComboBox" name="comboBox_output_reference">
             <property name="enabled">
              <bool>true</bool>
@@ -406,19 +403,84 @@
               <string>NAD83(CSRS)</string>
              </property>
             </item>
+            <item>
+             <property name="text">
+              <string>ITRF2014</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ITRF2008</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ITRF2005</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ITRF2000</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ITRF97</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ITRF96</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ITRF94</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ITRF93</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ITRF92</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ITRF91</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ITRF90</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ITRF89</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ITRF88</string>
+             </property>
+            </item>
            </widget>
           </item>
-          <item row="6" column="0">
-           <widget class="QLabel" name="label_output_vertical_datum">
+          <item row="4" column="0">
+           <widget class="QLabel" name="label_output_coordinates">
             <property name="text">
-             <string>Vertical Datum</string>
+             <string>Coordinates</string>
             </property>
             <property name="buddy">
-             <cstring>comboBox_vertical_datum</cstring>
+             <cstring>comboBox_output_coordinates</cstring>
             </property>
            </widget>
           </item>
-          <item row="0" column="0">
+          <item row="1" column="0">
            <widget class="QLabel" name="label_output_reference">
             <property name="text">
              <string>Reference Frame</string>
@@ -428,24 +490,7 @@
             </property>
            </widget>
           </item>
-          <item row="7" column="0">
-           <widget class="QComboBox" name="comboBox_vertical_datum">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <item>
-             <property name="text">
-              <string>CGVD2013</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>CGVD28</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item row="0" column="1">
+          <item row="1" column="1">
            <widget class="QLabel" name="label_output_epoch">
             <property name="text">
              <string>Epoch (YYYY-MM-DD)</string>
@@ -455,14 +500,33 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="1">
+          <item row="5" column="1">
+           <widget class="QSpinBox" name="spinBox_output_utm_zone">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="minimum">
+             <number>7</number>
+            </property>
+            <property name="maximum">
+             <number>22</number>
+            </property>
+            <property name="value">
+             <number>10</number>
+            </property>
+            <property name="displayIntegerBase">
+             <number>10</number>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
            <widget class="QDateEdit" name="dateEdit_output_epoch">
             <property name="enabled">
              <bool>false</bool>
             </property>
             <property name="time">
              <time>
-              <hour>8</hour>
+              <hour>16</hour>
               <minute>0</minute>
               <second>0</second>
              </time>
@@ -482,17 +546,7 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="label_output_coordinates">
-            <property name="text">
-             <string>Coordinates</string>
-            </property>
-            <property name="buddy">
-             <cstring>comboBox_output_coordinates</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
+          <item row="5" column="0">
            <widget class="QComboBox" name="comboBox_output_coordinates">
             <item>
              <property name="text">
@@ -511,7 +565,7 @@
             </item>
            </widget>
           </item>
-          <item row="3" column="1">
+          <item row="4" column="1">
            <widget class="QLabel" name="label_output_utm_zone">
             <property name="text">
              <string>UTM Zone</string>
@@ -521,50 +575,41 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="1">
-           <widget class="QSpinBox" name="spinBox_output_utm_zone">
+          <item row="8" column="0">
+           <widget class="QComboBox" name="comboBox_output_vertical_reference">
             <property name="enabled">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
-            <property name="minimum">
-             <number>7</number>
-            </property>
-            <property name="maximum">
-             <number>22</number>
-            </property>
-            <property name="value">
-             <number>10</number>
-            </property>
-            <property name="displayIntegerBase">
-             <number>10</number>
-            </property>
+            <item>
+             <property name="text">
+              <string>GRS80</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>CGVD2013/CGG2013a</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>CGVD2013/CGG2013</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>CGVD28/HT2_2010v70</string>
+             </property>
+            </item>
            </widget>
           </item>
-          <item row="6" column="1">
-           <widget class="QLabel" name="label_output_geoid">
+          <item row="0" column="1">
+           <widget class="QCheckBox" name="checkBox_epoch_trans">
+            <property name="layoutDirection">
+             <enum>Qt::LeftToRight</enum>
+            </property>
             <property name="text">
-             <string>Geoid</string>
+             <string>Epoch Transformation</string>
             </property>
-            <property name="buddy">
-             <cstring>comboBox_output_geoid</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="1">
-           <widget class="QComboBox" name="comboBox_output_geoid">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <item>
-             <property name="text">
-              <string>CGG2013a</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>CGG2013</string>
-             </property>
-            </item>
            </widget>
           </item>
          </layout>
@@ -609,22 +654,20 @@
   </widget>
  </widget>
  <tabstops>
-  <tabstop>checkBox_epoch_trans</tabstop>
-  <tabstop>checkBox_vd_trans</tabstop>
   <tabstop>lineEdit_input_file</tabstop>
   <tabstop>toolButton_input_file</tabstop>
   <tabstop>comboBox_input_reference</tabstop>
   <tabstop>dateEdit_input_epoch</tabstop>
   <tabstop>comboBox_input_coordinates</tabstop>
   <tabstop>spinBox_input_utm_zone</tabstop>
+  <tabstop>comboBox_input_vertical_reference</tabstop>
   <tabstop>lineEdit_output_file</tabstop>
   <tabstop>toolButton_output_file</tabstop>
   <tabstop>comboBox_output_reference</tabstop>
   <tabstop>dateEdit_output_epoch</tabstop>
   <tabstop>comboBox_output_coordinates</tabstop>
   <tabstop>spinBox_output_utm_zone</tabstop>
-  <tabstop>comboBox_vertical_datum</tabstop>
-  <tabstop>comboBox_output_geoid</tabstop>
+  <tabstop>comboBox_output_vertical_reference</tabstop>
   <tabstop>pushButton_convert</tabstop>
  </tabstops>
  <resources/>

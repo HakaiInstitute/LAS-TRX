@@ -1,12 +1,12 @@
 [tool.poetry]
 name = "las-trx"
-version = "0.1.0"
+version = "0.2.0"
 description = ""
 authors = ["Taylor Denouden <taylordenouden@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.9,<3.11"
-csrspy = "^0.1.0"
+csrspy = "^0.2.1"
 laspy = "^2.1.2"
 laszip = "^0.1.0"
 pydantic = "^1.9.0"

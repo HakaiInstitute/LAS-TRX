@@ -9,11 +9,12 @@ import numpy as np
 from PySide6.QtCore import QSize, QThread, Signal
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication, QErrorMessage, QFileDialog, QMainWindow, QMessageBox
-from csrspy import CSRSTransformer, enums
+from csrspy import CSRSTransformer
+from csrspy.enums import CoordType, Reference, VerticalDatum
 
 from las_trx.config import TransformConfig
 from las_trx.ui_mainwindow import Ui_MainWindow
-from las_trx.utils import GEOID_LOOKUP, REFERENCE_LOOKUP, sync_missing_grid_files
+from las_trx.utils import REFERENCE_LOOKUP, VD_LOOKUP, sync_missing_grid_files, utm_zone_to_coord_type
 
 CHUNK_SIZE = 1_000
 
@@ -42,11 +43,12 @@ class MainWindow(QMainWindow):
         self.ui.toolButton_input_file.clicked.connect(self.handle_select_input_file)
         self.ui.toolButton_output_file.clicked.connect(self.handle_select_output_file)
         self.ui.checkBox_epoch_trans.clicked.connect(self.enable_epoch_trans)
-        self.ui.checkBox_vd_trans.clicked.connect(self.enable_vd_trans)
         self.ui.pushButton_convert.clicked.connect(self.convert)
+        self.ui.comboBox_input_reference.currentTextChanged.connect(self.update_input_vd_options)
+        self.ui.comboBox_output_reference.currentTextChanged.connect(self.update_output_vd_options)
+
         self.ui.comboBox_output_coordinates.currentTextChanged.connect(self.activate_output_utm_zone_picker)
         self.ui.comboBox_input_coordinates.currentTextChanged.connect(self.activate_input_utm_zone_picker)
-        self.ui.comboBox_vertical_datum.currentTextChanged.connect(self.update_geoid_options)
 
         self.dialog_directory = os.path.expanduser("~")
 
@@ -77,71 +79,86 @@ class MainWindow(QMainWindow):
     def enable_epoch_trans(self, checked):
         self.ui.dateEdit_output_epoch.setEnabled(checked)
 
-    def enable_vd_trans(self, checked):
-        self.ui.comboBox_vertical_datum.setEnabled(checked)
-        self.ui.comboBox_output_geoid.setEnabled(checked)
-
     def activate_input_utm_zone_picker(self, text):
         self.ui.spinBox_input_utm_zone.setEnabled(text == "UTM")
 
     def activate_output_utm_zone_picker(self, text):
         self.ui.spinBox_output_utm_zone.setEnabled(text == "UTM")
 
-    def update_geoid_options(self, text):
-        self.ui.comboBox_output_geoid.clear()
-        if text == 'CGVD28':
-            self.ui.comboBox_output_geoid.addItems(["HT2_2010v70"])
+    def update_input_vd_options(self, text):
+        self.ui.comboBox_input_vertical_reference.clear()
+        if text == 'NAD83(CSRS)':
+            self.ui.comboBox_input_vertical_reference.addItems([
+                "GRS80", "CGVD2013/CGG2013a", "CGVD2013/CGG2013", "CGVD28/HT2_2010v70"])
         else:
-            self.ui.comboBox_output_geoid.addItems(["CGG2013a", "CGG2013"])
+            self.ui.comboBox_input_vertical_reference.addItems(["WGS84"])
+
+    def update_output_vd_options(self, text):
+        self.ui.comboBox_output_vertical_reference.clear()
+        if text == 'NAD83(CSRS)':
+            self.ui.comboBox_output_vertical_reference.addItems([
+                "GRS80", "CGVD2013/CGG2013a", "CGVD2013/CGG2013", "CGVD28/HT2_2010v70"])
+        else:
+            self.ui.comboBox_output_vertical_reference.addItems(["WGS84"])
 
     @property
-    def s_ref_frame(self) -> enums.Ref:
+    def s_ref_frame(self) -> Reference:
         return REFERENCE_LOOKUP[self.ui.comboBox_input_reference.currentText()]
+
+    @property
+    def t_ref_frame(self) -> Reference:
+        return REFERENCE_LOOKUP[self.ui.comboBox_output_reference.currentText()]
 
     @property
     def s_epoch(self) -> date:
         return self.ui.dateEdit_input_epoch.date().toPython()
 
     @property
-    def t_epoch(self) -> Optional[date]:
+    def t_epoch(self) -> date:
         if self.ui.checkBox_epoch_trans.isChecked():
             return self.ui.dateEdit_output_epoch.date().toPython()
+        else:
+            return self.s_epoch
 
     @property
-    def out_coordinates(self) -> str:
+    def s_coords(self) -> CoordType:
+        out_type = self.ui.comboBox_input_coordinates.currentText()
+        if out_type == "UTM":
+            return utm_zone_to_coord_type(self.ui.spinBox_output_utm_zone.value())
+        elif out_type == "Cartesian":
+            return CoordType.CART
+        else:
+            return CoordType.GEOG
+
+    @property
+    def t_coords(self) -> CoordType:
         out_type = self.ui.comboBox_output_coordinates.currentText()
         if out_type == "UTM":
-            return f"utm{self.ui.spinBox_output_utm_zone.value()}"
+            return utm_zone_to_coord_type(self.ui.spinBox_output_utm_zone.value())
         elif out_type == "Cartesian":
-            return "cart"
+            return CoordType.CART
         else:
-            return "geog"
+            return CoordType.GEOG
 
     @property
-    def t_vd(self) -> Optional[enums.Geoid]:
-        if self.ui.checkBox_vd_trans.isChecked():
-            return GEOID_LOOKUP[self.ui.comboBox_output_geoid.currentText()]
+    def s_vd(self) -> VerticalDatum:
+        return VD_LOOKUP[self.ui.comboBox_input_vertical_reference.currentText()]
 
     @property
-    def s_crs(self) -> str:
-        coords = self.ui.comboBox_input_coordinates.currentText()
-        if coords == "Cartesian":
-            return "+proj=cart +datum=WGS84 +no_defs"
-        elif coords == "Geographic":
-            return "+proj=longlat +datum=WGS84 +no_defs"
-        else:
-            zone = self.ui.spinBox_input_utm_zone.value()
-            return f"+proj=utm +zone={zone} +datum=WGS84 +units=m +no_defs"
+    def t_vd(self) -> VerticalDatum:
+        return VD_LOOKUP[self.ui.comboBox_output_vertical_reference.currentText()]
 
     @property
     def transform_config(self) -> TransformConfig:
         return TransformConfig(
             s_ref_frame=self.s_ref_frame,
-            s_crs=self.s_crs,
+            t_ref_frame=self.t_ref_frame,
             s_epoch=self.s_epoch,
             t_epoch=self.t_epoch,
+            s_vd=self.s_vd,
             t_vd=self.t_vd,
-            out=self.out_coordinates
+            s_coords=self.s_coords,
+            t_coords=self.t_coords
         )
 
     @property
@@ -207,7 +224,7 @@ class TransformWorker(QThread):
             for i, points in enumerate(in_las.chunk_iterator(CHUNK_SIZE)):
                 # Convert the coordinates
                 data = np.stack((points.x.scaled_array(), points.y.scaled_array(), points.z.scaled_array())).T
-                data = np.array(list(transformer.forward(data)))
+                data = np.array(list(transformer(data)))
 
                 # Update header offsets
                 if out_las.header.offsets is None:
