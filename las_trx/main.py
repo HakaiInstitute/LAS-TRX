@@ -46,9 +46,11 @@ class MainWindow(QMainWindow):
         self.ui.pushButton_convert.clicked.connect(self.convert)
         self.ui.comboBox_input_reference.currentTextChanged.connect(self.update_input_vd_options)
         self.ui.comboBox_output_reference.currentTextChanged.connect(self.update_output_vd_options)
-
+        self.ui.dateEdit_input_epoch.dateChanged.connect(self.maybe_update_output_epoch)
         self.ui.comboBox_output_coordinates.currentTextChanged.connect(self.activate_output_utm_zone_picker)
         self.ui.comboBox_input_coordinates.currentTextChanged.connect(self.activate_input_utm_zone_picker)
+        self.ui.comboBox_output_vertical_reference.currentTextChanged.connect(self.maybe_force_output_epoch_change)
+        self.ui.comboBox_input_vertical_reference.currentTextChanged.connect(self.maybe_force_input_epoch_change)
 
         self.dialog_directory = os.path.expanduser("~")
 
@@ -61,6 +63,28 @@ class MainWindow(QMainWindow):
         self.thread.finished.connect(lambda: self.ui.progressBar.setValue(0))
 
         sync_missing_grid_files()
+
+    def maybe_force_input_epoch_change(self, new_in_vd: str):
+        if new_in_vd == "CGVD28/HT2_2010v70":
+            self.ui.dateEdit_input_epoch.setDate(date(2010, 1, 1))
+            self.ui.dateEdit_input_epoch.setEnabled(False)
+        else:
+            self.ui.dateEdit_input_epoch.setEnabled(True)
+
+    def maybe_force_output_epoch_change(self, new_out_vd: str):
+        if new_out_vd == "CGVD28/HT2_2010v70":
+            self.ui.checkBox_epoch_trans.setChecked(True)
+            self.ui.checkBox_epoch_trans.setEnabled(False)
+            self.ui.dateEdit_output_epoch.setDate(date(2010, 1, 1))
+            self.ui.dateEdit_output_epoch.setEnabled(False)
+        else:
+            self.ui.checkBox_epoch_trans.setEnabled(True)
+            if self.ui.checkBox_epoch_trans.isChecked():
+                self.ui.dateEdit_output_epoch.setEnabled(True)
+
+    def maybe_update_output_epoch(self, new_date: date):
+        if not self.ui.checkBox_epoch_trans.isChecked():
+            self.ui.dateEdit_output_epoch.setDate(new_date)
 
     def handle_select_input_file(self):
         path, _ = QFileDialog.getOpenFileName(self, "Select input LAS file", dir=self.dialog_directory,
@@ -78,6 +102,9 @@ class MainWindow(QMainWindow):
 
     def enable_epoch_trans(self, checked):
         self.ui.dateEdit_output_epoch.setEnabled(checked)
+
+        if not checked:
+            self.ui.dateEdit_output_epoch.setDate(self.ui.dateEdit_input_epoch.date())
 
     def activate_input_utm_zone_picker(self, text):
         self.ui.spinBox_input_utm_zone.setEnabled(text == "UTM")
