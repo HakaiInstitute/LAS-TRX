@@ -87,7 +87,7 @@ class Ui_MainWindow(object):
         self.gridLayout.setContentsMargins(0, -1, 0, -1)
         self.spinBox_input_utm_zone = QSpinBox(self.widget_input_options)
         self.spinBox_input_utm_zone.setObjectName(u"spinBox_input_utm_zone")
-        self.spinBox_input_utm_zone.setEnabled(False)
+        self.spinBox_input_utm_zone.setEnabled(True)
         self.spinBox_input_utm_zone.setMinimum(7)
         self.spinBox_input_utm_zone.setMaximum(22)
         self.spinBox_input_utm_zone.setValue(10)
@@ -123,8 +123,8 @@ class Ui_MainWindow(object):
 
         self.dateEdit_input_epoch = QDateEdit(self.widget_input_options)
         self.dateEdit_input_epoch.setObjectName(u"dateEdit_input_epoch")
-        self.dateEdit_input_epoch.setTime(QTime(16, 0, 0))
-        self.dateEdit_input_epoch.setMaximumDateTime(QDateTime(QDate(9998, 1, 3), QTime(7, 59, 59)))
+        self.dateEdit_input_epoch.setTime(QTime(8, 0, 0))
+        self.dateEdit_input_epoch.setMaximumDateTime(QDateTime(QDate(9998, 1, 4), QTime(7, 59, 59)))
         self.dateEdit_input_epoch.setDisplayFormat(u"yyyy-MM-dd")
         self.dateEdit_input_epoch.setCalendarPopup(True)
         self.dateEdit_input_epoch.setTimeSpec(Qt.UTC)
@@ -261,7 +261,7 @@ class Ui_MainWindow(object):
 
         self.spinBox_output_utm_zone = QSpinBox(self.widget_output_options)
         self.spinBox_output_utm_zone.setObjectName(u"spinBox_output_utm_zone")
-        self.spinBox_output_utm_zone.setEnabled(False)
+        self.spinBox_output_utm_zone.setEnabled(True)
         self.spinBox_output_utm_zone.setMinimum(7)
         self.spinBox_output_utm_zone.setMaximum(22)
         self.spinBox_output_utm_zone.setValue(10)
@@ -272,7 +272,7 @@ class Ui_MainWindow(object):
         self.dateEdit_output_epoch = QDateEdit(self.widget_output_options)
         self.dateEdit_output_epoch.setObjectName(u"dateEdit_output_epoch")
         self.dateEdit_output_epoch.setEnabled(False)
-        self.dateEdit_output_epoch.setTime(QTime(16, 0, 0))
+        self.dateEdit_output_epoch.setTime(QTime(8, 0, 0))
         self.dateEdit_output_epoch.setDisplayFormat(u"yyyy-MM-dd")
         self.dateEdit_output_epoch.setCalendarPopup(True)
         self.dateEdit_output_epoch.setTimeSpec(Qt.UTC)
@@ -369,7 +369,9 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
+        self.comboBox_input_coordinates.setCurrentIndex(2)
         self.comboBox_input_reference.setCurrentIndex(1)
+        self.comboBox_output_coordinates.setCurrentIndex(2)
 
 
         QMetaObject.connectSlotsByName(MainWindow)

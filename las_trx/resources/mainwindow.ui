@@ -95,7 +95,7 @@
           <item row="5" column="1">
            <widget class="QSpinBox" name="spinBox_input_utm_zone">
             <property name="enabled">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="minimum">
              <number>7</number>
@@ -110,6 +110,9 @@
           </item>
           <item row="5" column="0">
            <widget class="QComboBox" name="comboBox_input_coordinates">
+            <property name="currentIndex">
+             <number>2</number>
+            </property>
             <item>
              <property name="text">
               <string>Geographic</string>
@@ -208,7 +211,7 @@
            <widget class="QDateEdit" name="dateEdit_input_epoch">
             <property name="time">
              <time>
-              <hour>16</hour>
+              <hour>8</hour>
               <minute>0</minute>
               <second>0</second>
              </time>
@@ -220,7 +223,7 @@
               <second>59</second>
               <year>9998</year>
               <month>1</month>
-              <day>3</day>
+              <day>4</day>
              </datetime>
             </property>
             <property name="displayFormat">
@@ -506,7 +509,7 @@
           <item row="5" column="1">
            <widget class="QSpinBox" name="spinBox_output_utm_zone">
             <property name="enabled">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="minimum">
              <number>7</number>
@@ -529,7 +532,7 @@
             </property>
             <property name="time">
              <time>
-              <hour>16</hour>
+              <hour>8</hour>
               <minute>0</minute>
               <second>0</second>
              </time>
@@ -554,6 +557,9 @@
           </item>
           <item row="5" column="0">
            <widget class="QComboBox" name="comboBox_output_coordinates">
+            <property name="currentIndex">
+             <number>2</number>
+            </property>
             <item>
              <property name="text">
               <string>Geographic</string>
