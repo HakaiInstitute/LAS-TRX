@@ -375,16 +375,6 @@
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="checkBox_epoch_trans">
-         <property name="layoutDirection">
-          <enum>Qt::LeftToRight</enum>
-         </property>
-         <property name="text">
-          <string>Epoch Transformation</string>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QWidget" name="widget_output_options" native="true">
          <layout class="QGridLayout" name="gridLayout_2">
           <property name="leftMargin">
@@ -616,6 +606,16 @@
               <string>CGVD28/HT2_2010v70</string>
              </property>
             </item>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QCheckBox" name="checkBox_epoch_trans">
+            <property name="layoutDirection">
+             <enum>Qt::LeftToRight</enum>
+            </property>
+            <property name="text">
+             <string>Epoch Transformation</string>
+            </property>
            </widget>
           </item>
          </layout>
