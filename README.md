@@ -5,7 +5,7 @@
 ___
 
 <div align="center">
-   <h4><i>Convert lidar <code>.las</code>/<code>.laz</code> file coordinates from various ITRF realizations to NAD83 CSRS</i></h4>
+   <h4><i>Convert lidar <code>.las</code>/<code>.laz</code> file coordinates between various ITRF realizations or NAD83 CSRS</i></h4>
 </div>
 
 ### About
