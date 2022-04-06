@@ -223,6 +223,9 @@
               <day>3</day>
              </datetime>
             </property>
+            <property name="displayFormat">
+             <string notr="true">yyyy-MM-dd</string>
+            </property>
             <property name="calendarPopup">
              <bool>true</bool>
             </property>
@@ -530,6 +533,9 @@
               <minute>0</minute>
               <second>0</second>
              </time>
+            </property>
+            <property name="displayFormat">
+             <string notr="true">yyyy-MM-dd</string>
             </property>
             <property name="calendarPopup">
              <bool>true</bool>
