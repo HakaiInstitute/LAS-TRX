@@ -213,6 +213,12 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_6.addWidget(self.widget_output_file)
 
+        self.checkBox_epoch_trans = QCheckBox(self.frame_output)
+        self.checkBox_epoch_trans.setObjectName(u"checkBox_epoch_trans")
+        self.checkBox_epoch_trans.setLayoutDirection(Qt.LeftToRight)
+
+        self.verticalLayout_6.addWidget(self.checkBox_epoch_trans)
+
         self.widget_output_options = QWidget(self.frame_output)
         self.widget_output_options.setObjectName(u"widget_output_options")
         self.gridLayout_2 = QGridLayout(self.widget_output_options)
@@ -302,12 +308,6 @@ class Ui_MainWindow(object):
         self.comboBox_output_vertical_reference.setEnabled(True)
 
         self.gridLayout_2.addWidget(self.comboBox_output_vertical_reference, 8, 0, 1, 1)
-
-        self.checkBox_epoch_trans = QCheckBox(self.widget_output_options)
-        self.checkBox_epoch_trans.setObjectName(u"checkBox_epoch_trans")
-        self.checkBox_epoch_trans.setLayoutDirection(Qt.LeftToRight)
-
-        self.gridLayout_2.addWidget(self.checkBox_epoch_trans, 0, 1, 1, 1)
 
 
         self.verticalLayout_6.addWidget(self.widget_output_options)
@@ -409,6 +409,7 @@ class Ui_MainWindow(object):
         self.label_output.setText(QCoreApplication.translate("MainWindow", u"Destination", None))
         self.label_output_file.setText(QCoreApplication.translate("MainWindow", u"Output file", None))
         self.toolButton_output_file.setText(QCoreApplication.translate("MainWindow", u"...", None))
+        self.checkBox_epoch_trans.setText(QCoreApplication.translate("MainWindow", u"Epoch Transformation", None))
         self.label_output_vertical_reference.setText(QCoreApplication.translate("MainWindow", u"Vertical Reference", None))
         self.comboBox_output_reference.setItemText(0, QCoreApplication.translate("MainWindow", u"NAD83(CSRS)", None))
         self.comboBox_output_reference.setItemText(1, QCoreApplication.translate("MainWindow", u"ITRF2014", None))
@@ -438,7 +439,6 @@ class Ui_MainWindow(object):
         self.comboBox_output_vertical_reference.setItemText(2, QCoreApplication.translate("MainWindow", u"CGVD2013/CGG2013", None))
         self.comboBox_output_vertical_reference.setItemText(3, QCoreApplication.translate("MainWindow", u"CGVD28/HT2_2010v70", None))
 
-        self.checkBox_epoch_trans.setText(QCoreApplication.translate("MainWindow", u"Epoch Transformation", None))
         self.pushButton_convert.setText(QCoreApplication.translate("MainWindow", u"Convert", None))
     # retranslateUi
 
