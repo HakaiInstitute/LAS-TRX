@@ -21,7 +21,6 @@ def date_to_decimal_year(d: T) -> T:
 
 
 VD_LOOKUP = {
-    "WGS84": VerticalDatum.WGS84,
     "GRS80": VerticalDatum.GRS80,
     "CGVD2013/CGG2013a": VerticalDatum.CGG2013A,
     "CGVD2013/CGG2013": VerticalDatum.CGG2013,
@@ -60,8 +59,13 @@ def sync_missing_grid_files():
         )
 
 
-def utm_zone_to_coord_type(zone: int) -> CoordType:
-    utm_types = (
+def is_utm_coord_type(coords: CoordType) -> bool:
+    # TODO: This is awful, fix it
+    return coords in [
+        CoordType.UTM3,
+        CoordType.UTM4,
+        CoordType.UTM5,
+        CoordType.UTM6,
         CoordType.UTM7,
         CoordType.UTM8,
         CoordType.UTM9,
@@ -78,5 +82,37 @@ def utm_zone_to_coord_type(zone: int) -> CoordType:
         CoordType.UTM20,
         CoordType.UTM21,
         CoordType.UTM22,
+        CoordType.UTM23,
+    ]
+
+
+def utm_zone_to_coord_type(zone: int) -> CoordType:
+    # TODO: This is awful, fix it
+    utm_types = (
+        CoordType.UTM3,
+        CoordType.UTM4,
+        CoordType.UTM5,
+        CoordType.UTM6,
+        CoordType.UTM7,
+        CoordType.UTM8,
+        CoordType.UTM9,
+        CoordType.UTM10,
+        CoordType.UTM11,
+        CoordType.UTM12,
+        CoordType.UTM13,
+        CoordType.UTM14,
+        CoordType.UTM15,
+        CoordType.UTM16,
+        CoordType.UTM17,
+        CoordType.UTM18,
+        CoordType.UTM19,
+        CoordType.UTM20,
+        CoordType.UTM21,
+        CoordType.UTM22,
+        CoordType.UTM23,
     )
-    return utm_types[zone - 7]
+    return utm_types[zone - 3]
+
+
+def get_utm_zone(coord_type: CoordType) -> int:
+    return int(coord_type.value[3:])

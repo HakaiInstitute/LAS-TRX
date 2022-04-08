@@ -223,7 +223,7 @@
               <second>59</second>
               <year>9998</year>
               <month>1</month>
-              <day>4</day>
+              <day>5</day>
              </datetime>
             </property>
             <property name="displayFormat">
@@ -298,7 +298,7 @@
            <widget class="QComboBox" name="comboBox_input_vertical_reference">
             <item>
              <property name="text">
-              <string>WGS84</string>
+              <string>GRS80</string>
              </property>
             </item>
            </widget>

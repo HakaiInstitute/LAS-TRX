@@ -3,23 +3,15 @@
 ################################################################################
 ## Form generated from reading UI file 'mainwindow.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.2.4
+## Created by: Qt User Interface Compiler version 5.15.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
-    QMetaObject, QObject, QPoint, QRect,
-    QSize, QTime, QUrl, Qt)
-from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
-    QFont, QFontDatabase, QGradient, QIcon,
-    QImage, QKeySequence, QLinearGradient, QPainter,
-    QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDateEdit,
-    QFrame, QGridLayout, QHBoxLayout, QLabel,
-    QLineEdit, QMainWindow, QProgressBar, QPushButton,
-    QSizePolicy, QSpinBox, QToolButton, QVBoxLayout,
-    QWidget)
+from PySide2.QtCore import *
+from PySide2.QtGui import *
+from PySide2.QtWidgets import *
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -46,6 +38,7 @@ class Ui_MainWindow(object):
         font = QFont()
         font.setPointSize(12)
         font.setBold(True)
+        font.setWeight(75)
         self.label_input.setFont(font)
 
         self.verticalLayout_5.addWidget(self.label_input)
@@ -124,7 +117,7 @@ class Ui_MainWindow(object):
         self.dateEdit_input_epoch = QDateEdit(self.widget_input_options)
         self.dateEdit_input_epoch.setObjectName(u"dateEdit_input_epoch")
         self.dateEdit_input_epoch.setTime(QTime(8, 0, 0))
-        self.dateEdit_input_epoch.setMaximumDateTime(QDateTime(QDate(9998, 1, 4), QTime(7, 59, 59)))
+        self.dateEdit_input_epoch.setMaximumDateTime(QDateTime(QDate(9998, 1, 5), QTime(7, 59, 59)))
         self.dateEdit_input_epoch.setDisplayFormat(u"yyyy-MM-dd")
         self.dateEdit_input_epoch.setCalendarPopup(True)
         self.dateEdit_input_epoch.setTimeSpec(Qt.UTC)
@@ -406,7 +399,7 @@ class Ui_MainWindow(object):
         self.label_input_coordinates.setText(QCoreApplication.translate("MainWindow", u"Coordinates", None))
         self.label_input_epoch.setText(QCoreApplication.translate("MainWindow", u"Epoch (YYYY-MM-DD)", None))
         self.label_input_vertical_reference.setText(QCoreApplication.translate("MainWindow", u"Vertical Reference", None))
-        self.comboBox_input_vertical_reference.setItemText(0, QCoreApplication.translate("MainWindow", u"WGS84", None))
+        self.comboBox_input_vertical_reference.setItemText(0, QCoreApplication.translate("MainWindow", u"GRS80", None))
 
         self.label_output.setText(QCoreApplication.translate("MainWindow", u"Destination", None))
         self.label_output_file.setText(QCoreApplication.translate("MainWindow", u"Output file", None))

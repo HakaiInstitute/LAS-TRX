@@ -6,17 +6,19 @@ from typing import Optional
 
 import laspy
 import numpy as np
-from PySide6.QtCore import QSize, QThread, Signal
-from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QApplication, QErrorMessage, QFileDialog, QMainWindow, QMessageBox
+from PySide2.QtCore import QSize, QThread, Signal
+from PySide2.QtGui import QIcon
+from PySide2.QtWidgets import QApplication, QErrorMessage, QFileDialog, QMainWindow, QMessageBox
 from csrspy import CSRSTransformer
 from csrspy.enums import CoordType, Reference, VerticalDatum
 
 from las_trx.config import TransformConfig
 from las_trx.ui_mainwindow import Ui_MainWindow
-from las_trx.utils import REFERENCE_LOOKUP, VD_LOOKUP, sync_missing_grid_files, utm_zone_to_coord_type
+from las_trx.utils import REFERENCE_LOOKUP, VD_LOOKUP, sync_missing_grid_files, \
+    utm_zone_to_coord_type
+from las_trx.vlr import GeoAsciiParamsVlr, GeoKeyDirectoryVlr
 
-CHUNK_SIZE = 1_000
+CHUNK_SIZE = 10_000
 
 
 def resource_path(relative_path):
@@ -118,7 +120,7 @@ class MainWindow(QMainWindow):
             self.ui.comboBox_input_vertical_reference.addItems([
                 "GRS80", "CGVD2013/CGG2013a", "CGVD2013/CGG2013", "CGVD28/HT2_2010v70"])
         else:
-            self.ui.comboBox_input_vertical_reference.addItems(["WGS84"])
+            self.ui.comboBox_input_vertical_reference.addItems(["GRS80"])
 
     def update_output_vd_options(self, text):
         self.ui.comboBox_output_vertical_reference.clear()
@@ -126,7 +128,7 @@ class MainWindow(QMainWindow):
             self.ui.comboBox_output_vertical_reference.addItems([
                 "GRS80", "CGVD2013/CGG2013a", "CGVD2013/CGG2013", "CGVD28/HT2_2010v70"])
         else:
-            self.ui.comboBox_output_vertical_reference.addItems(["WGS84"])
+            self.ui.comboBox_output_vertical_reference.addItems(["GRS80"])
 
     @property
     def s_ref_frame(self) -> Reference:
@@ -240,31 +242,61 @@ class TransformWorker(QThread):
     def _do_transform(self):
         transformer = CSRSTransformer(**self.config.dict(exclude_none=True))
 
-        with laspy.open(self.input_file) as in_las, \
-                laspy.open(self.output_file, mode='w', header=in_las.header, laz_backend=self.compression) as out_las:
+        with laspy.open(self.input_file) as in_las:
+            new_header = in_las.header
 
-            # TODO: Automate setting these values in a way that matches PDALs writers.las
-            out_las.header.offsets = None  # Adjusted later using first batch
-            out_las.header.scales = np.array([1e-7, 1e-7, 1e-7])
+            # Update GeoKeyDirectoryVLR
+            # check and remove any existing crs vlrs
+            for crs_vlr_name in (
+                    "WktCoordinateSystemVlr",
+                    "GeoKeyDirectoryVlr",
+                    "GeoAsciiParamsVlr",
+                    "GeoDoubleParamsVlr",
+            ):
+                try:
+                    new_header.vlrs.extract(crs_vlr_name)
+                except IndexError:
+                    pass
 
-            total_iters = math.ceil(in_las.header.point_count / CHUNK_SIZE)
-            for i, points in enumerate(in_las.chunk_iterator(CHUNK_SIZE)):
-                # Convert the coordinates
-                data = np.stack((points.x.scaled_array(), points.y.scaled_array(), points.z.scaled_array())).T
-                data = np.array(list(transformer(data)))
+            new_header.vlrs.append(GeoAsciiParamsVlr.from_crs(self.config.t_crs))
+            new_header.vlrs.append(GeoKeyDirectoryVlr.from_crs(self.config.t_crs))
+            new_header.scales = np.array([0.01, 0.01, 0.01])
+            new_header.offsets = self.estimate_offsets(transformer)
 
-                # Update header offsets
-                if out_las.header.offsets is None:
-                    out_las.header.offsets = np.min(data, axis=0)
+            with laspy.open(self.output_file, mode='w', header=new_header, laz_backend=self.compression) as out_las:
+                total_iters = math.ceil(in_las.header.point_count / CHUNK_SIZE)
+                for i, points in enumerate(in_las.chunk_iterator(CHUNK_SIZE)):
+                    # Convert the coordinates
+                    data = self._stack_dims(points)
+                    data = np.array(list(transformer(data)))
 
-                # Create new point records
-                points.change_scaling(offsets=out_las.header.offsets)
-                points.x = data[:, 0]
-                points.y = data[:, 1]
-                points.z = data[:, 2]
-                out_las.write_points(points)
+                    # Create new point records
+                    points.change_scaling(offsets=new_header.offsets, scales=new_header.scales)
+                    points.x = data[:, 0]
+                    points.y = data[:, 1]
+                    points.z = data[:, 2]
+                    out_las.write_points(points)
 
-                self.progress.emit(int(100 * (i + 1) / float(total_iters)))
+                    self.progress.emit(int(100 * (i + 1) / float(total_iters)))
+
+    @staticmethod
+    def _stack_dims(points):
+        # Copy the points for performance. Makes the underlying arrays contiguous
+        x = points.x.scaled_array().copy()
+        y = points.y.scaled_array().copy()
+        z = points.z.scaled_array().copy()
+        return np.stack((x, y, z)).T
+
+    def estimate_offsets(self, transformer: CSRSTransformer):
+        with laspy.open(self.input_file) as in_las:
+            points = next(in_las.chunk_iterator(CHUNK_SIZE))
+            data = self._stack_dims(points)
+
+            # Convert the coordinates
+            data = np.array(list(transformer(data)))
+
+            # Return estimated header offsets as min x,y,z of first batch
+            return np.min(data, axis=0)
 
     def run(self):
         self.started.emit()
@@ -284,4 +316,4 @@ if __name__ == "__main__":
     window = MainWindow()
     window.show()
 
-    sys.exit(app.exec())
+    sys.exit(app.exec_())
