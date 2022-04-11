@@ -17,7 +17,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(423, 660)
+        MainWindow.resize(402, 683)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.verticalLayout = QVBoxLayout(self.centralwidget)
@@ -73,6 +73,27 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_5.addWidget(self.widget_input_file)
 
+        self.widget = QWidget(self.frame_input)
+        self.widget.setObjectName(u"widget")
+        self.horizontalLayout_3 = QHBoxLayout(self.widget)
+        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
+        self.horizontalLayout_3.setContentsMargins(0, 0, 0, 0)
+        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_3.addItem(self.horizontalSpacer)
+
+        self.toolButton_help = QToolButton(self.widget)
+        self.toolButton_help.setObjectName(u"toolButton_help")
+        self.toolButton_help.setLayoutDirection(Qt.LeftToRight)
+        self.toolButton_help.setAutoFillBackground(False)
+        self.toolButton_help.setToolButtonStyle(Qt.ToolButtonTextOnly)
+        self.toolButton_help.setAutoRaise(True)
+
+        self.horizontalLayout_3.addWidget(self.toolButton_help)
+
+
+        self.verticalLayout_5.addWidget(self.widget)
+
         self.widget_input_options = QWidget(self.frame_input)
         self.widget_input_options.setObjectName(u"widget_input_options")
         self.gridLayout = QGridLayout(self.widget_input_options)
@@ -117,7 +138,7 @@ class Ui_MainWindow(object):
         self.dateEdit_input_epoch = QDateEdit(self.widget_input_options)
         self.dateEdit_input_epoch.setObjectName(u"dateEdit_input_epoch")
         self.dateEdit_input_epoch.setTime(QTime(8, 0, 0))
-        self.dateEdit_input_epoch.setMaximumDateTime(QDateTime(QDate(9998, 1, 6), QTime(7, 59, 59)))
+        self.dateEdit_input_epoch.setMaximumDateTime(QDateTime(QDate(9998, 1, 7), QTime(7, 59, 59)))
         self.dateEdit_input_epoch.setDisplayFormat(u"yyyy-MM-dd")
         self.dateEdit_input_epoch.setCalendarPopup(True)
         self.dateEdit_input_epoch.setTimeSpec(Qt.UTC)
@@ -314,7 +335,7 @@ class Ui_MainWindow(object):
         self.widget_actions.setSizePolicy(sizePolicy)
         self.horizontalLayout_4 = QHBoxLayout(self.widget_actions)
         self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
-        self.horizontalLayout_4.setContentsMargins(0, -1, -1, -1)
+        self.horizontalLayout_4.setContentsMargins(0, -1, 0, -1)
         self.progressBar = QProgressBar(self.widget_actions)
         self.progressBar.setObjectName(u"progressBar")
         self.progressBar.setValue(0)
@@ -375,6 +396,7 @@ class Ui_MainWindow(object):
         self.label_input.setText(QCoreApplication.translate("MainWindow", u"Origin", None))
         self.label_input_file.setText(QCoreApplication.translate("MainWindow", u"Input File", None))
         self.toolButton_input_file.setText(QCoreApplication.translate("MainWindow", u"...", None))
+        self.toolButton_help.setText(QCoreApplication.translate("MainWindow", u"Batch Mode?", None))
         self.comboBox_input_coordinates.setItemText(0, QCoreApplication.translate("MainWindow", u"Geographic", None))
         self.comboBox_input_coordinates.setItemText(1, QCoreApplication.translate("MainWindow", u"Cartesian", None))
         self.comboBox_input_coordinates.setItemText(2, QCoreApplication.translate("MainWindow", u"UTM", None))

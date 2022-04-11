@@ -39,9 +39,15 @@ class MainWindow(QMainWindow):
 
         self.done_msg_box = QMessageBox(self)
         self.done_msg_box.setText("File(s) were converted successfully")
-        self.done_msg_box.setWindowTitle("LAS TRX Message")
+        self.done_msg_box.setWindowTitle("Success")
         self.err_msg_box = QErrorMessage(self)
-        self.err_msg_box.setWindowTitle("LAS TRX Error")
+        self.err_msg_box.setWindowTitle("Error")
+        self.help_msg_box = QMessageBox(self)
+        self.help_msg_box.setText("Use '*' in the input file to select multiple files.\n"
+                                  "e.g. `C:\\\\path\\to\\files\*.laz`\n\n"
+                                  "Use '{}' in the output file to generate a name from the input name.\n"
+                                  "e.g. `C:\\\\path\\to\\files\{}_nad83.laz`")
+        self.help_msg_box.setWindowTitle("Help")
 
         self.ui.toolButton_input_file.clicked.connect(self.handle_select_input_file)
         self.ui.toolButton_output_file.clicked.connect(self.handle_select_output_file)
@@ -54,6 +60,7 @@ class MainWindow(QMainWindow):
         self.ui.comboBox_input_coordinates.currentTextChanged.connect(self.activate_input_utm_zone_picker)
         self.ui.comboBox_output_vertical_reference.currentTextChanged.connect(self.maybe_force_output_epoch_change)
         self.ui.comboBox_input_vertical_reference.currentTextChanged.connect(self.maybe_force_input_epoch_change)
+        self.ui.toolButton_help.clicked.connect(self.help_msg_box.exec_)
 
         self.dialog_directory = os.path.expanduser("~")
 
