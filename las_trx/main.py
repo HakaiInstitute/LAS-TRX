@@ -2,6 +2,7 @@ import math
 import os.path
 import sys
 from datetime import date
+from pathlib import Path
 from typing import Optional
 
 import laspy
@@ -37,7 +38,7 @@ class MainWindow(QMainWindow):
         self.setWindowIcon(icon)
 
         self.done_msg_box = QMessageBox(self)
-        self.done_msg_box.setText("File was converted successfully")
+        self.done_msg_box.setText("File(s) were converted successfully")
         self.done_msg_box.setWindowTitle("LAS TRX Message")
         self.err_msg_box = QErrorMessage(self)
         self.err_msg_box.setWindowTitle("LAS TRX Error")
@@ -191,21 +192,14 @@ class MainWindow(QMainWindow):
         )
 
     @property
-    def input_file(self) -> str:
-        return self.ui.lineEdit_input_file.text()
+    def input_files(self) -> list[str]:
+        p = Path(self.ui.lineEdit_input_file.text())
+        return [str(f) for f in (p.parent.glob(p.name))]
 
     @property
-    def output_file(self) -> str:
-        return self.ui.lineEdit_output_file.text()
-
-    @property
-    def do_compress_output(self) -> bool:
-        return self.input_file[-4:] == ".laz"
-
-    @property
-    def laz_backend(self) -> Optional[laspy.LazBackend]:
-        if self.do_compress_output:
-            return laspy.LazBackend.Laszip
+    def output_files(self) -> list[str]:
+        p = self.ui.lineEdit_output_file.text()
+        return [p.format(str(Path(f).stem)) for f in self.input_files]
 
     def on_process_success(self):
         self.done_msg_box.exec()
@@ -215,7 +209,7 @@ class MainWindow(QMainWindow):
         self.err_msg_box.exec()
 
     def convert(self):
-        self.thread.setup(self.transform_config, self.input_file, self.output_file, self.laz_backend)
+        self.thread.setup(self.transform_config, self.input_files, self.output_files)
         self.thread.start()
 
 
@@ -229,55 +223,84 @@ class TransformWorker(QThread):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.config = None
-        self.input_file = None
-        self.output_file = None
-        self.compression = None
+        self.input_files = None
+        self.output_files = None
 
-    def setup(self, config: TransformConfig, input_file: str, output_file: str, compression=None):
+    def setup(self, config: TransformConfig, input_files: list[str], output_files: list[str]):
         self.config = config
-        self.input_file = input_file
-        self.output_file = output_file
-        self.compression = compression
+        self.input_files = input_files
+        self.output_files = output_files
+
+    @staticmethod
+    def laz_backend(output_file: str) -> Optional[laspy.LazBackend]:
+        if output_file[-4:] == ".laz":
+            return laspy.LazBackend.Laszip
+
+    def get_total_iters(self) -> int:
+        total_iters = 0
+        for input_file in self.input_files:
+            with laspy.open(input_file) as in_las:
+                total_iters += math.ceil(in_las.header.point_count / CHUNK_SIZE)
+
+        return total_iters
+
+    def check_file_names(self):
+        for in_file, out_file in zip(self.input_files, self.output_files):
+            if in_file == out_file:
+                raise AssertionError("In path has as identical name to the output path. " \
+                                     "Change it to prevent overwriting the file.")
+
+        for i, out_file in enumerate(self.output_files[:-1]):
+            if out_file in self.output_files[i + 1:]:
+                raise AssertionError("Duplicate output file name detected. "
+                                     "Use a format string for the output path to output a file based on the stem of the "
+                                     r"corresponding input file. e.g. 'C:\\some\path\{}_nad83csrs.laz'")
 
     def _do_transform(self):
+        self.check_file_names()
+
         transformer = CSRSTransformer(**self.config.dict(exclude_none=True))
+        total_iters = self.get_total_iters()
+        current_iter = 0
 
-        with laspy.open(self.input_file) as in_las:
-            new_header = in_las.header
+        for input_file, output_file in zip(self.input_files, self.output_files):
+            with laspy.open(input_file) as in_las:
+                new_header = in_las.header
 
-            # Update GeoKeyDirectoryVLR
-            # check and remove any existing crs vlrs
-            for crs_vlr_name in (
-                    "WktCoordinateSystemVlr",
-                    "GeoKeyDirectoryVlr",
-                    "GeoAsciiParamsVlr",
-                    "GeoDoubleParamsVlr",
-            ):
-                try:
-                    new_header.vlrs.extract(crs_vlr_name)
-                except IndexError:
-                    pass
+                # Update GeoKeyDirectoryVLR
+                # check and remove any existing crs vlrs
+                for crs_vlr_name in (
+                        "WktCoordinateSystemVlr",
+                        "GeoKeyDirectoryVlr",
+                        "GeoAsciiParamsVlr",
+                        "GeoDoubleParamsVlr",
+                ):
+                    try:
+                        new_header.vlrs.extract(crs_vlr_name)
+                    except IndexError:
+                        pass
 
-            new_header.vlrs.append(GeoAsciiParamsVlr.from_crs(self.config.t_crs))
-            new_header.vlrs.append(GeoKeyDirectoryVlr.from_crs(self.config.t_crs))
-            new_header.scales = np.array([0.01, 0.01, 0.01])
-            new_header.offsets = self.estimate_offsets(transformer)
+                new_header.vlrs.append(GeoAsciiParamsVlr.from_crs(self.config.t_crs))
+                new_header.vlrs.append(GeoKeyDirectoryVlr.from_crs(self.config.t_crs))
+                new_header.scales = np.array([0.01, 0.01, 0.01])
+                new_header.offsets = self.estimate_offsets(input_file, transformer)
 
-            with laspy.open(self.output_file, mode='w', header=new_header, laz_backend=self.compression) as out_las:
-                total_iters = math.ceil(in_las.header.point_count / CHUNK_SIZE)
-                for i, points in enumerate(in_las.chunk_iterator(CHUNK_SIZE)):
-                    # Convert the coordinates
-                    data = self._stack_dims(points)
-                    data = np.array(list(transformer(data)))
+                with laspy.open(output_file, mode='w', header=new_header,
+                                laz_backend=self.laz_backend(output_file)) as out_las:
+                    for points in in_las.chunk_iterator(CHUNK_SIZE):
+                        # Convert the coordinates
+                        data = self._stack_dims(points)
+                        data = np.array(list(transformer(data)))
 
-                    # Create new point records
-                    points.change_scaling(offsets=new_header.offsets, scales=new_header.scales)
-                    points.x = data[:, 0]
-                    points.y = data[:, 1]
-                    points.z = data[:, 2]
-                    out_las.write_points(points)
+                        # Create new point records
+                        points.change_scaling(offsets=new_header.offsets, scales=new_header.scales)
+                        points.x = data[:, 0]
+                        points.y = data[:, 1]
+                        points.z = data[:, 2]
+                        out_las.write_points(points)
 
-                    self.progress.emit(int(100 * (i + 1) / float(total_iters)))
+                        self.progress.emit(int(100 * (current_iter + 1) / float(total_iters)))
+                        current_iter += 1
 
     @staticmethod
     def _stack_dims(points):
@@ -287,8 +310,8 @@ class TransformWorker(QThread):
         z = points.z.scaled_array().copy()
         return np.stack((x, y, z)).T
 
-    def estimate_offsets(self, transformer: CSRSTransformer):
-        with laspy.open(self.input_file) as in_las:
+    def estimate_offsets(self, input_file: str, transformer: CSRSTransformer):
+        with laspy.open(input_file) as in_las:
             points = next(in_las.chunk_iterator(CHUNK_SIZE))
             data = self._stack_dims(points)
 
