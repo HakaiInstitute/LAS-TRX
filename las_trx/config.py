@@ -3,7 +3,7 @@ from typing import Union
 
 from csrspy import enums
 from pydantic import BaseModel, validator
-from pyproj.crs import CRS, CompoundCRS, CoordinateOperation, GeocentricCRS, GeographicCRS, ProjectedCRS, VerticalCRS
+from pyproj.crs import CRS, CompoundCRS, GeocentricCRS, GeographicCRS, ProjectedCRS, VerticalCRS
 from pyproj.crs.coordinate_operation import UTMConversion
 from pyproj.crs.coordinate_system import Cartesian2DCS
 
@@ -82,7 +82,9 @@ class TransformConfig(BaseModel):
         else:
             z_crs = None
 
-        if z_crs is not None:
+        if xy_crs.is_geocentric:
+            return xy_crs
+        elif z_crs is not None:
             return CompoundCRS(name=f"{xy_crs.name} + {z_crs.name}", components=[xy_crs, z_crs])
         elif xy_crs.is_geographic:
             return xy_crs.to_3d()

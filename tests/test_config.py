@@ -365,8 +365,8 @@ def test_t_crs_itrf_cart_cgvd2013():
         t_coords=CoordType.CART,
         t_epoch=2010,
     )
-    assert config.t_crs.is_compound
-    assert config.t_crs.name == "ITRF2014 + CGVD2013(CGG2013) height"
+    assert config.t_crs.is_geocentric
+    # assert config.t_crs.name == "ITRF2014 + CGVD2013(CGG2013) height"
 
 
 def test_t_crs_itrf_cart_cgvd28():
@@ -377,5 +377,5 @@ def test_t_crs_itrf_cart_cgvd28():
         t_coords=CoordType.CART,
         t_epoch=2010,
     )
-    assert config.t_crs.is_compound
-    assert config.t_crs.name == "ITRF2014 + CGVD28 height"
+    assert config.t_crs.is_geocentric
+    # assert config.t_crs.name == "ITRF2014 + CGVD28 height"

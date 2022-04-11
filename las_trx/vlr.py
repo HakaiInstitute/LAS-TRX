@@ -212,6 +212,9 @@ class GeoKeyDirectoryVlr(BaseKnownVLR):
 
         elif crs.is_geocentric:
             all_keys["GTModelTypeGeoKey"].value_offset = 3
+            if epsg:
+                all_keys["GeodeticCRSGeoKey"].value_offset = epsg
+                added_keys.append("GeodeticCRSGeoKey")
 
         self.geo_keys = [all_keys[k] for k in added_keys]
         self.geo_keys_header.number_of_keys = len(self.geo_keys)
