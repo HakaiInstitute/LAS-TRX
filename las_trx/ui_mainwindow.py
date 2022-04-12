@@ -17,7 +17,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(402, 683)
+        MainWindow.resize(576, 690)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.verticalLayout = QVBoxLayout(self.centralwidget)
@@ -138,7 +138,7 @@ class Ui_MainWindow(object):
         self.dateEdit_input_epoch = QDateEdit(self.widget_input_options)
         self.dateEdit_input_epoch.setObjectName(u"dateEdit_input_epoch")
         self.dateEdit_input_epoch.setTime(QTime(8, 0, 0))
-        self.dateEdit_input_epoch.setMaximumDateTime(QDateTime(QDate(9998, 1, 7), QTime(7, 59, 59)))
+        self.dateEdit_input_epoch.setMaximumDateTime(QDateTime(QDate(9998, 1, 8), QTime(7, 59, 59)))
         self.dateEdit_input_epoch.setDisplayFormat(u"yyyy-MM-dd")
         self.dateEdit_input_epoch.setCalendarPopup(True)
         self.dateEdit_input_epoch.setTimeSpec(Qt.UTC)

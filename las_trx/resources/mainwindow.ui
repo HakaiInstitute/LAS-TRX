@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>402</width>
-    <height>683</height>
+    <width>576</width>
+    <height>690</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -273,7 +273,7 @@
               <second>59</second>
               <year>9998</year>
               <month>1</month>
-              <day>7</day>
+              <day>8</day>
              </datetime>
             </property>
             <property name="displayFormat">
