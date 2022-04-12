@@ -28,7 +28,12 @@ class GeoKeyEntryStruct(ctypes.LittleEndianStructure):
     ]
 
     def __init__(self, id=0, tiff_tag_location=0, count=0, value_offset=0):
-        super().__init__(id=id, tiff_tag_location=tiff_tag_location, count=count, value_offset=value_offset)
+        super().__init__(
+            id=id,
+            tiff_tag_location=tiff_tag_location,
+            count=count,
+            value_offset=value_offset,
+        )
 
     @staticmethod
     def size():
@@ -100,11 +105,19 @@ class GeoKeysHeaderStructs(ctypes.LittleEndianStructure):
         ("number_of_keys", ctypes.c_uint16),
     ]
 
-    def __init__(self, key_directory_version=1, key_revision=1, minor_revision=0, number_of_keys=0):
-        super().__init__(key_directory_version=key_directory_version,
-                         key_revision=key_revision,
-                         minor_revision=minor_revision,
-                         number_of_keys=number_of_keys)
+    def __init__(
+        self,
+        key_directory_version=1,
+        key_revision=1,
+        minor_revision=0,
+        number_of_keys=0,
+    ):
+        super().__init__(
+            key_directory_version=key_directory_version,
+            key_revision=key_revision,
+            minor_revision=minor_revision,
+            number_of_keys=number_of_keys,
+        )
 
     @staticmethod
     def size():
@@ -130,15 +143,17 @@ class GeoKeyDirectoryVlr(BaseKnownVLR):
         header_data = record_data[: ctypes.sizeof(GeoKeysHeaderStructs)]
         self.geo_keys_header = GeoKeysHeaderStructs.from_buffer(header_data)
         self.geo_keys = []
-        keys_data = record_data[GeoKeysHeaderStructs.size():]
+        keys_data = record_data[GeoKeysHeaderStructs.size() :]
         num_keys = (
-                len(record_data[GeoKeysHeaderStructs.size():]) // GeoKeyEntryStruct.size()
+            len(record_data[GeoKeysHeaderStructs.size() :]) // GeoKeyEntryStruct.size()
         )
         if num_keys != self.geo_keys_header.number_of_keys:
             self.geo_keys_header.number_of_keys = num_keys
 
         for i in range(self.geo_keys_header.number_of_keys):
-            data = keys_data[(i * GeoKeyEntryStruct.size()): (i + 1) * GeoKeyEntryStruct.size()]
+            data = keys_data[
+                (i * GeoKeyEntryStruct.size()) : (i + 1) * GeoKeyEntryStruct.size()
+            ]
             self.geo_keys.append(GeoKeyEntryStruct.from_buffer(data))
 
     def record_data_bytes(self):
@@ -150,15 +165,27 @@ class GeoKeyDirectoryVlr(BaseKnownVLR):
         all_keys = {
             "GTModelTypeGeoKey": GeoKeyEntryStruct(id=1024, count=1),
             "GTRasterTypeGeoKey": GeoKeyEntryStruct(id=1025, count=1, value_offset=2),
-            "GTCitationGeoKey": GeoKeyEntryStruct(id=1026, count=0, value_offset=0, tiff_tag_location=34737),
+            "GTCitationGeoKey": GeoKeyEntryStruct(
+                id=1026, count=0, value_offset=0, tiff_tag_location=34737
+            ),
             "GeodeticCRSGeoKey": GeoKeyEntryStruct(id=2048, count=1),
-            "GeodeticCitationGeoKey": GeoKeyEntryStruct(id=2049, count=0, value_offset=0, tiff_tag_location=34737),
+            "GeodeticCitationGeoKey": GeoKeyEntryStruct(
+                id=2049, count=0, value_offset=0, tiff_tag_location=34737
+            ),
             "ProjectedCRSGeoKey": GeoKeyEntryStruct(id=3072, count=1),
-            "GeogAngularUnitsGeoKey": GeoKeyEntryStruct(id=2054, count=1, value_offset=9102),  # assume degrees
-            "ProjLinearUnitsGeoKey": GeoKeyEntryStruct(id=3076, count=1, value_offset=9001),  # assume meters
+            "GeogAngularUnitsGeoKey": GeoKeyEntryStruct(
+                id=2054, count=1, value_offset=9102
+            ),  # assume degrees
+            "ProjLinearUnitsGeoKey": GeoKeyEntryStruct(
+                id=3076, count=1, value_offset=9001
+            ),  # assume meters
             "VerticalCSTypeGeoKey": GeoKeyEntryStruct(id=4096, count=1),
-            "VerticalCitationGeoKey": GeoKeyEntryStruct(id=4097, tiff_tag_location=34737),
-            "VerticalUnitsGeoKey": GeoKeyEntryStruct(id=4099, count=1, value_offset=9001),  # assume meters
+            "VerticalCitationGeoKey": GeoKeyEntryStruct(
+                id=4097, tiff_tag_location=34737
+            ),
+            "VerticalUnitsGeoKey": GeoKeyEntryStruct(
+                id=4099, count=1, value_offset=9001
+            ),  # assume meters
         }
 
         added_keys = [
@@ -167,7 +194,9 @@ class GeoKeyDirectoryVlr(BaseKnownVLR):
 
         if crs.geodetic_crs is not None:
             geodetic_name = crs.geodetic_crs.name
-            all_keys["GeodeticCitationGeoKey"].count = len((geodetic_name + "|").encode("ascii"))
+            all_keys["GeodeticCitationGeoKey"].count = len(
+                (geodetic_name + "|").encode("ascii")
+            )
             all_keys["GeodeticCitationGeoKey"].value_offset = 0
             added_keys.append("GeodeticCitationGeoKey")
 
@@ -177,15 +206,21 @@ class GeoKeyDirectoryVlr(BaseKnownVLR):
                 [geo_coord_name, _] = crs.name.split(" + ")
             geo_name, coord_name = geo_coord_name.split(" / ")
             all_keys["GTCitationGeoKey"].count = len((coord_name + "|").encode("ascii"))
-            all_keys["GTCitationGeoKey"].value_offset = \
-                all_keys["GeodeticCitationGeoKey"].count + all_keys["GeodeticCitationGeoKey"].value_offset
+            all_keys["GTCitationGeoKey"].value_offset = (
+                all_keys["GeodeticCitationGeoKey"].count
+                + all_keys["GeodeticCitationGeoKey"].value_offset
+            )
             added_keys.append("GTCitationGeoKey")
 
         if crs.is_vertical:
             _, vd_name = crs.name.split(" + ")
-            all_keys["VerticalCitationGeoKey"].count = len((vd_name + "|").encode("ascii"))
-            all_keys["VerticalCitationGeoKey"].value_offset = \
-                all_keys["GTCitationGeoKey"].count + all_keys["GTCitationGeoKey"].value_offset
+            all_keys["VerticalCitationGeoKey"].count = len(
+                (vd_name + "|").encode("ascii")
+            )
+            all_keys["VerticalCitationGeoKey"].value_offset = (
+                all_keys["GTCitationGeoKey"].count
+                + all_keys["GTCitationGeoKey"].value_offset
+            )
 
             # all_keys["VerticalCSTypeGeoKey"].value_offset = 2
             # added_keys.append("VerticalCSTypeGeoKey")
@@ -200,7 +235,9 @@ class GeoKeyDirectoryVlr(BaseKnownVLR):
                 all_keys["ProjectedCRSGeoKey"].value_offset = epsg
                 added_keys.append("ProjectedCRSGeoKey")
 
-            all_keys["ProjLinearUnitsGeoKey"].value_offset = int(crs.axis_info[0].unit_code)
+            all_keys["ProjLinearUnitsGeoKey"].value_offset = int(
+                crs.axis_info[0].unit_code
+            )
             added_keys.append("ProjLinearUnitsGeoKey")
 
         elif crs.is_geographic:
@@ -228,7 +265,7 @@ class GeoKeyDirectoryVlr(BaseKnownVLR):
 
     @classmethod
     def from_crs(
-            cls: Type[GeoKeyDirectoryType], crs: pyproj.CRS
+        cls: Type[GeoKeyDirectoryType], crs: pyproj.CRS
     ) -> GeoKeyDirectoryType:
         self = cls()
         self.record_from_crs(crs)

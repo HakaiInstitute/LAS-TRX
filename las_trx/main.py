@@ -5,19 +5,29 @@ from pathlib import Path
 
 from PySide2.QtCore import QSize
 from PySide2.QtGui import QIcon
-from PySide2.QtWidgets import QApplication, QErrorMessage, QFileDialog, QMainWindow, QMessageBox
+from PySide2.QtWidgets import (
+    QApplication,
+    QErrorMessage,
+    QFileDialog,
+    QMainWindow,
+    QMessageBox,
+)
 from csrspy.enums import CoordType, Reference, VerticalDatum
 
 from las_trx.config import TransformConfig
 from las_trx.ui_mainwindow import Ui_MainWindow
-from las_trx.utils import REFERENCE_LOOKUP, VD_LOOKUP, sync_missing_grid_files, \
-    utm_zone_to_coord_type
+from las_trx.utils import (
+    REFERENCE_LOOKUP,
+    VD_LOOKUP,
+    sync_missing_grid_files,
+    utm_zone_to_coord_type,
+)
 from las_trx.worker import TransformWorker
 
 
 def resource_path(relative_path: str):
-    """ Get absolute path to resource, works for dev and for PyInstaller """
-    base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+    """Get absolute path to resource, works for dev and for PyInstaller"""
+    base_path = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
     return os.path.join(base_path, relative_path)
 
 
@@ -27,7 +37,9 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         icon = QIcon()
-        icon.addFile(resource_path(u"resources/las-trx.ico"), QSize(), QIcon.Normal, QIcon.Off)
+        icon.addFile(
+            resource_path("resources/las-trx.ico"), QSize(), QIcon.Normal, QIcon.Off
+        )
         self.setWindowIcon(icon)
 
         self.done_msg_box = QMessageBox(self)
@@ -36,23 +48,37 @@ class MainWindow(QMainWindow):
         self.err_msg_box = QErrorMessage(self)
         self.err_msg_box.setWindowTitle("Error")
         self.help_msg_box = QMessageBox(self)
-        self.help_msg_box.setText("Use '*' in the input file to select multiple files.\n"
-                                  "e.g. `C:\\\\path\\to\\files\\*.laz`\n\n"
-                                  "Use '{}' in the output file to generate a name from the input name.\n"
-                                  "e.g. `C:\\\\path\\to\\files\\{}_nad83.laz`")
+        self.help_msg_box.setText(
+            "Use '*' in the input file to select multiple files.\n"
+            "e.g. `C:\\\\path\\to\\files\\*.laz`\n\n"
+            "Use '{}' in the output file to generate a name from the input name.\n"
+            "e.g. `C:\\\\path\\to\\files\\{}_nad83.laz`"
+        )
         self.help_msg_box.setWindowTitle("Help")
 
         self.ui.toolButton_input_file.clicked.connect(self.handle_select_input_file)
         self.ui.toolButton_output_file.clicked.connect(self.handle_select_output_file)
         self.ui.checkBox_epoch_trans.clicked.connect(self.enable_epoch_trans)
         self.ui.pushButton_convert.clicked.connect(self.convert)
-        self.ui.comboBox_input_reference.currentTextChanged.connect(self.update_input_vd_options)
-        self.ui.comboBox_output_reference.currentTextChanged.connect(self.update_output_vd_options)
+        self.ui.comboBox_input_reference.currentTextChanged.connect(
+            self.update_input_vd_options
+        )
+        self.ui.comboBox_output_reference.currentTextChanged.connect(
+            self.update_output_vd_options
+        )
         self.ui.dateEdit_input_epoch.dateChanged.connect(self.maybe_update_output_epoch)
-        self.ui.comboBox_output_coordinates.currentTextChanged.connect(self.activate_output_utm_zone_picker)
-        self.ui.comboBox_input_coordinates.currentTextChanged.connect(self.activate_input_utm_zone_picker)
-        self.ui.comboBox_output_vertical_reference.currentTextChanged.connect(self.maybe_force_output_epoch_change)
-        self.ui.comboBox_input_vertical_reference.currentTextChanged.connect(self.maybe_force_input_epoch_change)
+        self.ui.comboBox_output_coordinates.currentTextChanged.connect(
+            self.activate_output_utm_zone_picker
+        )
+        self.ui.comboBox_input_coordinates.currentTextChanged.connect(
+            self.activate_input_utm_zone_picker
+        )
+        self.ui.comboBox_output_vertical_reference.currentTextChanged.connect(
+            self.maybe_force_output_epoch_change
+        )
+        self.ui.comboBox_input_vertical_reference.currentTextChanged.connect(
+            self.maybe_force_input_epoch_change
+        )
         self.ui.toolButton_help.clicked.connect(self.help_msg_box.exec_)
 
         self.dialog_directory = os.path.expanduser("~")
@@ -84,15 +110,23 @@ class MainWindow(QMainWindow):
             self.ui.dateEdit_output_epoch.setDate(new_date)
 
     def handle_select_input_file(self):
-        path, _ = QFileDialog.getOpenFileName(self, "Select input LAS file", dir=self.dialog_directory,
-                                              filter="LAS Files (*.las *.laz)")
+        path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Select input LAS file",
+            dir=self.dialog_directory,
+            filter="LAS Files (*.las *.laz)",
+        )
         if path:
             self.ui.lineEdit_input_file.setText(path)
             self.dialog_directory = os.path.dirname(path)
 
     def handle_select_output_file(self):
-        path, _ = QFileDialog.getSaveFileName(self, "Select output LAS file", dir=self.dialog_directory,
-                                              filter="LAS Files (*.las *.laz)")
+        path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Select output LAS file",
+            dir=self.dialog_directory,
+            filter="LAS Files (*.las *.laz)",
+        )
         if path:
             self.ui.lineEdit_output_file.setText(path)
             self.dialog_directory = os.path.dirname(path)
@@ -111,17 +145,19 @@ class MainWindow(QMainWindow):
 
     def update_input_vd_options(self, text):
         self.ui.comboBox_input_vertical_reference.clear()
-        if text == 'NAD83(CSRS)':
-            self.ui.comboBox_input_vertical_reference.addItems([
-                "GRS80", "CGVD2013/CGG2013a", "CGVD2013/CGG2013", "CGVD28/HT2_2010v70"])
+        if text == "NAD83(CSRS)":
+            self.ui.comboBox_input_vertical_reference.addItems(
+                ["GRS80", "CGVD2013/CGG2013a", "CGVD2013/CGG2013", "CGVD28/HT2_2010v70"]
+            )
         else:
             self.ui.comboBox_input_vertical_reference.addItems(["GRS80"])
 
     def update_output_vd_options(self, text):
         self.ui.comboBox_output_vertical_reference.clear()
-        if text == 'NAD83(CSRS)':
-            self.ui.comboBox_output_vertical_reference.addItems([
-                "GRS80", "CGVD2013/CGG2013a", "CGVD2013/CGG2013", "CGVD28/HT2_2010v70"])
+        if text == "NAD83(CSRS)":
+            self.ui.comboBox_output_vertical_reference.addItems(
+                ["GRS80", "CGVD2013/CGG2013a", "CGVD2013/CGG2013", "CGVD28/HT2_2010v70"]
+            )
         else:
             self.ui.comboBox_output_vertical_reference.addItems(["GRS80"])
 
@@ -182,7 +218,7 @@ class MainWindow(QMainWindow):
             s_vd=self.s_vd,
             t_vd=self.t_vd,
             s_coords=self.s_coords,
-            t_coords=self.t_coords
+            t_coords=self.t_coords,
         )
 
     @property
@@ -203,13 +239,19 @@ class MainWindow(QMainWindow):
         self.err_msg_box.exec()
 
     def convert(self):
-        self.thread = TransformWorker(self.transform_config, self.input_files, self.output_files)
+        self.thread = TransformWorker(
+            self.transform_config, self.input_files, self.output_files
+        )
 
         self.thread.progress.connect(self.ui.progressBar.setValue)
         self.thread.success.connect(self.on_process_success)
         self.thread.error.connect(self.on_process_error)
-        self.thread.started.connect(lambda: self.ui.pushButton_convert.setEnabled(False))
-        self.thread.finished.connect(lambda: self.ui.pushButton_convert.setEnabled(True))
+        self.thread.started.connect(
+            lambda: self.ui.pushButton_convert.setEnabled(False)
+        )
+        self.thread.finished.connect(
+            lambda: self.ui.pushButton_convert.setEnabled(True)
+        )
         self.thread.finished.connect(lambda: self.ui.progressBar.setValue(0))
 
         self.thread.start()

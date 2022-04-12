@@ -4,7 +4,7 @@ from typing import TypeVar, overload
 import pyproj.sync
 from csrspy.enums import CoordType, Reference, VerticalDatum
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 @overload
@@ -24,7 +24,7 @@ VD_LOOKUP = {
     "GRS80": VerticalDatum.GRS80,
     "CGVD2013/CGG2013a": VerticalDatum.CGG2013A,
     "CGVD2013/CGG2013": VerticalDatum.CGG2013,
-    "CGVD28/HT2_2010v70": VerticalDatum.HT2_2010v70
+    "CGVD28/HT2_2010v70": VerticalDatum.HT2_2010v70,
 }
 REFERENCE_LOOKUP = {
     "NAD83(CSRS)": Reference.NAD83CSRS,
@@ -40,7 +40,7 @@ REFERENCE_LOOKUP = {
     "ITRF91": Reference.ITRF91,
     "ITRF90": Reference.ITRF90,
     "ITRF89": Reference.ITRF89,
-    "ITRF88": Reference.ITRF88
+    "ITRF88": Reference.ITRF88,
 }
 
 

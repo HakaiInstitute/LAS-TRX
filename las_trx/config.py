@@ -3,7 +3,14 @@ from typing import Union
 
 from csrspy import enums
 from pydantic import BaseModel, validator
-from pyproj.crs import CRS, CompoundCRS, GeocentricCRS, GeographicCRS, ProjectedCRS, VerticalCRS
+from pyproj.crs import (
+    CRS,
+    CompoundCRS,
+    GeocentricCRS,
+    GeographicCRS,
+    ProjectedCRS,
+    VerticalCRS,
+)
 from pyproj.crs.coordinate_operation import UTMConversion
 from pyproj.crs.coordinate_system import Cartesian2DCS
 
@@ -21,8 +28,8 @@ class TransformConfig(BaseModel):
     t_coords: Union[enums.CoordType, str]
 
     # validators
-    _normalize_s_epoch = validator('s_epoch', allow_reuse=True)(date_to_decimal_year)
-    _normalize_t_epoch = validator('t_epoch', allow_reuse=True)(date_to_decimal_year)
+    _normalize_s_epoch = validator("s_epoch", allow_reuse=True)(date_to_decimal_year)
+    _normalize_t_epoch = validator("t_epoch", allow_reuse=True)(date_to_decimal_year)
 
     @property
     def t_crs(self) -> CRS:
@@ -66,7 +73,7 @@ class TransformConfig(BaseModel):
             zone = get_utm_zone(self.t_coords)
             xy_crs = ProjectedCRS(
                 name=f"{geodetic_crs.name} / UTM zone {zone}N",
-                conversion=UTMConversion(str(zone), hemisphere='N'),
+                conversion=UTMConversion(str(zone), hemisphere="N"),
                 geodetic_crs=geodetic_crs,
                 cartesian_cs=Cartesian2DCS(),
             )
@@ -76,7 +83,9 @@ class TransformConfig(BaseModel):
         if self.t_vd == enums.VerticalDatum.CGG2013A:
             z_crs = VerticalCRS.from_epsg(6647)
         elif self.t_vd == enums.VerticalDatum.CGG2013:
-            z_crs = VerticalCRS.from_epsg(6647)  # ??? Seems to be no distinction between 2013 and 2013a
+            z_crs = VerticalCRS.from_epsg(
+                6647
+            )  # ??? Seems to be no distinction between 2013 and 2013a
         elif self.t_vd == enums.VerticalDatum.HT2_2010v70:
             z_crs = VerticalCRS.from_epsg(5713)
         else:
@@ -85,7 +94,9 @@ class TransformConfig(BaseModel):
         if xy_crs.is_geocentric:
             return xy_crs
         elif z_crs is not None:
-            return CompoundCRS(name=f"{xy_crs.name} + {z_crs.name}", components=[xy_crs, z_crs])
+            return CompoundCRS(
+                name=f"{xy_crs.name} + {z_crs.name}", components=[xy_crs, z_crs]
+            )
         elif xy_crs.is_geographic:
             return xy_crs.to_3d()
         else:

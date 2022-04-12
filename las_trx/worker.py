@@ -22,7 +22,9 @@ class TransformWorker(QThread):
     success = Signal()
     error = Signal(BaseException)
 
-    def __init__(self, config: TransformConfig, input_files: list[str], output_files: list[str]):
+    def __init__(
+        self, config: TransformConfig, input_files: list[str], output_files: list[str]
+    ):
         super().__init__(parent=None)
         self.config = config
         self.input_files = input_files
@@ -36,18 +38,22 @@ class TransformWorker(QThread):
         self.pool = futures.ProcessPoolExecutor()
         self.manager = multiprocessing.Manager()
         self.lock = self.manager.RLock()
-        self.current_iter = self.manager.Value('i', 0)
+        self.current_iter = self.manager.Value("i", 0)
 
     def check_file_names(self):
         for in_file in self.input_files:
             if in_file in self.output_files:
-                raise AssertionError("One of in files matches name of output files. "
-                                     "Aborting because this would overwrite that input file.")
+                raise AssertionError(
+                    "One of in files matches name of output files. "
+                    "Aborting because this would overwrite that input file."
+                )
 
         if len(self.output_files) != len(list(set(self.output_files))):
-            raise AssertionError("Duplicate output file name detected. "
-                                 "Use a format string for the output path to output a file based on the stem of the "
-                                 r"corresponding input file. e.g. 'C:\\some\path\{}_nad83csrs.laz'")
+            raise AssertionError(
+                "Duplicate output file name detected. "
+                "Use a format string for the output path to output a file based on the stem of the "
+                r"corresponding input file. e.g. 'C:\\some\path\{}_nad83csrs.laz'"
+            )
 
     def _do_transform(self):
         self.check_file_names()
@@ -55,7 +61,9 @@ class TransformWorker(QThread):
         config = self.config.dict(exclude_none=True)
         futs = []
         for input_file, output_file in zip(self.input_files, self.output_files):
-            fut = self.pool.submit(transform, config, input_file, output_file, self.lock, self.current_iter)
+            fut = self.pool.submit(
+                transform, config, input_file, output_file, self.lock, self.current_iter
+            )
             fut.add_done_callback(self.on_process_complete)
             futs.append(fut)
 
@@ -87,7 +95,13 @@ class TransformWorker(QThread):
         self.finished.emit()
 
 
-def transform(config: dict, input_file: str, output_file: str, lock: multiprocessing.RLock, cur: multiprocessing.Value):
+def transform(
+    config: dict,
+    input_file: str,
+    output_file: str,
+    lock: multiprocessing.RLock,
+    cur: multiprocessing.Value,
+):
     transformer = CSRSTransformer(**config)
     config = TransformConfig(**config)
 
@@ -99,14 +113,18 @@ def transform(config: dict, input_file: str, output_file: str, lock: multiproces
         new_header = write_header_offsets(new_header, input_file, transformer)
 
         laz_backend = laspy.LazBackend.Laszip if output_file[-4:] == ".laz" else None
-        with laspy.open(output_file, mode='w', header=new_header, laz_backend=laz_backend) as out_las:
+        with laspy.open(
+            output_file, mode="w", header=new_header, laz_backend=laz_backend
+        ) as out_las:
             for points in in_las.chunk_iterator(CHUNK_SIZE):
                 # Convert the coordinates
                 data = stack_dims(points)
                 data = np.array(list(transformer(data)))
 
                 # Create new point records
-                points.change_scaling(offsets=new_header.offsets, scales=new_header.scales)
+                points.change_scaling(
+                    offsets=new_header.offsets, scales=new_header.scales
+                )
                 points.x = data[:, 0]
                 points.y = data[:, 1]
                 points.z = data[:, 2]
@@ -116,7 +134,9 @@ def transform(config: dict, input_file: str, output_file: str, lock: multiproces
                     cur.value += 1
 
 
-def write_header_offsets(header: 'LasHeader', input_file: str, transformer: 'CSRSTransformer') -> 'LasHeader':
+def write_header_offsets(
+    header: "LasHeader", input_file: str, transformer: "CSRSTransformer"
+) -> "LasHeader":
     with laspy.open(input_file) as in_las:
         points = next(in_las.chunk_iterator(CHUNK_SIZE))
         data = stack_dims(points)
@@ -129,14 +149,14 @@ def write_header_offsets(header: 'LasHeader', input_file: str, transformer: 'CSR
     return header
 
 
-def clear_header_geokeys(header: 'LasHeader') -> 'LasHeader':
+def clear_header_geokeys(header: "LasHeader") -> "LasHeader":
     # Update GeoKeyDirectoryVLR
     # check and remove any existing crs vlrs
     for crs_vlr_name in (
-            "WktCoordinateSystemVlr",
-            "GeoKeyDirectoryVlr",
-            "GeoAsciiParamsVlr",
-            "GeoDoubleParamsVlr",
+        "WktCoordinateSystemVlr",
+        "GeoKeyDirectoryVlr",
+        "GeoAsciiParamsVlr",
+        "GeoDoubleParamsVlr",
     ):
         try:
             header.vlrs.extract(crs_vlr_name)
@@ -146,18 +166,18 @@ def clear_header_geokeys(header: 'LasHeader') -> 'LasHeader':
     return header
 
 
-def write_header_geokeys_from_crs(header: 'LasHeader', crs: 'CRS') -> 'LasHeader':
+def write_header_geokeys_from_crs(header: "LasHeader", crs: "CRS") -> "LasHeader":
     header.vlrs.append(GeoAsciiParamsVlr.from_crs(crs))
     header.vlrs.append(GeoKeyDirectoryVlr.from_crs(crs))
     return header
 
 
-def write_header_scales(header: 'LasHeader') -> 'LasHeader':
+def write_header_scales(header: "LasHeader") -> "LasHeader":
     header.scales = np.array([0.01, 0.01, 0.01])
     return header
 
 
-def stack_dims(points: 'laspy.ScaleAwarePointRecord') -> 'np.array':
+def stack_dims(points: "laspy.ScaleAwarePointRecord") -> "np.array":
     x = points.x.scaled_array().copy()
     y = points.y.scaled_array().copy()
     z = points.z.scaled_array().copy()
