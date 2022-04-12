@@ -1,6 +1,7 @@
 import os.path
 import sys
 from datetime import date
+from multiprocessing import freeze_support
 from pathlib import Path
 
 from PySide2.QtCore import QSize
@@ -222,14 +223,14 @@ class MainWindow(QMainWindow):
         )
 
     @property
-    def input_files(self) -> list[str]:
+    def input_files(self) -> list[Path]:
         p = Path(self.ui.lineEdit_input_file.text())
-        return [str(f) for f in (p.parent.glob(p.name))]
+        return list(p.parent.glob(p.name))
 
     @property
-    def output_files(self) -> list[str]:
-        p = self.ui.lineEdit_output_file.text()
-        return [p.format(str(Path(f).stem)) for f in self.input_files]
+    def output_files(self) -> list[Path]:
+        out_path = self.ui.lineEdit_output_file.text()
+        return [Path(out_path.format(f.stem)) for f in self.input_files]
 
     def on_process_success(self):
         self.done_msg_box.exec()
@@ -258,6 +259,8 @@ class MainWindow(QMainWindow):
 
 
 if __name__ == "__main__":
+    freeze_support()
+
     app = QApplication(sys.argv)
 
     window = MainWindow()

@@ -1,6 +1,7 @@
 import math
 import multiprocessing
 from concurrent import futures
+from pathlib import Path
 from time import sleep
 
 import laspy
@@ -8,6 +9,7 @@ import numpy as np
 from PySide2.QtCore import QThread, Signal
 from csrspy import CSRSTransformer
 from laspy import LasHeader
+from pyproj import CRS
 
 from las_trx.config import TransformConfig
 from las_trx.vlr import GeoAsciiParamsVlr, GeoKeyDirectoryVlr
@@ -23,7 +25,7 @@ class TransformWorker(QThread):
     error = Signal(BaseException)
 
     def __init__(
-        self, config: TransformConfig, input_files: list[str], output_files: list[str]
+        self, config: TransformConfig, input_files: list[Path], output_files: list[Path]
     ):
         super().__init__(parent=None)
         self.config = config
@@ -76,7 +78,6 @@ class TransformWorker(QThread):
     def on_process_complete(fut: futures.Future):
         err = fut.exception()
         if err is not None:
-            print(err)
             raise err
 
     @property
@@ -97,8 +98,8 @@ class TransformWorker(QThread):
 
 def transform(
     config: dict,
-    input_file: str,
-    output_file: str,
+    input_file: Path,
+    output_file: Path,
     lock: multiprocessing.RLock,
     cur: multiprocessing.Value,
 ):
@@ -112,7 +113,7 @@ def transform(
         new_header = write_header_scales(new_header)
         new_header = write_header_offsets(new_header, input_file, transformer)
 
-        laz_backend = laspy.LazBackend.Laszip if output_file[-4:] == ".laz" else None
+        laz_backend = laspy.LazBackend.Laszip if output_file.suffix == ".laz" else None
         with laspy.open(
             output_file, mode="w", header=new_header, laz_backend=laz_backend
         ) as out_las:
@@ -135,7 +136,7 @@ def transform(
 
 
 def write_header_offsets(
-    header: "LasHeader", input_file: str, transformer: "CSRSTransformer"
+    header: "LasHeader", input_file: Path, transformer: "CSRSTransformer"
 ) -> "LasHeader":
     with laspy.open(input_file) as in_las:
         points = next(in_las.chunk_iterator(CHUNK_SIZE))
