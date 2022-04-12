@@ -44,7 +44,7 @@ class MainWindow(QMainWindow):
         self.setWindowIcon(icon)
 
         self.done_msg_box = QMessageBox(self)
-        self.done_msg_box.setText("File(s) were converted successfully")
+        self.done_msg_box.setText("File(s) converted successfully")
         self.done_msg_box.setWindowTitle("Success")
         self.err_msg_box = QErrorMessage(self)
         self.err_msg_box.setWindowTitle("Error")
