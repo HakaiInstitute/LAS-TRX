@@ -1,3 +1,4 @@
+import copy
 import math
 import multiprocessing
 from concurrent import futures
@@ -107,7 +108,7 @@ def transform(
     config = TransformConfig(**config)
 
     with laspy.open(input_file) as in_las:
-        new_header = in_las.header
+        new_header = copy.deepcopy(in_las.header)
         new_header = clear_header_geokeys(new_header)
         new_header = write_header_geokeys_from_crs(new_header, config.t_crs)
         new_header = write_header_scales(new_header)
