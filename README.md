@@ -17,6 +17,6 @@ ellipsoidal to orthometric height models, as well as epoch transformations.
 
 ### Installation
 
-Windows and Linux GUI applications are available on the resources page.
+Windows and Linux GUI applications are available on the [releases page](https://github.com/HakaiInstitute/LAS-TRX/releases).
 
-#### [Download the Tool Here](https://github.com/tayden/LAS-TRX/releases)
+#### [Download the Tool Here](https://github.com/HakaiInstitute/LAS-TRX/releases)
