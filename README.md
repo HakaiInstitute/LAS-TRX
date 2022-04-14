@@ -5,7 +5,8 @@
 ___
 
 <div align="center">
-   <h4><i>Convert lidar <code>.las</code>/<code>.laz</code> file coordinates between various ITRF realizations and NAD83 CSRS</i></h4>
+    <h4><i>Convert lidar <code>.las</code>/<code>.laz</code> file coordinates between various ITRF realizations and NAD83 CSRS</i></h4>
+    <a href="https://badge.fury.io/py/las-trx"><img src="https://badge.fury.io/py/las-trx.svg" alt="PyPI version" height="18"></a>
 </div>
 
 ### About
