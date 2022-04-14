@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/Las-TRX.iml" filepath="$PROJECT_DIR$/.idea/Las-TRX.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../csrspy/.idea/csrspy.iml" filepath="$PROJECT_DIR$/../csrspy/.idea/csrspy.iml" />
     </modules>
   </component>
 </project>
