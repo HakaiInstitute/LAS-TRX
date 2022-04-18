@@ -201,7 +201,7 @@ class MainWindow(QMainWindow):
     @property
     def input_files(self) -> list[Path]:
         p = Path(self.ui.lineEdit_input_file.text())
-        return list(p.parent.glob(p.name))
+        return [f for f in p.parent.glob(p.name) if f.is_file()]
 
     @property
     def output_files(self) -> list[Path]:
