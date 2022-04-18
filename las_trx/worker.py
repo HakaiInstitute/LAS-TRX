@@ -1,6 +1,8 @@
 import copy
+import logging
 import math
 import multiprocessing
+import os
 from concurrent import futures
 from pathlib import Path
 from time import sleep
@@ -8,14 +10,16 @@ from time import sleep
 import laspy
 import numpy as np
 from PySide2.QtCore import QThread, Signal
-from csrspy import CSRSTransformer
 from laspy import LasHeader
 from pyproj import CRS
 
+from csrspy import CSRSTransformer
 from las_trx.config import TransformConfig
 from las_trx.vlr import GeoAsciiParamsVlr, GeoKeyDirectoryVlr
 
 CHUNK_SIZE = 10_000
+
+logger = logging.getLogger(__name__)
 
 
 class TransformWorker(QThread):
@@ -33,15 +37,25 @@ class TransformWorker(QThread):
         self.input_files = input_files
         self.output_files = output_files
 
+        logger.info(f"Found {len(self.input_files)} input files")
+        logger.info(f"Transform config: {self.config}")
+        logger.info(f"Output CRS\n{self.config.t_crs.to_wkt(pretty=True)}")
+        logger.debug(f"Will read points in chunk size of {CHUNK_SIZE}")
+        logger.info("Calculating total number of iterations")
+
         self.total_iters = 0
         for input_file in self.input_files:
             with laspy.open(input_file) as in_las:
                 self.total_iters += math.ceil(in_las.header.point_count / CHUNK_SIZE)
+        logger.info(f"Total iterations until complete: {self.total_iters}")
 
-        self.pool = futures.ProcessPoolExecutor()
+        num_workers = min(os.cpu_count(), 61)
+        self.pool = futures.ProcessPoolExecutor(max_workers=num_workers)
         self.manager = multiprocessing.Manager()
         self.lock = self.manager.RLock()
         self.current_iter = self.manager.Value("i", 0)
+
+        logger.info(f"CPU process pool size: {num_workers}")
 
     def check_file_names(self):
         for in_file in self.input_files:
@@ -60,10 +74,10 @@ class TransformWorker(QThread):
 
     def _do_transform(self):
         self.check_file_names()
-
         config = self.config.dict(exclude_none=True)
         futs = []
         for input_file, output_file in zip(self.input_files, self.output_files):
+            logger.info(f"{input_file} -> {output_file}")
             fut = self.pool.submit(
                 transform, config, input_file, output_file, self.lock, self.current_iter
             )
@@ -115,6 +129,8 @@ def transform(
         new_header = write_header_offsets(new_header, input_file, transformer)
 
         laz_backend = laspy.LazBackend.Laszip if output_file.suffix == ".laz" else None
+        logger.debug(f"{laz_backend=}")
+
         with laspy.open(
             output_file, mode="w", header=new_header, laz_backend=laz_backend
         ) as out_las:
@@ -148,6 +164,7 @@ def write_header_offsets(
 
         # Return estimated header offsets as min x,y,z of first batch
         header.offsets = np.min(data, axis=0)
+    logger.debug(f"{header.offsets=}")
     return header
 
 
@@ -164,18 +181,19 @@ def clear_header_geokeys(header: "LasHeader") -> "LasHeader":
             header.vlrs.extract(crs_vlr_name)
         except IndexError:
             pass
-
     return header
 
 
 def write_header_geokeys_from_crs(header: "LasHeader", crs: "CRS") -> "LasHeader":
     header.vlrs.append(GeoAsciiParamsVlr.from_crs(crs))
     header.vlrs.append(GeoKeyDirectoryVlr.from_crs(crs))
+    logger.debug(f"{header.vlrs=}")
     return header
 
 
 def write_header_scales(header: "LasHeader") -> "LasHeader":
     header.scales = np.array([0.01, 0.01, 0.01])
+    logger.debug(f"{header.scales=}")
     return header
 
 

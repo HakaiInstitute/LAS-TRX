@@ -17,7 +17,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(576, 690)
+        MainWindow.resize(576, 789)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.verticalLayout = QVBoxLayout(self.centralwidget)
@@ -138,7 +138,7 @@ class Ui_MainWindow(object):
         self.dateEdit_input_epoch = QDateEdit(self.widget_input_options)
         self.dateEdit_input_epoch.setObjectName(u"dateEdit_input_epoch")
         self.dateEdit_input_epoch.setTime(QTime(8, 0, 0))
-        self.dateEdit_input_epoch.setMaximumDateTime(QDateTime(QDate(9998, 1, 8), QTime(7, 59, 59)))
+        self.dateEdit_input_epoch.setMaximumDateTime(QDateTime(QDate(9998, 1, 9), QTime(7, 59, 59)))
         self.dateEdit_input_epoch.setDisplayFormat(u"yyyy-MM-dd")
         self.dateEdit_input_epoch.setCalendarPopup(True)
         self.dateEdit_input_epoch.setTimeSpec(Qt.UTC)
@@ -329,6 +329,17 @@ class Ui_MainWindow(object):
 
         self.verticalLayout.addWidget(self.frame_output)
 
+        self.label_log_output = QLabel(self.centralwidget)
+        self.label_log_output.setObjectName(u"label_log_output")
+
+        self.verticalLayout.addWidget(self.label_log_output)
+
+        self.textBrowser_log_output = QTextBrowser(self.centralwidget)
+        self.textBrowser_log_output.setObjectName(u"textBrowser_log_output")
+        self.textBrowser_log_output.setFrameShadow(QFrame.Sunken)
+
+        self.verticalLayout.addWidget(self.textBrowser_log_output)
+
         self.widget_actions = QWidget(self.centralwidget)
         self.widget_actions.setObjectName(u"widget_actions")
         sizePolicy.setHeightForWidth(self.widget_actions.sizePolicy().hasHeightForWidth())
@@ -456,6 +467,7 @@ class Ui_MainWindow(object):
         self.comboBox_output_vertical_reference.setItemText(3, QCoreApplication.translate("MainWindow", u"CGVD28/HT2_2010v70", None))
 
         self.checkBox_epoch_trans.setText(QCoreApplication.translate("MainWindow", u"Epoch Transformation", None))
+        self.label_log_output.setText(QCoreApplication.translate("MainWindow", u"Log Output", None))
         self.pushButton_convert.setText(QCoreApplication.translate("MainWindow", u"Convert", None))
     # retranslateUi
 

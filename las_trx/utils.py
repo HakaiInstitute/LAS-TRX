@@ -1,10 +1,14 @@
+import logging
 from datetime import date
 from typing import TypeVar, overload
 
 import pyproj.sync
+
 from csrspy.enums import CoordType, Reference, VerticalDatum
 
 T = TypeVar("T")
+
+logger = logging.getLogger(__name__)
 
 
 @overload
@@ -48,6 +52,9 @@ def sync_missing_grid_files():
     target_directory = pyproj.sync.get_user_data_dir(True)
     endpoint = pyproj.sync.get_proj_endpoint()
     grids = pyproj.sync.get_transform_grid_list(area_of_use="Canada")
+
+    if len(grids):
+        logger.info("Syncing PROJ grid files.")
 
     for grid in grids:
         filename = grid["properties"]["name"]

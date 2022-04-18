@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>576</width>
-    <height>690</height>
+    <height>789</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -273,7 +273,7 @@
               <second>59</second>
               <year>9998</year>
               <month>1</month>
-              <day>8</day>
+              <day>9</day>
              </datetime>
             </property>
             <property name="displayFormat">
@@ -678,6 +678,20 @@
         </widget>
        </item>
       </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_log_output">
+      <property name="text">
+       <string>Log Output</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QTextBrowser" name="textBrowser_log_output">
+      <property name="frameShadow">
+       <enum>QFrame::Sunken</enum>
+      </property>
      </widget>
     </item>
     <item>
