@@ -1,11 +1,14 @@
+import logging
 import os.path
+import queue
 import sys
 from datetime import date
 from multiprocessing import freeze_support
 from pathlib import Path
+from queue import Queue
 
-from PySide2.QtCore import QSize
-from PySide2.QtGui import QIcon
+from PySide2.QtCore import QSize, QThread, Signal
+from PySide2.QtGui import QIcon, QTextCursor
 from PySide2.QtWidgets import (
     QApplication,
     QErrorMessage,
@@ -13,8 +16,8 @@ from PySide2.QtWidgets import (
     QMainWindow,
     QMessageBox,
 )
-from csrspy.enums import CoordType, Reference, VerticalDatum
 
+from csrspy.enums import CoordType, Reference, VerticalDatum
 from las_trx.config import TransformConfig
 from las_trx.ui_mainwindow import Ui_MainWindow
 from las_trx.utils import (
@@ -24,6 +27,8 @@ from las_trx.utils import (
     utm_zone_to_coord_type,
 )
 from las_trx.worker import TransformWorker
+
+logger = logging.getLogger(__name__)
 
 
 def resource_path(relative_path: str):
@@ -208,14 +213,22 @@ class MainWindow(QMainWindow):
         out_path = self.ui.lineEdit_output_file.text()
         return [Path(out_path.format(f.stem)) for f in self.input_files]
 
+    def append_text(self, text):
+        self.ui.textBrowser_log_output.moveCursor(QTextCursor.End)
+        self.ui.textBrowser_log_output.insertPlainText(text)
+
     def on_process_success(self):
+        logger.info("Processing complete")
         self.done_msg_box.exec()
 
     def on_process_error(self, exception: BaseException):
+        logger.error(str(exception))
         self.err_msg_box.showMessage(str(exception))
         self.err_msg_box.exec()
 
     def convert(self):
+        logger.debug("Starting worker thread.")
+
         self.thread = TransformWorker(
             self.transform_config, self.input_files, self.output_files
         )
@@ -234,12 +247,50 @@ class MainWindow(QMainWindow):
         self.thread.start()
 
 
+class LogStream(object):
+    def __init__(self, queue):
+        super().__init__()
+        self.queue = queue
+
+    def write(self, text):
+        self.queue.put(text)
+
+
+class LogThread(QThread):
+    on_msg = Signal(str)
+
+    def __init__(self, queue: Queue, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.queue = queue
+
+    def run(self):
+        while not self.isInterruptionRequested():
+            try:
+                text = self.queue.get(block=False)
+                self.on_msg.emit(text)
+            except queue.Empty:
+                continue
+
+
 if __name__ == "__main__":
     freeze_support()
 
-    app = QApplication(sys.argv)
+    # Configure logging
+    log_msg_queue = Queue()
+    log_write_stream = LogStream(log_msg_queue)
+    log_handler = logging.StreamHandler(log_write_stream)
 
+    logging.basicConfig(level=logging.INFO, handlers=[log_handler])
+
+    app = QApplication(sys.argv)
     window = MainWindow()
     window.show()
+
+    # When a new message is written to the log_queue via the log_write_stream, log_thread emits a signal that causes the main
+    #   window to display that msg in the textBrowser
+    log_thread = LogThread(log_msg_queue)
+    log_thread.on_msg.connect(window.append_text)
+    app.aboutToQuit.connect(log_thread.requestInterruption)
+    log_thread.start()
 
     sys.exit(app.exec_())
