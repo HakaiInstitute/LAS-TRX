@@ -247,7 +247,7 @@ class MainWindow(QMainWindow):
         self.thread.start()
 
 
-class LogStream(object):
+class LogWriteStream(object):
     def __init__(self, queue):
         super().__init__()
         self.queue = queue
@@ -256,7 +256,7 @@ class LogStream(object):
         self.queue.put(text)
 
 
-class LogThread(QThread):
+class LogDisplayThread(QThread):
     on_msg = Signal(str)
 
     def __init__(self, queue: Queue, *args, **kwargs):
@@ -277,7 +277,7 @@ if __name__ == "__main__":
 
     # Configure logging
     log_msg_queue = Queue()
-    log_write_stream = LogStream(log_msg_queue)
+    log_write_stream = LogWriteStream(log_msg_queue)
     log_handler = logging.StreamHandler(log_write_stream)
 
     logging.basicConfig(level=logging.INFO, handlers=[log_handler])
@@ -288,7 +288,7 @@ if __name__ == "__main__":
 
     # When a new message is written to the log_queue via the log_write_stream, log_thread emits a signal that causes the main
     #   window to display that msg in the textBrowser
-    log_thread = LogThread(log_msg_queue)
+    log_thread = LogDisplayThread(log_msg_queue)
     log_thread.on_msg.connect(window.append_text)
     app.aboutToQuit.connect(log_thread.requestInterruption)
     log_thread.start()
