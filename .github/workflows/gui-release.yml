@@ -32,7 +32,7 @@ jobs:
           poetry run pip install --upgrade setuptools
       - name: Building GUI
         run: |
-          poetry run pyinstaller --name=LAS-TRX-${{ steps.tag.outputs.tag }} --onefile --icon='las_trx/resources/las-trx.ico' --add-data='las_trx/resources/las-trx.ico:resources' las_trx/main.py
+          poetry run pyinstaller --name=LAS-TRX-${{ steps.tag.outputs.tag }} --onefile --icon='las_trx/resources/las-trx.ico' --add-data='las_trx/resources/las-trx.ico:resources' las_trx/__main__.py
       - name: Gzip release
         run: |
           tar -czvf dist/LAS-TRX-${{ steps.tag.outputs.tag }}-linux.tar.gz -C dist LAS-TRX-${{ steps.tag.outputs.tag }}
@@ -66,7 +66,7 @@ jobs:
           poetry run pip install --upgrade setuptools
       - name: Building GUI
         run: |
-          poetry run pyinstaller --name=LAS-TRX-${{ steps.tag.outputs.tag }} --onefile --windowed --icon='las_trx\resources\las-trx.ico' --add-data='las_trx\resources\las-trx.ico;resources' las_trx\main.py
+          poetry run pyinstaller --name=LAS-TRX-${{ steps.tag.outputs.tag }} --onefile --windowed --icon='las_trx\resources\las-trx.ico' --add-data='las_trx\resources\las-trx.ico;resources' las_trx\__main__.py
       - name: Zip release
         run: |
           cd dist
@@ -79,7 +79,7 @@ jobs:
           path: dist/LAS-TRX-${{ steps.tag.outputs.tag }}-win64.zip
 
   Release:
-    needs: [Linux, Windows]
+    needs: [ Linux, Windows ]
     runs-on: ubuntu-latest
 
     steps:
