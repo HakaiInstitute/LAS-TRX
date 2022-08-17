@@ -15,7 +15,7 @@ pyproj = "^3.3.0"
 laspy = "^2.1.2"
 
 [tool.poetry.dev-dependencies]
-pyinstaller = "^4.10"
+pyinstaller = "^5.3"
 pytest = "^7.1.1"
 black = "^22.3.0"
 
