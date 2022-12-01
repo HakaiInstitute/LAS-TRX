@@ -8,16 +8,16 @@ repository = "https://github.com/HakaiInstitute/LAS-TRX"
 [tool.poetry.dependencies]
 python = "^3.9,<3.11"
 csrspy = "^0.2.3"
+laspy = "^2.3.0"
 laszip = "^0.1.0"
-pydantic = "^1.9.0"
-PySide2 = "^5.15.2"
-pyproj = "^3.3.0"
-laspy = "^2.1.2"
+pydantic = "^1.10.2"
+pyproj = "^3.4.0"
+pyside6 = "^6.4.1"
 
 [tool.poetry.dev-dependencies]
-pyinstaller = "^5.3"
-pytest = "^7.1.1"
-black = "^22.3.0"
+black = "^22.10.0"
+pyinstaller = "^5.6.2"
+pytest = "^7.2.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

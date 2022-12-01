@@ -1,15 +1,15 @@
 import logging
 import os.path
 import queue
-import sys
 from datetime import date
 from multiprocessing import freeze_support
 from pathlib import Path
 from queue import Queue
 
-from PySide2.QtCore import QSize, QThread, Signal
-from PySide2.QtGui import QIcon, QTextCursor
-from PySide2.QtWidgets import (
+import sys
+from PySide6.QtCore import QThread, Signal
+from PySide6.QtGui import QIcon, QTextCursor
+from PySide6.QtWidgets import (
     QApplication,
     QErrorMessage,
     QFileDialog,
@@ -42,11 +42,7 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        icon = QIcon()
-        icon.addFile(
-            resource_path("resources/las-trx.ico"), QSize(), QIcon.Normal, QIcon.Off
-        )
-        self.setWindowIcon(icon)
+        self.setWindowIcon(QIcon(resource_path("resources/las-trx.ico")))
 
         self.done_msg_box = QMessageBox(self)
         self.done_msg_box.setText("File(s) converted successfully")
