@@ -348,7 +348,7 @@
            <widget class="QComboBox" name="comboBox_input_vertical_reference">
             <item>
              <property name="text">
-              <string>GRS80</string>
+              <string>WGS84</string>
              </property>
             </item>
            </widget>

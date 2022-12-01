@@ -128,7 +128,7 @@ class MainWindow(QMainWindow):
                 ["GRS80", "CGVD2013/CGG2013a", "CGVD2013/CGG2013", "CGVD28/HT2_2010v70"]
             )
         else:
-            self.ui.comboBox_input_vertical_reference.addItems(["GRS80"])
+            self.ui.comboBox_input_vertical_reference.addItems(["WGS84"])
 
     def update_output_vd_options(self, text):
         self.ui.comboBox_output_vertical_reference.clear()
@@ -137,7 +137,7 @@ class MainWindow(QMainWindow):
                 ["GRS80", "CGVD2013/CGG2013a", "CGVD2013/CGG2013", "CGVD28/HT2_2010v70"]
             )
         else:
-            self.ui.comboBox_output_vertical_reference.addItems(["GRS80"])
+            self.ui.comboBox_output_vertical_reference.addItems(["WGS84"])
 
     @property
     def s_ref_frame(self) -> Reference:
@@ -289,4 +289,4 @@ if __name__ == "__main__":
     app.aboutToQuit.connect(log_thread.requestInterruption)
     log_thread.start()
 
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

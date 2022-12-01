@@ -8,17 +8,8 @@
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (
-    QCoreApplication,
-    QDate,
-    QDateTime,
-    QMetaObject,
-    QTime,
-    Qt,
-)
-from PySide6.QtGui import (
-    QFont,
-)
+from PySide6.QtCore import QCoreApplication, QDate, QDateTime, QMetaObject, QTime, Qt
+from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -537,7 +528,7 @@ class Ui_MainWindow(object):
             QCoreApplication.translate("MainWindow", "Vertical Reference", None)
         )
         self.comboBox_input_vertical_reference.setItemText(
-            0, QCoreApplication.translate("MainWindow", "GRS80", None)
+            0, QCoreApplication.translate("MainWindow", "WGS84", None)
         )
 
         self.label_output.setText(

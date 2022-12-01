@@ -25,6 +25,7 @@ def date_to_decimal_year(d: T) -> T:
 
 
 VD_LOOKUP = {
+    "WGS84": VerticalDatum.WGS84,
     "GRS80": VerticalDatum.GRS80,
     "CGVD2013/CGG2013a": VerticalDatum.CGG2013A,
     "CGVD2013/CGG2013": VerticalDatum.CGG2013,
