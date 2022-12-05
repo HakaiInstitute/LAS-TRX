@@ -1,8 +1,10 @@
 import logging
 from datetime import date
+from os import path
 from typing import TypeVar, overload
 
 import pyproj.sync
+import sys
 
 from csrspy.enums import CoordType, Reference, VerticalDatum
 
@@ -25,6 +27,7 @@ def date_to_decimal_year(d: T) -> T:
 
 
 VD_LOOKUP = {
+    "WGS84": VerticalDatum.WGS84,
     "GRS80": VerticalDatum.GRS80,
     "CGVD2013/CGG2013a": VerticalDatum.CGG2013A,
     "CGVD2013/CGG2013": VerticalDatum.CGG2013,
@@ -32,6 +35,7 @@ VD_LOOKUP = {
 }
 REFERENCE_LOOKUP = {
     "NAD83(CSRS)": Reference.NAD83CSRS,
+    "WGS84": Reference.WGS84,
     "ITRF2014": Reference.ITRF14,
     "ITRF2008": Reference.ITRF08,
     "ITRF2005": Reference.ITRF05,
@@ -123,3 +127,9 @@ def utm_zone_to_coord_type(zone: int) -> CoordType:
 
 def get_utm_zone(coord_type: CoordType) -> int:
     return int(coord_type.value[3:])
+
+
+def resource_path(relative_path):
+    """Get absolute path to resource, works for dev and for PyInstaller"""
+    base_path = getattr(sys, "_MEIPASS", path.dirname(__file__))
+    return path.abspath(path.join(base_path, relative_path))

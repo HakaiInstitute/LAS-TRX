@@ -1,7 +1,6 @@
 from datetime import date
 from typing import Union
 
-from csrspy import enums
 from pydantic import BaseModel, validator
 from pyproj.crs import (
     CRS,
@@ -14,6 +13,7 @@ from pyproj.crs import (
 from pyproj.crs.coordinate_operation import UTMConversion
 from pyproj.crs.coordinate_system import Cartesian2DCS
 
+from csrspy import enums
 from las_trx.utils import date_to_decimal_year, get_utm_zone, is_utm_coord_type
 
 
@@ -61,6 +61,8 @@ class TransformConfig(BaseModel):
             geodetic_crs = GeographicCRS.from_epsg(8989)
         elif self.t_ref_frame == enums.Reference.ITRF88:
             geodetic_crs = GeographicCRS.from_epsg(8988)
+        elif self.t_ref_frame == enums.Reference.WGS84:
+            geodetic_crs = GeographicCRS.from_epsg(4326)
         else:
             raise KeyError(f"No implementation found for {self.t_ref_frame}")
 

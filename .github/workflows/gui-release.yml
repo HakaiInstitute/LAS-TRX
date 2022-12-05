@@ -1,137 +1,145 @@
-name: Build GUI
+name: Create Release
 
 on:
   push:
     branches-ignore:
       - '**'
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
-      - 'v[0-9]+.[0-9]+.[0-9]+rc[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+rc[0-9]+'
 jobs:
+  build-binaries:
+    defaults:
+      run:
+        shell: bash -l {0}
 
-  Linux:
-    name: Build Linux
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ windows-latest, ubuntu-latest ]
+
+    runs-on: ${{ matrix.os }}
+
     steps:
       - uses: actions/checkout@v2
-      - name: Get tag
-        id: tag
-        run: |
-          echo ::set-output name=tag::${GITHUB_REF#refs/tags/}
+
       - name: Set up Python 3.9
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
-          python-version: 3.9
+          python-version: "3.9"
+
       - name: Setup Poetry
         uses: abatilo/actions-poetry@v2.0.0
         with:
-          poetry-version: 1.1.13
+          poetry-version: 1.2.2
+
+      - name: Get version tag
+        run: echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+
+      - name: Install Linux dependencies
+        if: ${{ runner.os == 'Linux' }}
+        run: >
+          sudo apt-get install 
+          '^libxcb.*-dev' 
+          libx11-xcb-dev 
+          libglu1-mesa-dev 
+          libxrender-dev 
+          libxi-dev 
+          libxkbcommon-dev 
+          libxkbcommon-x11-dev
+
       - name: Install dependencies
         run: |
-          poetry update
-          poetry run pip install --upgrade setuptools
-      - name: Building GUI
-        run: |
-          poetry run pyinstaller --name=LAS-TRX-${{ steps.tag.outputs.tag }} --onefile --icon='las_trx/resources/las-trx.ico' --add-data='las_trx/resources/las-trx.ico:resources' las_trx/__main__.py
-      - name: Gzip release
-        run: |
-          tar -czvf dist/LAS-TRX-${{ steps.tag.outputs.tag }}-linux.tar.gz -C dist LAS-TRX-${{ steps.tag.outputs.tag }}
-      - name: Upload Gzip artifact
-        uses: actions/upload-artifact@v1
-        with:
-          name: LAS-TRX-${{ steps.tag.outputs.tag }}-linux.tar.gz
-          path: dist/LAS-TRX-${{ steps.tag.outputs.tag }}-linux.tar.gz
+          poetry version ${{ env.tag }}
+          sed -i "s/0.0.0/${{ env.tag }}/g" las_trx/__init__.py
+          poetry run pip install --upgrade pip setuptools
+          poetry install
 
-  Windows:
-    name: Build Windows
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Get tag
-        id: tag
-        shell: bash
-        run: |
-          echo ::set-output name=tag::${GITHUB_REF#refs/tags/}
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.9
-      - name: Setup Poetry
-        uses: abatilo/actions-poetry@v2.0.0
-        with:
-          poetry-version: 1.1.13
-      - name: Install dependencies
-        run: |
-          poetry update
-          poetry run pip install --upgrade setuptools
-      - name: Building GUI
-        run: |
-          poetry run pyinstaller --name=LAS-TRX-${{ steps.tag.outputs.tag }} --onefile --windowed --icon='las_trx\resources\las-trx.ico' --add-data='las_trx\resources\las-trx.ico;resources' las_trx\__main__.py
-      - name: Zip release
-        run: |
-          cd dist
-          7z a LAS-TRX-${{ steps.tag.outputs.tag }}-win64.zip LAS-TRX-${{ steps.tag.outputs.tag }}.exe
-          cd -
-      - name: Upload Zip artifact
-        uses: actions/upload-artifact@v1
-        with:
-          name: LAS-TRX-${{ steps.tag.outputs.tag }}-win64.zip
-          path: dist/LAS-TRX-${{ steps.tag.outputs.tag }}-win64.zip
+      - name: Build Linux GUI Executable
+        if: ${{ runner.os == 'Linux' }}
+        run: >
+          poetry run pyinstaller
+          --onefile
+          --icon="las_trx/resources/las-trx.ico"
+          --add-data="las_trx/resources/las-trx.ico:resources"
+          --add-data="las_trx/resources/*.ui:resources"
+          las_trx/__main__.py
 
-  Release:
-    needs: [ Linux, Windows ]
+      - name: Build Windows GUI Executable
+        if: ${{ runner.os == 'Windows' }}
+        run: >
+          poetry run pyinstaller
+          --onefile
+          --windowed
+          --icon="las_trx\resources\las-trx.ico"
+          --add-data="las_trx\resources\las-trx.ico;resources"
+          --add-data="las_trx\resources\*.ui;resources"
+          las_trx/__main__.py
+
+      - name: Archive release artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.os }}-dist
+          path: dist
+
+  create-release:
+    needs: build-binaries
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
+
       - name: Get tag
         id: tag
-        run: |
-          echo ::set-output name=tag::${GITHUB_REF#refs/tags/}
+        run: echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+
       - name: Detect prerelease
         id: prerelease
         run: |
-          if echo ${{ steps.tag.outputs.tag }} | grep -qe '?*.*.*rc*'; then
-              echo ::set-output name=prerelease::true
+          if echo ${{ env.tag }} | grep -qe '?*.*.*rc*'; then
+              echo "prerelease=true" >> $GITHUB_ENV
           else
-              echo ::set-output name=prerelease::false
+              echo "prerelease=false" >> $GITHUB_ENV
           fi
-      - name: Download Linux gzip release file
-        uses: actions/download-artifact@master
+
+      - name: Download Windows artifacts
+        uses: actions/download-artifact@v2
         with:
-          name: LAS-TRX-${{ steps.tag.outputs.tag }}-linux.tar.gz
-          path: dist/LAS-TRX-${{ steps.tag.outputs.tag }}-linux.tar.gz
-      - name: Download Windows zip release file
-        uses: actions/download-artifact@master
+          name: windows-latest-dist
+          path: win64-dist
+
+      - name: Download Ubuntu artifacts
+        uses: actions/download-artifact@v2
         with:
-          name: LAS-TRX-${{ steps.tag.outputs.tag }}-win64.zip
-          path: dist/LAS-TRX-${{ steps.tag.outputs.tag }}-win64.zip
+          name: ubuntu-latest-dist
+          path: linux-dist
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.tag.outputs.tag }}
-          release_name: ${{ steps.tag.outputs.tag }}
-          draft: false
-          prerelease: ${{ steps.prerelease.outputs.prerelease }}
-      - name: Upload Linux gzip release file asset
-        uses: actions/upload-release-asset@v1.0.1
+          tag_name: ${{ env.tag }}
+          release_name: v${{ env.tag }}
+          draft: true
+          prerelease: ${{ env.prerelease }}
+
+      - name: Upload Windows GUI assets
+        uses: actions/upload-release-asset@v1.0.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: dist/LAS-TRX-${{ steps.tag.outputs.tag }}-linux.tar.gz/LAS-TRX-${{ steps.tag.outputs.tag }}-linux.tar.gz
-          asset_name: LAS-TRX-${{ steps.tag.outputs.tag }}-linux.tar.gz
-          asset_content_type: application/gzip
-      - name: Upload Windows zip release file asset
-        uses: actions/upload-release-asset@v1.0.1
+          asset_path: win64-dist/__main__.exe
+          asset_name: LAS-TRX-v${{ env.tag }}-win64.exe
+          asset_content_type: application/octet-stream
+
+      - name: Upload Ubuntu GUI assets
+        uses: actions/upload-release-asset@v1.0.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: dist/LAS-TRX-${{ steps.tag.outputs.tag }}-win64.zip/LAS-TRX-${{ steps.tag.outputs.tag }}-win64.zip
-          asset_name: LAS-TRX-${{ steps.tag.outputs.tag }}-win64.zip
-          asset_content_type: application/zip
+          asset_path: linux-dist/__main__
+          asset_name: LAS-TRX-v${{ env.tag }}-linux
+          asset_content_type: application/octet-stream

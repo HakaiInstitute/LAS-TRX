@@ -4,14 +4,14 @@ import multiprocessing
 import os
 from concurrent import futures
 from pathlib import Path
-from time import sleep
 
 import laspy
 import math
 import numpy as np
-from PySide2.QtCore import QThread, Signal
+from PyQt6.QtCore import QThread, pyqtSignal as Signal
 from laspy import LasHeader
 from pyproj import CRS
+from time import sleep
 
 from csrspy import CSRSTransformer
 from las_trx.config import TransformConfig
@@ -30,7 +30,7 @@ class TransformWorker(QThread):
     error = Signal(BaseException)
 
     def __init__(
-            self, config: TransformConfig, input_files: list[Path], output_files: list[Path]
+        self, config: TransformConfig, input_files: list[Path], output_files: list[Path]
     ):
         super().__init__(parent=None)
         self.config = config
@@ -45,7 +45,7 @@ class TransformWorker(QThread):
 
         self.total_iters = 0
         for input_file in self.input_files:
-            with laspy.open(input_file) as in_las:
+            with laspy.open(str(input_file)) as in_las:
                 self.total_iters += math.ceil(in_las.header.point_count / CHUNK_SIZE)
         logger.info(f"Total iterations until complete: {self.total_iters}")
 
@@ -114,16 +114,16 @@ class TransformWorker(QThread):
 
 
 def transform(
-        config: dict,
-        input_file: Path,
-        output_file: Path,
-        lock: multiprocessing.RLock,
-        cur: multiprocessing.Value,
+    config: dict,
+    input_file: Path,
+    output_file: Path,
+    lock: multiprocessing.RLock,
+    cur: multiprocessing.Value,
 ):
     transformer = CSRSTransformer(**config)
     config = TransformConfig(**config)
 
-    with laspy.open(input_file) as in_las:
+    with laspy.open(str(input_file)) as in_las:
         new_header = copy.deepcopy(in_las.header)
         new_header = clear_header_geokeys(new_header)
         new_header = write_header_geokeys_from_crs(new_header, config.t_crs)
@@ -134,7 +134,7 @@ def transform(
         logger.debug(f"{laz_backend=}")
 
         with laspy.open(
-                output_file, mode="w", header=new_header, laz_backend=laz_backend
+            str(output_file), mode="w", header=new_header, laz_backend=laz_backend
         ) as out_las:
             for points in in_las.chunk_iterator(CHUNK_SIZE):
                 # Convert the coordinates
@@ -155,9 +155,9 @@ def transform(
 
 
 def write_header_offsets(
-        header: "LasHeader", input_file: Path, transformer: "CSRSTransformer"
+    header: "LasHeader", input_file: Path, transformer: "CSRSTransformer"
 ) -> "LasHeader":
-    with laspy.open(input_file) as in_las:
+    with laspy.open(str(input_file)) as in_las:
         points = next(in_las.chunk_iterator(CHUNK_SIZE))
         data = stack_dims(points)
 
@@ -174,10 +174,10 @@ def clear_header_geokeys(header: "LasHeader") -> "LasHeader":
     # Update GeoKeyDirectoryVLR
     # check and remove any existing crs vlrs
     for crs_vlr_name in (
-            "WktCoordinateSystemVlr",
-            "GeoKeyDirectoryVlr",
-            "GeoAsciiParamsVlr",
-            "GeoDoubleParamsVlr",
+        "WktCoordinateSystemVlr",
+        "GeoKeyDirectoryVlr",
+        "GeoAsciiParamsVlr",
+        "GeoDoubleParamsVlr",
     ):
         try:
             header.vlrs.extract(crs_vlr_name)
