@@ -121,7 +121,7 @@ jobs:
         with:
           tag_name: ${{ env.tag }}
           release_name: v${{ env.tag }}
-          draft: false
+          draft: true
           prerelease: ${{ env.prerelease }}
 
       - name: Upload Windows GUI assets
