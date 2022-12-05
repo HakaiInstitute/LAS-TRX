@@ -49,8 +49,8 @@ jobs:
         run: >
           poetry run pyinstaller
           --onefile
-          --icon='las_trx/resources/las-trx.ico'
-          --add-data='las_trx/resources/las-trx.ico:resources'
+          --icon="las_trx/resources/las-trx.ico"
+          --add-data="las_trx/resources/las-trx.ico:resources"
           las_trx/__main__.py
 
       - name: Build Windows GUI Executable
@@ -59,9 +59,9 @@ jobs:
           poetry run pyinstaller
           --onefile
           --windowed
-          --icon='las_trx\resources\las-trx.ico'
-          --add-data='las_trx\resources\las-trx.ico;resources'
-          las_trx\__main__.py
+          --icon="las_trx\resources\las-trx.ico"
+          --add-data="las_trx\resources\las-trx.ico;resources"
+          las_trx/__main__.py
 
       - name: Archive release artifacts
         uses: actions/upload-artifact@v3
