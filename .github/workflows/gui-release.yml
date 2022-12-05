@@ -32,17 +32,15 @@ jobs:
         with:
           poetry-version: 1.2.2
 
+      - name: Get version tag
+        run: echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+
       - name: Install dependencies
         run: |
-          poetry update
-          poetry run pip install --upgrade pip    
-          poetry run pip install --upgrade setuptools
-
-      - name: Update version
-        run: |
-          echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
-          sed -i 's/0.0.0/${{ env.tag }}/g' las_trx/__init__.py
           poetry version ${{ env.tag }}
+          sed -i "s/0.0.0/${{ env.tag }}/g" las_trx/__init__.py
+          poetry update
+          poetry run pip install --upgrade pip setuptools
 
       - name: Build Linux GUI Executable
         if: ${{ runner.os == 'Linux' }}
@@ -51,6 +49,7 @@ jobs:
           --onefile
           --icon="las_trx/resources/las-trx.ico"
           --add-data="las_trx/resources/las-trx.ico:resources"
+          --add-data="las_trx/resources/*.ui:resources"
           las_trx/__main__.py
 
       - name: Build Windows GUI Executable
@@ -61,6 +60,7 @@ jobs:
           --windowed
           --icon="las_trx\resources\las-trx.ico"
           --add-data="las_trx\resources\las-trx.ico;resources"
+          --add-data="las_trx\resources\*.ui;resources"
           las_trx/__main__.py
 
       - name: Archive release artifacts

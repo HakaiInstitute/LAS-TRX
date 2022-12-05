@@ -1,8 +1,10 @@
 import logging
 from datetime import date
+from os import path
 from typing import TypeVar, overload
 
 import pyproj.sync
+import sys
 
 from csrspy.enums import CoordType, Reference, VerticalDatum
 
@@ -125,3 +127,9 @@ def utm_zone_to_coord_type(zone: int) -> CoordType:
 
 def get_utm_zone(coord_type: CoordType) -> int:
     return int(coord_type.value[3:])
+
+
+def resource_path(relative_path):
+    """Get absolute path to resource, works for dev and for PyInstaller"""
+    base_path = getattr(sys, "_MEIPASS", path.dirname(__file__))
+    return path.abspath(path.join(base_path, relative_path))

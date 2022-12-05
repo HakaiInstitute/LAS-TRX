@@ -8,7 +8,7 @@ from pathlib import Path
 import laspy
 import math
 import numpy as np
-from PySide6.QtCore import QThread, Signal
+from PyQt6.QtCore import QThread, pyqtSignal as Signal
 from laspy import LasHeader
 from pyproj import CRS
 from time import sleep
