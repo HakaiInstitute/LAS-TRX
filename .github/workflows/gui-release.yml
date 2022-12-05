@@ -20,7 +20,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
 
       - name: Set up Python 3.9
         uses: actions/setup-python@v4
@@ -37,7 +37,15 @@ jobs:
 
       - name: Install Linux dependencies
         if: ${{ runner.os == 'Linux' }}
-        run: sudo apt-get install libxcb-xinerama0
+        run: >
+          sudo apt-get install 
+          '^libxcb.*-dev' 
+          libx11-xcb-dev 
+          libglu1-mesa-dev 
+          libxrender-dev 
+          libxi-dev 
+          libxkbcommon-dev 
+          libxkbcommon-x11-dev
 
       - name: Install dependencies
         run: |
@@ -78,7 +86,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
 
       - name: Get tag
         id: tag
