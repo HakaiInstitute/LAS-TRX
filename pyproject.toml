@@ -12,7 +12,7 @@ laszip = "^0.1.0"
 pydantic = "^1.10.2"
 pyproj = "^3.4.0"
 pyside6 = "^6.4.1"
-csrspy = "^0.3.0"
+csrspy = "^0.3.1"
 
 [tool.poetry.dev-dependencies]
 black = "^22.10.0"

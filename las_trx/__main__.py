@@ -121,23 +121,23 @@ class MainWindow(QMainWindow):
     def activate_output_utm_zone_picker(self, text):
         self.ui.spinBox_output_utm_zone.setEnabled(text == "UTM")
 
-    def update_input_vd_options(self, text):
-        self.ui.comboBox_input_vertical_reference.clear()
+    @staticmethod
+    def update_vd_options(text, combo_box):
+        combo_box.clear()
         if text == "NAD83(CSRS)":
-            self.ui.comboBox_input_vertical_reference.addItems(
+            combo_box.addItems(
                 ["GRS80", "CGVD2013/CGG2013a", "CGVD2013/CGG2013", "CGVD28/HT2_2010v70"]
             )
+        elif text == "WGS84":
+            combo_box.addItems(["WGS84"])
         else:
-            self.ui.comboBox_input_vertical_reference.addItems(["WGS84"])
+            combo_box.addItems(["GRS80"])
+
+    def update_input_vd_options(self, text):
+        self.update_vd_options(text, self.ui.comboBox_input_vertical_reference)
 
     def update_output_vd_options(self, text):
-        self.ui.comboBox_output_vertical_reference.clear()
-        if text == "NAD83(CSRS)":
-            self.ui.comboBox_output_vertical_reference.addItems(
-                ["GRS80", "CGVD2013/CGG2013a", "CGVD2013/CGG2013", "CGVD28/HT2_2010v70"]
-            )
-        else:
-            self.ui.comboBox_output_vertical_reference.addItems(["WGS84"])
+        self.update_vd_options(text, self.ui.comboBox_output_vertical_reference)
 
     @property
     def s_ref_frame(self) -> Reference:

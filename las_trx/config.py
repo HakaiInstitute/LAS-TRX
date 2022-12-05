@@ -61,6 +61,8 @@ class TransformConfig(BaseModel):
             geodetic_crs = GeographicCRS.from_epsg(8989)
         elif self.t_ref_frame == enums.Reference.ITRF88:
             geodetic_crs = GeographicCRS.from_epsg(8988)
+        elif self.t_ref_frame == enums.Reference.WGS84:
+            geodetic_crs = GeographicCRS.from_epsg(4326)
         else:
             raise KeyError(f"No implementation found for {self.t_ref_frame}")
 

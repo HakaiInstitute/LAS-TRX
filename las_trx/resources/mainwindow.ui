@@ -182,12 +182,20 @@
           </item>
           <item row="1" column="0">
            <widget class="QComboBox" name="comboBox_input_reference">
+            <property name="currentText">
+             <string>WGS84</string>
+            </property>
             <property name="currentIndex">
              <number>1</number>
             </property>
             <item>
              <property name="text">
               <string>NAD83(CSRS)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>WGS84</string>
              </property>
             </item>
             <item>
@@ -457,6 +465,11 @@
             <item>
              <property name="text">
               <string>NAD83(CSRS)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>WGS84</string>
              </property>
             </item>
             <item>
