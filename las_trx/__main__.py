@@ -19,7 +19,7 @@ from PyQt6.QtWidgets import (
 )
 
 from csrspy.enums import CoordType, Reference, VerticalDatum
-from las_trx import __version__ as las_trx_version
+from las_trx import __version__
 from las_trx.config import TransformConfig
 from las_trx.utils import (
     REFERENCE_LOOKUP,
@@ -40,7 +40,7 @@ class MainWindow(QWidget):
 
         # Setup window
         self.setWindowIcon(QIcon(resource_path("resources/las-trx.ico")))
-        self.setWindowTitle(f"LAS TRX v{las_trx_version}")
+        self.setWindowTitle(f"LAS TRX v{__version__}")
 
         self.done_msg_box = QMessageBox(self)
         self.done_msg_box.setText("File(s) converted successfully")

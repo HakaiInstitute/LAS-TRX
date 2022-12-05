@@ -38,9 +38,8 @@ jobs:
       - name: Install dependencies
         run: |
           poetry version ${{ env.tag }}
-          sed -i "s/0.0.0/${{ env.tag }}/g" las_trx/__init__.py
-          poetry update
           poetry run pip install --upgrade pip setuptools
+          poetry install
 
       - name: Build Linux GUI Executable
         if: ${{ runner.os == 'Linux' }}
