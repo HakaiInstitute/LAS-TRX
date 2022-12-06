@@ -35,6 +35,8 @@ class TransformConfig(BaseModel):
     def t_crs(self) -> CRS:
         if self.t_ref_frame == enums.Reference.NAD83CSRS:
             geodetic_crs = GeographicCRS.from_epsg(4617)
+        elif self.t_ref_frame == enums.Reference.ITRF20:
+            geodetic_crs = GeographicCRS.from_epsg(9989)
         elif self.t_ref_frame == enums.Reference.ITRF14:
             geodetic_crs = GeographicCRS.from_epsg(9000)
         elif self.t_ref_frame == enums.Reference.ITRF08:
