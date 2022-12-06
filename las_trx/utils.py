@@ -36,6 +36,7 @@ VD_LOOKUP = {
 REFERENCE_LOOKUP = {
     "NAD83(CSRS)": Reference.NAD83CSRS,
     "WGS84": Reference.WGS84,
+    "ITRF2020": Reference.ITRF20,
     "ITRF2014": Reference.ITRF14,
     "ITRF2008": Reference.ITRF08,
     "ITRF2005": Reference.ITRF05,
