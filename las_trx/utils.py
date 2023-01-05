@@ -1,12 +1,13 @@
 import logging
+import sys
 from datetime import date
 from os import path
-from typing import TypeVar, overload
+from typing import TypeVar, overload, List, Mapping, Any, Optional
 
 import pyproj.sync
-import sys
 
 from csrspy.enums import CoordType, Reference, VerticalDatum
+from las_trx import __version__
 
 T = TypeVar("T")
 
@@ -134,3 +135,35 @@ def resource_path(relative_path):
     """Get absolute path to resource, works for dev and for PyInstaller"""
     base_path = getattr(sys, "_MEIPASS", path.dirname(__file__))
     return path.abspath(path.join(base_path, relative_path))
+
+
+def _get_available_versions() -> Optional[List[Mapping[str, Any]]]:
+    import requests
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28"
+    }
+    r = requests.get("https://api.github.com/repos/HakaiInstitute/LAS-TRX/releases",
+                     headers=headers)
+    if r.status_code == requests.codes.ok:
+        return list(
+            {
+                "tag_name": version["tag_name"],
+                "html_url": version["html_url"],
+            }
+            for version in r.json() if not (version["prerelease"] or version["draft"])
+        )
+    else:
+        return None
+
+
+def get_newer_version_if_available() -> Optional[Mapping[str, str]]:
+    available_versions = _get_available_versions()
+    if available_versions is None or len(available_versions) == 0:
+        return None
+
+    latest_version = available_versions[0]
+    if latest_version["tag_name"] != __version__:
+        return latest_version
+
+    return None
