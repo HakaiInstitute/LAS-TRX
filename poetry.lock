@@ -71,7 +71,7 @@ python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*,>=2.7
 
 [[package]]
 name = "csrspy"
-version = "0.3.1"
+version = "0.4.0"
 description = "ITRF/NAD83CSRS coordinate transforms in Python"
 category = "main"
 optional = false
@@ -366,7 +366,7 @@ python-versions = ">=3.7"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9,<3.11"
-content-hash = "77234ce2c05610a42ff6a0d0a2b8ffbbd004aa182e9ec7155b0aa4b8021d5d97"
+content-hash = "720a25a43dc72100fbabaa6276b7001222dfbb5bd29fb675911e4924148b2c95"
 
 [metadata.files]
 altgraph = [
@@ -413,8 +413,8 @@ colorama = [
     {file = "colorama-0.4.6.tar.gz", hash = "sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44"},
 ]
 csrspy = [
-    {file = "csrspy-0.3.1-py3-none-any.whl", hash = "sha256:4a33f53726ff143b006764db7735af22d8ec5b06e23443dd65ab6511b8c14f6a"},
-    {file = "csrspy-0.3.1.tar.gz", hash = "sha256:d0e1e030a64c22dca79e5e41ff34f9e1179a9a53a43a10da82d00a25bd168bfc"},
+    {file = "csrspy-0.4.0-py3-none-any.whl", hash = "sha256:d2f6aa38842bc45ef03ca89650251a0643aa277cf54c99cb15fc04abe42c7145"},
+    {file = "csrspy-0.4.0.tar.gz", hash = "sha256:f04858b4e07d5aceea4fa77cb2bebc6d9f88a457437b9322f0e671bd5840f3bf"},
 ]
 exceptiongroup = [
     {file = "exceptiongroup-1.0.4-py3-none-any.whl", hash = "sha256:542adf9dea4055530d6e1279602fa5cb11dab2395fa650b8674eaec35fc4a828"},
