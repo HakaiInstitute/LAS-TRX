@@ -1,12 +1,12 @@
 import logging
 import os.path
 import queue
+import sys
 from datetime import date
 from multiprocessing import freeze_support
 from pathlib import Path
 from queue import Queue
 
-import sys
 from PyQt6 import uic
 from PyQt6.QtCore import QThread, pyqtSignal as Signal
 from PyQt6.QtGui import QIcon, QTextCursor
@@ -270,13 +270,29 @@ if __name__ == "__main__":
     log_write_stream = LogWriteStream(log_msg_queue)
     log_handler = logging.StreamHandler(log_write_stream)
 
-    logging.basicConfig(level=logging.INFO, handlers=[log_handler])
+    log_level = logging.DEBUG if os.getenv("DEBUG") else logging.INFO
+    logging.basicConfig(level=log_level, handlers=[log_handler])
 
     app = QApplication(sys.argv)
     window = MainWindow()
+
+    if os.getenv("DEBUG"):
+        # self.lineEdit_input_file.setText(
+        #     "/mnt/aco-uvic/2020_Acquisitions/02_processed/20_3028_01_FraserRiver_ChimmneyCreek_WestWilliams_Canyon/01_LiDAR/01_Deliverables/02_QC/02_Classified_tiles/546000_5768000_5m_stp_arch_grnd_denoised.laz")
+        window.lineEdit_input_file.setText(
+            "/home/taylor/PycharmProjects/Las-TRX/testfiles/20_3028_01/*.laz")
+        window.comboBox_input_reference.setCurrentText("ITRF2014")
+        window.dateEdit_input_epoch.setDate(date(2020, 8, 12))
+
+        window.lineEdit_output_file.setText(
+            "/home/taylor/PycharmProjects/Las-TRX/testfiles/20_3028_01_converted/{}.laz")
+        window.checkBox_epoch_trans.setChecked(True)
+        window.dateEdit_output_epoch.setEnabled(True)
+        window.dateEdit_output_epoch.setDate(date(2002, 1, 1))
+        window.comboBox_output_vertical_reference.setCurrentText("CGVD2013/CGG2013a")
+
     window.show()
 
-    # When a new message is written to the log_queue via the log_write_stream, log_thread emits a signal that causes the main
     # When a new message is written to the log_queue via the log_write_stream,
     #   log_thread emits a signal that causes the main
     #   window to display that msg in the textBrowser

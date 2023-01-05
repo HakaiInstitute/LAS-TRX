@@ -1,17 +1,17 @@
 import copy
 import logging
+import math
 import multiprocessing
 import os
 from concurrent import futures
 from pathlib import Path
+from time import sleep
 
 import laspy
-import math
 import numpy as np
 from PyQt6.QtCore import QThread, pyqtSignal as Signal
 from laspy import LasHeader
 from pyproj import CRS
-from time import sleep
 
 from csrspy import CSRSTransformer
 from las_trx.config import TransformConfig
@@ -29,9 +29,8 @@ class TransformWorker(QThread):
     success = Signal()
     error = Signal(BaseException)
 
-    def __init__(
-        self, config: TransformConfig, input_files: list[Path], output_files: list[Path]
-    ):
+    def __init__(self, config: TransformConfig, input_files: list[Path],
+                 output_files: list[Path]):
         super().__init__(parent=None)
         self.config = config
         self.input_files = input_files
@@ -43,19 +42,21 @@ class TransformWorker(QThread):
         logger.debug(f"Will read points in chunk size of {CHUNK_SIZE}")
         logger.info("Calculating total number of iterations")
 
-        self.total_iters = 0
-        for input_file in self.input_files:
-            with laspy.open(str(input_file)) as in_las:
-                self.total_iters += math.ceil(in_las.header.point_count / CHUNK_SIZE)
-        logger.info(f"Total iterations until complete: {self.total_iters}")
-
         num_workers = min(os.cpu_count(), 61)
         self.pool = futures.ProcessPoolExecutor(max_workers=num_workers)
         self.manager = multiprocessing.Manager()
         self.lock = self.manager.RLock()
         self.current_iter = self.manager.Value("i", 0)
-
         logger.info(f"CPU process pool size: {num_workers}")
+
+        self.total_iters = 0
+        for input_file in self.input_files:
+            with laspy.open(str(input_file)) as in_las:
+                logger.debug(f"{input_file.name}: {in_las.header.point_count} points")
+                self.total_iters += math.ceil(in_las.header.point_count / CHUNK_SIZE)
+        logger.info(f"Total iterations until complete: {self.total_iters}")
+
+        self.futs = {}
 
     def check_file_names(self):
         for in_file in self.input_files:
@@ -68,34 +69,38 @@ class TransformWorker(QThread):
         if len(self.output_files) != len(list(set(self.output_files))):
             raise AssertionError(
                 "Duplicate output file name detected. "
-                "Use a format string for the output path to output a file based on the stem of the "
-                r"corresponding input file. e.g. 'C:\\some\path\{}_nad83csrs.laz'"
+                "Use a format string for the output path to output a file based on the "
+                "stem of the corresponding input file. "
+                r"e.g. 'C:\\some\path\{}_nad83csrs.laz'"
             )
 
     def _do_transform(self):
         self.check_file_names()
         config = self.config.dict(exclude_none=True)
-        futs = []
+        self.futs = {}
         for input_file, output_file in zip(self.input_files, self.output_files):
             if not Path(output_file).suffix:
                 output_file += ".laz"
-            logger.info(f"{input_file} -> {output_file}")
+            # logger.info(f"{input_file} -> {output_file}")
             fut = self.pool.submit(
                 transform, config, input_file, output_file, self.lock, self.current_iter
             )
             fut.add_done_callback(self.on_process_complete)
-            futs.append(fut)
+            self.futs[fut] = (input_file, output_file)
 
-        while any([f.running() for f in futs]):
+        while any([f.running() for f in self.futs.keys()]):
             self.progress.emit(self.progress_val)
             sleep(0.1)
         self.progress.emit(self.progress_val)
 
-    @staticmethod
-    def on_process_complete(fut: futures.Future):
+    def on_process_complete(self, fut: futures.Future):
+        input_file, output_file = self.futs[fut]
         err = fut.exception()
         if err is not None:
+            logger.error(f"Error transforming {input_file}")
             raise err
+        else:
+            logger.info(f"{input_file} -> {output_file}")
 
     @property
     def progress_val(self):
@@ -114,11 +119,11 @@ class TransformWorker(QThread):
 
 
 def transform(
-    config: dict,
-    input_file: Path,
-    output_file: Path,
-    lock: multiprocessing.RLock,
-    cur: multiprocessing.Value,
+        config: dict,
+        input_file: Path,
+        output_file: Path,
+        lock: multiprocessing.RLock,
+        cur: multiprocessing.Value,
 ):
     transformer = CSRSTransformer(**config)
     config = TransformConfig(**config)
@@ -134,7 +139,7 @@ def transform(
         logger.debug(f"{laz_backend=}")
 
         with laspy.open(
-            str(output_file), mode="w", header=new_header, laz_backend=laz_backend
+                str(output_file), mode="w", header=new_header, laz_backend=laz_backend
         ) as out_las:
             for points in in_las.chunk_iterator(CHUNK_SIZE):
                 # Convert the coordinates
@@ -155,7 +160,7 @@ def transform(
 
 
 def write_header_offsets(
-    header: "LasHeader", input_file: Path, transformer: "CSRSTransformer"
+        header: "LasHeader", input_file: Path, transformer: "CSRSTransformer"
 ) -> "LasHeader":
     with laspy.open(str(input_file)) as in_las:
         points = next(in_las.chunk_iterator(CHUNK_SIZE))
@@ -174,10 +179,10 @@ def clear_header_geokeys(header: "LasHeader") -> "LasHeader":
     # Update GeoKeyDirectoryVLR
     # check and remove any existing crs vlrs
     for crs_vlr_name in (
-        "WktCoordinateSystemVlr",
-        "GeoKeyDirectoryVlr",
-        "GeoAsciiParamsVlr",
-        "GeoDoubleParamsVlr",
+            "WktCoordinateSystemVlr",
+            "GeoKeyDirectoryVlr",
+            "GeoAsciiParamsVlr",
+            "GeoDoubleParamsVlr",
     ):
         try:
             header.vlrs.extract(crs_vlr_name)
