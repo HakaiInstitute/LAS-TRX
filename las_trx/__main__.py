@@ -27,13 +27,11 @@ from las_trx.utils import (
     sync_missing_grid_files,
     utm_zone_to_coord_type,
     resource_path,
-    get_newer_version_if_available
+    get_upgrade_version
 )
 from las_trx.worker import TransformWorker
 
 logger = logging.getLogger(__name__)
-
-newest_version = get_newer_version_if_available()
 
 
 class MainWindow(QWidget):
@@ -45,11 +43,14 @@ class MainWindow(QWidget):
         self.setWindowIcon(QIcon(resource_path("resources/las-trx.ico")))
         self.setWindowTitle(f"LAS TRX v{__version__}")
 
-        if newest_version is not None:
-            self.label_upgrade_link.setText(
-                f'<a href="{newest_version["html_url"]}">New version available (v{newest_version["tag_name"]})</a>')
-        else:
+        upgrade_version = get_upgrade_version(__version__)
+        if upgrade_version is None:
             self.label_upgrade_link.hide()
+        else:
+            self.label_upgrade_link.setText(
+                f"<a href=\"{upgrade_version['html_url']}\">"
+                f"New version available (v{upgrade_version['tag_name']})"
+                f"</a>")
 
         self.done_msg_box = QMessageBox(self)
         self.done_msg_box.setText("File(s) converted successfully")

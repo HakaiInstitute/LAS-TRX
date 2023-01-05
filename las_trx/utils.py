@@ -7,7 +7,6 @@ from typing import TypeVar, overload, List, Mapping, Any, Optional
 import pyproj.sync
 
 from csrspy.enums import CoordType, Reference, VerticalDatum
-from las_trx import __version__
 
 T = TypeVar("T")
 
@@ -150,20 +149,33 @@ def _get_available_versions() -> Optional[List[Mapping[str, Any]]]:
             {
                 "tag_name": version["tag_name"],
                 "html_url": version["html_url"],
+                "prerelease": version["prerelease"],
+                "draft": version["draft"],
             }
-            for version in r.json() if not (version["prerelease"] or version["draft"])
+            for version in r.json()
         )
     else:
         return None
 
 
-def get_newer_version_if_available() -> Optional[Mapping[str, str]]:
+def get_upgrade_version(version) -> Optional[Mapping[str, str]]:
     available_versions = _get_available_versions()
     if available_versions is None or len(available_versions) == 0:
+        # Error fetching versions, assume no upgrade available
         return None
 
-    latest_version = available_versions[0]
-    if latest_version["tag_name"] != __version__:
-        return latest_version
+    # Get all tags that are newer than the current version
+    try:
+        idx = [v["tag_name"] for v in available_versions].index(version)
+    except ValueError:
+        # Current version not found in releases, so get latest version of all releases
+        idx = len(available_versions)
 
-    return None
+    # Only recommend stable releases for upgrade
+    newer_stable_versions = [v for v in available_versions[:idx] if
+                             not v["prerelease"] and not v["draft"]]
+
+    if len(newer_stable_versions) == 0:
+        return None
+
+    return newer_stable_versions[0]
