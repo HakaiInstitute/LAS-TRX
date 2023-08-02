@@ -3,10 +3,10 @@ from csrspy.enums import CoordType, Reference, VerticalDatum
 from las_trx.config import TransformConfig
 
 DEFAULT_S_PARAMS = {
-    's_ref_frame': Reference.NAD83CSRS,
-    's_vd': VerticalDatum.GRS80,
-    's_coords': CoordType.UTM10,
-    's_epoch': 2010,
+    "s_ref_frame": Reference.NAD83CSRS,
+    "s_vd": VerticalDatum.GRS80,
+    "s_coords": CoordType.UTM10,
+    "s_epoch": 2010,
 }
 
 
@@ -229,8 +229,6 @@ def test_t_crs_itrf14_geog_cgvd28():
     assert config.t_crs.is_geographic
     assert config.t_crs.name == "ITRF2014 + CGVD28 height"
     assert config.t_crs.to_epsg() is None
-
-
 
 
 def test_t_crs_itrf_utm9_grs80():

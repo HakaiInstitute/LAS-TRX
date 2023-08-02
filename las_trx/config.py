@@ -1,7 +1,7 @@
 from datetime import date
 from typing import Union
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator, FieldValidationInfo
 from pyproj.crs import (
     CRS,
     CompoundCRS,
@@ -27,9 +27,17 @@ class TransformConfig(BaseModel):
     s_coords: Union[enums.CoordType, str]
     t_coords: Union[enums.CoordType, str]
 
-    # validators
-    _normalize_s_epoch = validator("s_epoch", allow_reuse=True)(date_to_decimal_year)
-    _normalize_t_epoch = validator("t_epoch", allow_reuse=True)(date_to_decimal_year)
+    @classmethod
+    @field_validator("s_epoch", "t_epoch")
+    def check_decimal_date(
+        cls, v: Union[float, date], info: FieldValidationInfo
+    ) -> float:
+        if isinstance(v, float):
+            return v
+        elif isinstance(v, date):
+            return date_to_decimal_year(v)
+        else:
+            raise TypeError(f"Invalid type for {info.field_name}: {type(v)}")
 
     @property
     def t_crs(self) -> CRS:
