@@ -1,7 +1,7 @@
 from datetime import date
 from typing import Union
 
-from pydantic import (BaseModel, field_validator, FieldValidationInfo)
+from pydantic import BaseModel, field_validator, FieldValidationInfo
 from pyproj.crs import (
     CRS,
     CompoundCRS,
@@ -28,8 +28,10 @@ class TransformConfig(BaseModel):
     t_coords: Union[enums.CoordType, str]
 
     @classmethod
-    @field_validator('s_epoch', 't_epoch')
-    def check_decimal_date(cls, v: Union[float, date], info: FieldValidationInfo) -> float:
+    @field_validator("s_epoch", "t_epoch")
+    def check_decimal_date(
+        cls, v: Union[float, date], info: FieldValidationInfo
+    ) -> float:
         if isinstance(v, float):
             return v
         elif isinstance(v, date):

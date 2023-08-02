@@ -29,8 +29,9 @@ class TransformWorker(QThread):
     success = Signal()
     error = Signal(BaseException)
 
-    def __init__(self, config: TransformConfig, input_files: list[Path],
-                 output_files: list[Path]):
+    def __init__(
+        self, config: TransformConfig, input_files: list[Path], output_files: list[Path]
+    ):
         super().__init__(parent=None)
         self.config = config
         self.input_files = input_files
@@ -119,11 +120,11 @@ class TransformWorker(QThread):
 
 
 def transform(
-        config: dict,
-        input_file: Path,
-        output_file: Path,
-        lock: multiprocessing.RLock,
-        cur: multiprocessing.Value,
+    config: dict,
+    input_file: Path,
+    output_file: Path,
+    lock: multiprocessing.RLock,
+    cur: multiprocessing.Value,
 ):
     transformer = CSRSTransformer(**config)
     config = TransformConfig(**config)
@@ -139,7 +140,7 @@ def transform(
         logger.debug(f"{laz_backend=}")
 
         with laspy.open(
-                str(output_file), mode="w", header=new_header, laz_backend=laz_backend
+            str(output_file), mode="w", header=new_header, laz_backend=laz_backend
         ) as out_las:
             for points in in_las.chunk_iterator(CHUNK_SIZE):
                 # Convert the coordinates
@@ -160,7 +161,7 @@ def transform(
 
 
 def write_header_offsets(
-        header: "LasHeader", input_file: Path, transformer: "CSRSTransformer"
+    header: "LasHeader", input_file: Path, transformer: "CSRSTransformer"
 ) -> "LasHeader":
     with laspy.open(str(input_file)) as in_las:
         points = next(in_las.chunk_iterator(CHUNK_SIZE))
@@ -179,10 +180,10 @@ def clear_header_geokeys(header: "LasHeader") -> "LasHeader":
     # Update GeoKeyDirectoryVLR
     # check and remove any existing crs vlrs
     for crs_vlr_name in (
-            "WktCoordinateSystemVlr",
-            "GeoKeyDirectoryVlr",
-            "GeoAsciiParamsVlr",
-            "GeoDoubleParamsVlr",
+        "WktCoordinateSystemVlr",
+        "GeoKeyDirectoryVlr",
+        "GeoAsciiParamsVlr",
+        "GeoDoubleParamsVlr",
     ):
         try:
             header.vlrs.extract(crs_vlr_name)

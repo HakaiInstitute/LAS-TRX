@@ -27,7 +27,7 @@ from las_trx.utils import (
     sync_missing_grid_files,
     utm_zone_to_coord_type,
     resource_path,
-    get_upgrade_version
+    get_upgrade_version,
 )
 from las_trx.worker import TransformWorker
 
@@ -50,7 +50,8 @@ class MainWindow(QWidget):
             self.label_upgrade_link.setText(
                 f"<a href=\"{upgrade_version['html_url']}\">"
                 f"New version available (v{upgrade_version['tag_name']})"
-                f"</a>")
+                f"</a>"
+            )
 
         self.done_msg_box = QMessageBox(self)
         self.done_msg_box.setText("File(s) converted successfully")
@@ -287,15 +288,15 @@ if __name__ == "__main__":
     window = MainWindow()
 
     if os.getenv("DEBUG"):
-        # self.lineEdit_input_file.setText(
-        #     "/mnt/aco-uvic/2020_Acquisitions/02_processed/20_3028_01_FraserRiver_ChimmneyCreek_WestWilliams_Canyon/01_LiDAR/01_Deliverables/02_QC/02_Classified_tiles/546000_5768000_5m_stp_arch_grnd_denoised.laz")
         window.lineEdit_input_file.setText(
-            "/home/taylor/PycharmProjects/Las-TRX/testfiles/20_3028_01/*.laz")
+            "/home/taylor/PycharmProjects/Las-TRX/testfiles/20_3028_01/*.laz"
+        )
         window.comboBox_input_reference.setCurrentText("ITRF2014")
         window.dateEdit_input_epoch.setDate(date(2020, 8, 12))
 
         window.lineEdit_output_file.setText(
-            "/home/taylor/PycharmProjects/Las-TRX/testfiles/20_3028_01_converted/{}.laz")
+            "/home/taylor/PycharmProjects/Las-TRX/testfiles/20_3028_01_converted/{}.laz"
+        )
         window.checkBox_epoch_trans.setChecked(True)
         window.dateEdit_output_epoch.setEnabled(True)
         window.dateEdit_output_epoch.setDate(date(2002, 1, 1))
