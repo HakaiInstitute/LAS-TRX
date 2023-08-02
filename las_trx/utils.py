@@ -18,9 +18,7 @@ def date_to_decimal_year(d: date) -> float:
     ...
 
 
-def date_to_decimal_year(d: T) -> T:
-    if not isinstance(d, date):
-        return d
+def date_to_decimal_year(d: date) -> float:
     year_part = d - date(d.year, 1, 1)
     year_length = date(d.year + 1, 1, 1) - date(d.year, 1, 1)
     return d.year + year_part / year_length
@@ -138,12 +136,14 @@ def resource_path(relative_path):
 
 def _get_available_versions() -> Optional[List[Mapping[str, Any]]]:
     import requests
+
     headers = {
         "Accept": "application/vnd.github+json",
-        "X-GitHub-Api-Version": "2022-11-28"
+        "X-GitHub-Api-Version": "2022-11-28",
     }
-    r = requests.get("https://api.github.com/repos/HakaiInstitute/LAS-TRX/releases",
-                     headers=headers)
+    r = requests.get(
+        "https://api.github.com/repos/HakaiInstitute/LAS-TRX/releases", headers=headers
+    )
     if r.status_code == requests.codes.ok:
         return list(
             {
@@ -172,8 +172,9 @@ def get_upgrade_version(version) -> Optional[Mapping[str, str]]:
         idx = len(available_versions)
 
     # Only recommend stable releases for upgrade
-    newer_stable_versions = [v for v in available_versions[:idx] if
-                             not v["prerelease"] and not v["draft"]]
+    newer_stable_versions = [
+        v for v in available_versions[:idx] if not v["prerelease"] and not v["draft"]
+    ]
 
     if len(newer_stable_versions) == 0:
         return None

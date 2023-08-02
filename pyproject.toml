@@ -2,24 +2,27 @@
 name = "las-trx"
 version = "0.0.0"
 description = "Convert lidar .las/.laz file coordinates between various ITRF realizations and NAD83 CSRS."
-authors = ["Taylor Denouden <taylordenouden@gmail.com>"]
+authors = ["Taylor Denouden <taylor.denouden@hakai.org>"]
 repository = "https://github.com/HakaiInstitute/LAS-TRX"
 
 [tool.poetry.dependencies]
-python = "^3.9,<3.11"
+python = "^3.9,<3.12"
 laspy = "^2.3.0"
-laszip = "^0.1.0"
-pydantic = "^1.10.2"
+laszip = "^0.2.3"
+pydantic = "^2.1.1"
 pyproj = "^3.4.0"
-csrspy = "^0.4.0"
+csrspy = "^0.5.0"
 pyqt6 = "^6.4.0"
+pyinstaller = "^5.6.2"
 requests = "^2.28.1"
+
+[tool.poetry.group.test.dependencies]
+pytest = "^7.2.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^22.10.0"
-pyinstaller = "^5.6.2"
-pytest = "^7.2.0"
 ruff = "^0.0.210"
+pre-commit = "^3.3.3"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
