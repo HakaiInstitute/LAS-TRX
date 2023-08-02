@@ -49,8 +49,9 @@ class MainWindow(QWidget):
         else:
             self.label_upgrade_link.setText(
                 f"<a href=\"{upgrade_version['html_url']}\">"
+                "<span style=\"text-decoration: underline; color:rgb(153, 193, 241)\">"
                 f"New version available (v{upgrade_version['tag_name']})"
-                f"</a>"
+                f"</span></a>"
             )
 
         self.done_msg_box = QMessageBox(self)
