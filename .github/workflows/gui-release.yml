@@ -62,6 +62,7 @@ jobs:
           --icon="las_trx/resources/las-trx.ico"
           --add-data="las_trx/resources/las-trx.ico:resources"
           --add-data="las_trx/resources/*.ui:resources"
+          --name LAS-TRX-v${{ env.tag }}-linux
           las_trx/__main__.py
 
       - name: Build Windows GUI Executable
@@ -73,6 +74,7 @@ jobs:
           --icon="las_trx\resources\las-trx.ico"
           --add-data="las_trx\resources\las-trx.ico;resources"
           --add-data="las_trx\resources\*.ui;resources"
+          --name LAS-TRX-v${{ env.tag }}-win64.exe
           las_trx/__main__.py
 
       - name: Archive release artifacts
@@ -101,45 +103,19 @@ jobs:
               echo "prerelease=false" >> $GITHUB_ENV
           fi
 
-      - name: Download Windows artifacts
-        uses: actions/download-artifact@v2
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
         with:
-          name: windows-latest-dist
-          path: win64-dist
-
-      - name: Download Ubuntu artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: ubuntu-latest-dist
-          path: linux-dist
+          path: artifacts
 
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v1
+        uses: ncipollo/release-action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ env.tag }}
-          release_name: v${{ env.tag }}
+          tag: ${{ env.tag }}
           draft: true
           prerelease: ${{ env.prerelease }}
-
-      - name: Upload Windows GUI assets
-        uses: actions/upload-release-asset@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: win64-dist/__main__.exe
-          asset_name: LAS-TRX-v${{ env.tag }}-win64.exe
-          asset_content_type: application/octet-stream
-
-      - name: Upload Ubuntu GUI assets
-        uses: actions/upload-release-asset@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: linux-dist/__main__
-          asset_name: LAS-TRX-v${{ env.tag }}-linux
-          asset_content_type: application/octet-stream
+          artifacts: "artifacts/*"
+          artifactContentType: application/octet-stream
