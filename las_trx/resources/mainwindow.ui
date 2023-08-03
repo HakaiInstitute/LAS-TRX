@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>611</width>
-    <height>789</height>
+    <width>600</width>
+    <height>780</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -32,12 +32,6 @@ color: rgb(143, 240, 164)</string>
      <property name="styleSheet">
       <string notr="true">background-color: rgb(36, 31, 49);</string>
      </property>
-     <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
-     </property>
      <layout class="QVBoxLayout" name="verticalLayout_5">
       <item>
        <widget class="QLabel" name="label_input">
@@ -50,6 +44,7 @@ color: rgb(143, 240, 164)</string>
         <property name="font">
          <font>
           <pointsize>12</pointsize>
+          <weight>75</weight>
           <bold>true</bold>
          </font>
         </property>
@@ -88,7 +83,17 @@ color: rgb(143, 240, 164)</string>
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="lineEdit_input_file"/>
+          <widget class="QLineEdit" name="lineEdit_input_file">
+           <property name="acceptDrops">
+            <bool>true</bool>
+           </property>
+           <property name="autoFillBackground">
+            <bool>false</bool>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">border : 1px solid black;</string>
+           </property>
+          </widget>
          </item>
          <item>
           <widget class="QToolButton" name="toolButton_input_file">
@@ -164,6 +169,9 @@ color: rgb(143, 240, 164)</string>
            <property name="enabled">
             <bool>true</bool>
            </property>
+           <property name="styleSheet">
+            <string notr="true">border : 1px solid black;</string>
+           </property>
            <property name="minimum">
             <number>7</number>
            </property>
@@ -177,6 +185,9 @@ color: rgb(143, 240, 164)</string>
          </item>
          <item row="5" column="0">
           <widget class="QComboBox" name="comboBox_input_coordinates">
+           <property name="styleSheet">
+            <string notr="true">border : 1px solid black;</string>
+           </property>
            <property name="currentIndex">
             <number>2</number>
            </property>
@@ -199,6 +210,9 @@ color: rgb(143, 240, 164)</string>
          </item>
          <item row="1" column="0">
           <widget class="QComboBox" name="comboBox_input_reference">
+           <property name="styleSheet">
+            <string notr="true">border : 1px solid black;</string>
+           </property>
            <property name="currentText">
             <string>WGS84</string>
            </property>
@@ -289,6 +303,9 @@ color: rgb(143, 240, 164)</string>
          </item>
          <item row="1" column="1">
           <widget class="QDateEdit" name="dateEdit_input_epoch">
+           <property name="styleSheet">
+            <string notr="true">border : 1px solid black;</string>
+           </property>
            <property name="time">
             <time>
              <hour>8</hour>
@@ -303,7 +320,7 @@ color: rgb(143, 240, 164)</string>
              <second>59</second>
              <year>9998</year>
              <month>1</month>
-             <day>14</day>
+             <day>15</day>
             </datetime>
            </property>
            <property name="displayFormat">
@@ -376,6 +393,9 @@ color: rgb(143, 240, 164)</string>
          </item>
          <item row="7" column="0">
           <widget class="QComboBox" name="comboBox_input_vertical_reference">
+           <property name="styleSheet">
+            <string notr="true">border : 1px solid black;</string>
+           </property>
            <item>
             <property name="text">
              <string>WGS84</string>
@@ -397,12 +417,6 @@ color: rgb(143, 240, 164)</string>
      <property name="styleSheet">
       <string notr="true">background-color: rgb(36, 31, 49)</string>
      </property>
-     <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
-     </property>
      <layout class="QVBoxLayout" name="verticalLayout_6">
       <item>
        <widget class="QLabel" name="label_output">
@@ -415,6 +429,7 @@ color: rgb(143, 240, 164)</string>
         <property name="font">
          <font>
           <pointsize>12</pointsize>
+          <weight>75</weight>
           <bold>true</bold>
          </font>
         </property>
@@ -450,7 +465,14 @@ color: rgb(143, 240, 164)</string>
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="lineEdit_output_file"/>
+          <widget class="QLineEdit" name="lineEdit_output_file">
+           <property name="autoFillBackground">
+            <bool>false</bool>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">border : 1px solid black;</string>
+           </property>
+          </widget>
          </item>
          <item>
           <widget class="QToolButton" name="toolButton_output_file">
@@ -460,6 +482,16 @@ color: rgb(143, 240, 164)</string>
           </widget>
          </item>
         </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="checkBox_epoch_trans">
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <property name="text">
+         <string>Epoch Transformation</string>
+        </property>
        </widget>
       </item>
       <item>
@@ -488,6 +520,9 @@ color: rgb(143, 240, 164)</string>
           <widget class="QComboBox" name="comboBox_output_reference">
            <property name="enabled">
             <bool>true</bool>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">border : 1px solid black;</string>
            </property>
            <item>
             <property name="text">
@@ -606,6 +641,9 @@ color: rgb(143, 240, 164)</string>
            <property name="enabled">
             <bool>true</bool>
            </property>
+           <property name="styleSheet">
+            <string notr="true">border : 1px solid black;</string>
+           </property>
            <property name="minimum">
             <number>7</number>
            </property>
@@ -624,6 +662,21 @@ color: rgb(143, 240, 164)</string>
           <widget class="QDateEdit" name="dateEdit_output_epoch">
            <property name="enabled">
             <bool>false</bool>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">border : 1px solid black;</string>
+           </property>
+           <property name="wrapping">
+            <bool>false</bool>
+           </property>
+           <property name="frame">
+            <bool>true</bool>
+           </property>
+           <property name="correctionMode">
+            <enum>QAbstractSpinBox::CorrectToPreviousValue</enum>
+           </property>
+           <property name="keyboardTracking">
+            <bool>true</bool>
            </property>
            <property name="time">
             <time>
@@ -652,6 +705,9 @@ color: rgb(143, 240, 164)</string>
          </item>
          <item row="5" column="0">
           <widget class="QComboBox" name="comboBox_output_coordinates">
+           <property name="styleSheet">
+            <string notr="true">border : 1px solid black;</string>
+           </property>
            <property name="currentIndex">
             <number>2</number>
            </property>
@@ -687,6 +743,12 @@ color: rgb(143, 240, 164)</string>
            <property name="enabled">
             <bool>true</bool>
            </property>
+           <property name="styleSheet">
+            <string notr="true">border : 1px solid black;</string>
+           </property>
+           <property name="frame">
+            <bool>true</bool>
+           </property>
            <item>
             <property name="text">
              <string>GRS80</string>
@@ -707,16 +769,6 @@ color: rgb(143, 240, 164)</string>
              <string>CGVD28/HT2_2010v70</string>
             </property>
            </item>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QCheckBox" name="checkBox_epoch_trans">
-           <property name="layoutDirection">
-            <enum>Qt::LeftToRight</enum>
-           </property>
-           <property name="text">
-            <string>Epoch Transformation</string>
-           </property>
           </widget>
          </item>
         </layout>
@@ -741,7 +793,8 @@ color: rgb(143, 240, 164)</string>
       <item>
        <widget class="QTextBrowser" name="textBrowser_log_output">
         <property name="styleSheet">
-         <string notr="true">background-color: rgb(31, 26, 40);</string>
+         <string notr="true">background-color: rgb(31, 26, 40);
+border : 1px solid black;</string>
         </property>
         <property name="frameShadow">
          <enum>QFrame::Sunken</enum>
@@ -766,13 +819,9 @@ color: rgb(143, 240, 164)</string>
          <item>
           <widget class="QProgressBar" name="progressBar">
            <property name="styleSheet">
-            <string notr="true"/>
-           </property>
-           <property name="value">
-            <number>0</number>
-           </property>
-           <property name="textVisible">
-            <bool>true</bool>
+            <string notr="true">border: 1px solid black;
+text-align: center;
+</string>
            </property>
           </widget>
          </item>
