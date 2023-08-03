@@ -117,5 +117,6 @@ jobs:
           tag: ${{ env.tag }}
           draft: true
           prerelease: ${{ env.prerelease }}
-          artifacts: "artifacts/**/*"
+          artifacts: "artifacts/windows-latest-dist/*,artifacts/ubuntu-latest-dist/*"
           artifactContentType: application/octet-stream
+          generateReleaseNotes: true
