@@ -2,7 +2,7 @@ import logging
 import sys
 from datetime import date
 from os import path
-from typing import TypeVar, overload, List, Mapping, Any, Optional
+from typing import TypeVar, List, Mapping, Any, Optional
 
 import pyproj.sync
 
@@ -11,11 +11,6 @@ from csrspy.enums import CoordType, Reference, VerticalDatum
 T = TypeVar("T")
 
 logger = logging.getLogger(__name__)
-
-
-@overload
-def date_to_decimal_year(d: date) -> float:
-    ...
 
 
 def date_to_decimal_year(d: date) -> float:

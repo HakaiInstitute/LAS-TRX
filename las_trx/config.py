@@ -27,9 +27,9 @@ class TransformConfig(BaseModel):
     s_coords: Union[enums.CoordType, str]
     t_coords: Union[enums.CoordType, str]
 
-    @classmethod
     @field_validator("s_epoch", "t_epoch")
-    def check_decimal_date(
+    @classmethod
+    def date2decimal(
         cls, v: Union[float, date], info: FieldValidationInfo
     ) -> float:
         if isinstance(v, float):
