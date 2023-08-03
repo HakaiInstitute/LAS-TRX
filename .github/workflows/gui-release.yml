@@ -117,5 +117,5 @@ jobs:
           tag: ${{ env.tag }}
           draft: true
           prerelease: ${{ env.prerelease }}
-          artifacts: "artifacts/*"
+          artifacts: "artifacts/**/*"
           artifactContentType: application/octet-stream
