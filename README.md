@@ -15,6 +15,8 @@ This tools duplicates and extends the functionality of the [TRX](https://webapp.
 write from lidar las files. This allows for easy and accurate transformation of these files to NAD83 CSRS, conversion from
 ellipsoidal to orthometric height models, as well as epoch transformations.
 
+If you're looking for a Python library to convert coordinate values directly, check out [csrspy](https://github.com/HakaiInstitute/csrspy).
+
 ### Installation
 
 Windows and Linux GUI applications are available on the [releases page](https://github.com/HakaiInstitute/LAS-TRX/releases).
