@@ -9,13 +9,16 @@ from queue import Queue
 
 from PyQt6 import uic
 from PyQt6.QtCore import QThread, pyqtSignal as Signal
-from PyQt6.QtGui import QIcon, QTextCursor
+from PyQt6.QtGui import QIcon, QTextCursor, QKeySequence
 from PyQt6.QtWidgets import (
+    QMainWindow,
     QApplication,
     QErrorMessage,
     QFileDialog,
     QMessageBox,
     QWidget,
+    QMenuBar,
+    QMenu,
 )
 
 from csrspy.enums import CoordType, Reference, VerticalDatum
@@ -34,20 +37,59 @@ from las_trx.worker import TransformWorker
 logger = logging.getLogger(__name__)
 
 
-class MainWindow(QWidget):
+class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi(resource_path("resources/mainwindow.ui"), self)
+
+        # Set window size
+        rect = self.frameGeometry()
+        rect.setWidth(600)
+        rect.setHeight(780)
+        self.setProperty("geometry", rect)
+
+        # Load UI
+        self.cw = QWidget()
+        self.setCentralWidget(self.cw)
+        uic.loadUi(resource_path("resources/mainwindow.ui"), self.cw)
 
         # Setup window
         self.setWindowIcon(QIcon(resource_path("resources/las-trx.ico")))
         self.setWindowTitle(f"LAS TRX v{__version__}")
 
+        # Create menu bar
+        self.menu_bar = QMenuBar(self)
+        self.setMenuBar(self.menu_bar)
+
+        # Create File menu
+        file_menu = QMenu("File", self)
+        self.menu_bar.addMenu(file_menu)
+        exit_action = file_menu.addAction("Exit")
+        exit_action.setShortcut(QKeySequence("Ctrl+Q"))
+        exit_action.triggered.connect(self.close)
+
+        # Create config menu
+        config_menu = QMenu("Config", self)
+        self.menu_bar.addMenu(config_menu)
+        save_config_action = config_menu.addAction("Save")
+        save_config_action.setShortcut(QKeySequence.StandardKey.Save)
+        save_config_action.triggered.connect(self.save_config)
+        load_config_action = config_menu.addAction("Load")
+        load_config_action.setShortcut(QKeySequence.StandardKey.Open)
+        load_config_action.triggered.connect(self.load_config)
+
+        # Create Log menu
+        log_menu = QMenu("Logs", self)
+        self.menu_bar.addMenu(log_menu)
+        save_log_action = log_menu.addAction("Save")
+        save_log_action.triggered.connect(self.save_log)
+        clear_log_action = log_menu.addAction("Clear")
+        clear_log_action.triggered.connect(self.clear_log)
+
         upgrade_version = get_upgrade_version(__version__)
         if upgrade_version is None:
-            self.label_upgrade_link.hide()
+            self.cw.label_upgrade_link.hide()
         else:
-            self.label_upgrade_link.setText(
+            self.cw.label_upgrade_link.setText(
                 f"<a href=\"{upgrade_version['html_url']}\">"
                 "<span style=\"text-decoration: underline; color:rgb(153, 193, 241)\">"
                 f"New version available (v{upgrade_version['tag_name']})"
@@ -68,24 +110,24 @@ class MainWindow(QWidget):
         )
         self.help_msg_box.setWindowTitle("Help")
 
-        self.toolButton_input_file.clicked.connect(self.handle_select_input_file)
-        self.toolButton_output_file.clicked.connect(self.handle_select_output_file)
-        self.checkBox_epoch_trans.clicked.connect(self.enable_epoch_trans)
-        self.pushButton_convert.clicked.connect(self.convert)
-        self.comboBox_input_reference.currentTextChanged.connect(
+        self.cw.toolButton_input_file.clicked.connect(self.handle_select_input_file)
+        self.cw.toolButton_output_file.clicked.connect(self.handle_select_output_file)
+        self.cw.checkBox_epoch_trans.clicked.connect(self.enable_epoch_trans)
+        self.cw.pushButton_convert.clicked.connect(self.convert)
+        self.cw.comboBox_input_reference.currentTextChanged.connect(
             self.update_input_vd_options
         )
-        self.comboBox_output_reference.currentTextChanged.connect(
+        self.cw.comboBox_output_reference.currentTextChanged.connect(
             self.update_output_vd_options
         )
-        self.dateEdit_input_epoch.dateChanged.connect(self.maybe_update_output_epoch)
-        self.comboBox_output_coordinates.currentTextChanged.connect(
+        self.cw.dateEdit_input_epoch.dateChanged.connect(self.maybe_update_output_epoch)
+        self.cw.comboBox_output_coordinates.currentTextChanged.connect(
             self.activate_output_utm_zone_picker
         )
-        self.comboBox_input_coordinates.currentTextChanged.connect(
+        self.cw.comboBox_input_coordinates.currentTextChanged.connect(
             self.activate_input_utm_zone_picker
         )
-        self.toolButton_help.clicked.connect(self.help_msg_box.exec)
+        self.cw.toolButton_help.clicked.connect(self.help_msg_box.exec)
 
         self.dialog_directory = os.path.expanduser("~")
 
@@ -93,9 +135,21 @@ class MainWindow(QWidget):
 
         sync_missing_grid_files()
 
+    def save_config(self):
+        logger.info("Saving config")
+
+    def load_config(self):
+        logger.info("Loading config")
+
+    def save_log(self):
+        pass
+
+    def clear_log(self):
+        pass
+
     def maybe_update_output_epoch(self, new_date: date):
-        if not self.checkBox_epoch_trans.isChecked():
-            self.dateEdit_output_epoch.setDate(new_date)
+        if not self.cw.checkBox_epoch_trans.isChecked():
+            self.cw.dateEdit_output_epoch.setDate(new_date)
 
     def handle_select_input_file(self):
         path, _ = QFileDialog.getOpenFileName(
@@ -105,7 +159,7 @@ class MainWindow(QWidget):
             filter="LAS Files (*.las *.laz)",
         )
         if path:
-            self.lineEdit_input_file.setText(path)
+            self.cw.lineEdit_input_file.setText(path)
             self.dialog_directory = os.path.dirname(path)
 
     def handle_select_output_file(self):
@@ -116,20 +170,20 @@ class MainWindow(QWidget):
             filter="LAS Files (*.las *.laz)",
         )
         if path:
-            self.lineEdit_output_file.setText(path)
+            self.cw.lineEdit_output_file.setText(path)
             self.dialog_directory = os.path.dirname(path)
 
     def enable_epoch_trans(self, checked):
-        self.dateEdit_output_epoch.setEnabled(checked)
+        self.cw.dateEdit_output_epoch.setEnabled(checked)
 
         if not checked:
-            self.dateEdit_output_epoch.setDate(self.dateEdit_input_epoch.date())
+            self.cw.dateEdit_output_epoch.setDate(self.cw.dateEdit_input_epoch.date())
 
     def activate_input_utm_zone_picker(self, text):
-        self.spinBox_input_utm_zone.setEnabled(text == "UTM")
+        self.cw.spinBox_input_utm_zone.setEnabled(text == "UTM")
 
     def activate_output_utm_zone_picker(self, text):
-        self.spinBox_output_utm_zone.setEnabled(text == "UTM")
+        self.cw.spinBox_output_utm_zone.setEnabled(text == "UTM")
 
     @staticmethod
     def update_vd_options(text, combo_box):
@@ -144,35 +198,35 @@ class MainWindow(QWidget):
             combo_box.addItems(["GRS80"])
 
     def update_input_vd_options(self, text):
-        self.update_vd_options(text, self.comboBox_input_vertical_reference)
+        self.update_vd_options(text, self.cw.comboBox_input_vertical_reference)
 
     def update_output_vd_options(self, text):
-        self.update_vd_options(text, self.comboBox_output_vertical_reference)
+        self.update_vd_options(text, self.cw.comboBox_output_vertical_reference)
 
     @property
     def s_ref_frame(self) -> Reference:
-        return REFERENCE_LOOKUP[self.comboBox_input_reference.currentText()]
+        return REFERENCE_LOOKUP[self.cw.comboBox_input_reference.currentText()]
 
     @property
     def t_ref_frame(self) -> Reference:
-        return REFERENCE_LOOKUP[self.comboBox_output_reference.currentText()]
+        return REFERENCE_LOOKUP[self.cw.comboBox_output_reference.currentText()]
 
     @property
     def s_epoch(self) -> date:
-        return self.dateEdit_input_epoch.date().toPyDate()
+        return self.cw.dateEdit_input_epoch.date().toPyDate()
 
     @property
     def t_epoch(self) -> date:
-        if self.checkBox_epoch_trans.isChecked():
-            return self.dateEdit_output_epoch.date().toPyDate()
+        if self.cw.checkBox_epoch_trans.isChecked():
+            return self.cw.dateEdit_output_epoch.date().toPyDate()
         else:
             return self.s_epoch
 
     @property
     def s_coords(self) -> CoordType:
-        out_type = self.comboBox_input_coordinates.currentText()
+        out_type = self.cw.comboBox_input_coordinates.currentText()
         if out_type == "UTM":
-            return utm_zone_to_coord_type(self.spinBox_output_utm_zone.value())
+            return utm_zone_to_coord_type(self.cw.spinBox_output_utm_zone.value())
         elif out_type == "Cartesian":
             return CoordType.CART
         else:
@@ -180,9 +234,9 @@ class MainWindow(QWidget):
 
     @property
     def t_coords(self) -> CoordType:
-        out_type = self.comboBox_output_coordinates.currentText()
+        out_type = self.cw.comboBox_output_coordinates.currentText()
         if out_type == "UTM":
-            return utm_zone_to_coord_type(self.spinBox_output_utm_zone.value())
+            return utm_zone_to_coord_type(self.cw.spinBox_output_utm_zone.value())
         elif out_type == "Cartesian":
             return CoordType.CART
         else:
@@ -190,38 +244,38 @@ class MainWindow(QWidget):
 
     @property
     def s_vd(self) -> VerticalDatum:
-        return VD_LOOKUP[self.comboBox_input_vertical_reference.currentText()]
+        return VD_LOOKUP[self.cw.comboBox_input_vertical_reference.currentText()]
 
     @property
     def t_vd(self) -> VerticalDatum:
-        return VD_LOOKUP[self.comboBox_output_vertical_reference.currentText()]
+        return VD_LOOKUP[self.cw.comboBox_output_vertical_reference.currentText()]
 
     @property
     def transform_config(self) -> TransformConfig:
         return TransformConfig(
             s_ref_frame=self.s_ref_frame,
-            t_ref_frame=self.t_ref_frame,
             s_epoch=self.s_epoch,
-            t_epoch=self.t_epoch,
             s_vd=self.s_vd,
-            t_vd=self.t_vd,
             s_coords=self.s_coords,
+            t_ref_frame=self.t_ref_frame,
+            t_epoch=self.t_epoch,
+            t_vd=self.t_vd,
             t_coords=self.t_coords,
         )
 
     @property
     def input_files(self) -> list[Path]:
-        p = Path(self.lineEdit_input_file.text())
+        p = Path(self.cw.lineEdit_input_file.text())
         return [f for f in p.parent.glob(p.name) if f.is_file()]
 
     @property
     def output_files(self) -> list[Path]:
-        out_path = self.lineEdit_output_file.text()
+        out_path = self.cw.lineEdit_output_file.text()
         return [Path(out_path.format(f.stem)) for f in self.input_files]
 
     def append_text(self, text):
-        self.textBrowser_log_output.moveCursor(QTextCursor.MoveOperation.End)
-        self.textBrowser_log_output.insertPlainText(text)
+        self.cw.textBrowser_log_output.moveCursor(QTextCursor.MoveOperation.End)
+        self.cw.textBrowser_log_output.insertPlainText(text)
 
     def on_process_success(self):
         logger.info("Processing complete")
@@ -239,12 +293,16 @@ class MainWindow(QWidget):
             self.transform_config, self.input_files, self.output_files
         )
 
-        self.thread.progress.connect(self.progressBar.setValue)
+        self.thread.progress.connect(self.cw.progressBar.setValue)
         self.thread.success.connect(self.on_process_success)
         self.thread.error.connect(self.on_process_error)
-        self.thread.started.connect(lambda: self.pushButton_convert.setEnabled(False))
-        self.thread.finished.connect(lambda: self.pushButton_convert.setEnabled(True))
-        self.thread.finished.connect(lambda: self.progressBar.setValue(0))
+        self.thread.started.connect(
+            lambda: self.cw.pushButton_convert.setEnabled(False)
+        )
+        self.thread.finished.connect(
+            lambda: self.cw.pushButton_convert.setEnabled(True)
+        )
+        self.thread.finished.connect(lambda: self.cw.progressBar.setValue(0))
 
         self.thread.start()
 
