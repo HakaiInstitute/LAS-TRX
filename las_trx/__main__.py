@@ -4,7 +4,6 @@ import queue
 import sys
 from datetime import date
 from multiprocessing import freeze_support
-from pathlib import Path
 from queue import Queue
 
 from PyQt6 import uic
@@ -21,16 +20,12 @@ from PyQt6.QtWidgets import (
     QMenu,
 )
 
-from csrspy.enums import CoordType, Reference, VerticalDatum
 from csrspy.utils import sync_missing_grid_files
 from las_trx import __version__
-from las_trx.config import TransformConfig
+from las_trx.config import TransformConfig, ReferenceConfig, TrxReference, TrxVd, TrxCoordType
 from las_trx.utils import (
-    REFERENCE_LOOKUP,
-    VD_LOOKUP,
-    utm_zone_to_coord_type,
     resource_path,
-    get_upgrade_version,
+    get_upgrade_version
 )
 from las_trx.worker import TransformWorker
 
@@ -204,12 +199,12 @@ class MainWindow(QMainWindow):
         self.update_vd_options(text, self.cw.comboBox_output_vertical_reference)
 
     @property
-    def s_ref_frame(self) -> Reference:
-        return REFERENCE_LOOKUP[self.cw.comboBox_input_reference.currentText()]
+    def s_ref_frame(self) -> TrxReference:
+        return TrxReference(self.cw.comboBox_input_reference.currentText())
 
     @property
-    def t_ref_frame(self) -> Reference:
-        return REFERENCE_LOOKUP[self.cw.comboBox_output_reference.currentText()]
+    def t_ref_frame(self) -> TrxReference:
+        return TrxReference(self.cw.comboBox_output_reference.currentText())
 
     @property
     def s_epoch(self) -> date:
@@ -223,45 +218,42 @@ class MainWindow(QMainWindow):
             return self.s_epoch
 
     @property
-    def s_coords(self) -> CoordType:
+    def s_coords(self) -> TrxCoordType:
         out_type = self.cw.comboBox_input_coordinates.currentText()
         if out_type == "UTM":
-            return utm_zone_to_coord_type(self.cw.spinBox_output_utm_zone.value())
-        elif out_type == "Cartesian":
-            return CoordType.CART
-        else:
-            return CoordType.GEOG
+            return TrxCoordType.from_utm_zone(self.cw.spinBox_output_utm_zone.value())
+        return TrxCoordType(out_type)
 
     @property
-    def t_coords(self) -> CoordType:
+    def t_coords(self) -> TrxCoordType:
         out_type = self.cw.comboBox_output_coordinates.currentText()
         if out_type == "UTM":
-            return utm_zone_to_coord_type(self.cw.spinBox_output_utm_zone.value())
-        elif out_type == "Cartesian":
-            return CoordType.CART
-        else:
-            return CoordType.GEOG
+            return TrxCoordType.from_utm_zone(self.cw.spinBox_output_utm_zone.value())
+        return TrxCoordType(out_type)
 
     @property
-    def s_vd(self) -> VerticalDatum:
-        return VD_LOOKUP[self.cw.comboBox_input_vertical_reference.currentText()]
+    def s_vd(self) -> TrxVd:
+        return TrxVd(self.cw.comboBox_input_vertical_reference.currentText())
 
     @property
-    def t_vd(self) -> VerticalDatum:
-        return VD_LOOKUP[self.cw.comboBox_output_vertical_reference.currentText()]
+    def t_vd(self) -> TrxVd:
+        return TrxVd(self.cw.comboBox_output_vertical_reference.currentText())
 
     @property
     def transform_config(self) -> TransformConfig:
-        return TransformConfig(
-            s_ref_frame=self.s_ref_frame,
-            s_epoch=self.s_epoch,
-            s_vd=self.s_vd,
-            s_coords=self.s_coords,
-            t_ref_frame=self.t_ref_frame,
-            t_epoch=self.t_epoch,
-            t_vd=self.t_vd,
-            t_coords=self.t_coords,
+        origin = ReferenceConfig(
+            ref_frame=self.s_ref_frame,
+            epoch=self.s_epoch,
+            vd=self.s_vd,
+            coord_type=self.s_coords,
         )
+        destination = ReferenceConfig(
+            ref_frame=self.t_ref_frame,
+            epoch=self.t_epoch,
+            vd=self.t_vd,
+            coord_type=self.t_coords,
+        )
+        return TransformConfig(origin=origin, destination=destination)
 
     @property
     def input_pattern(self) -> str:

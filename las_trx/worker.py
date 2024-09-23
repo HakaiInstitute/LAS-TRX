@@ -34,16 +34,19 @@ class TransformWorker(QThread):
     ):
         super().__init__(parent=None)
         self.config = config
+        self.input_pattern = Path(input_pattern)
+        self.output_pattern = output_pattern
         self.input_files = [
-            f for f in input_pattern.parent.glob(input_pattern.name) if f.is_file()
+            f for f in self.input_pattern.parent.glob(self.input_pattern.name) if f.is_file()
         ]
         self.output_files = [
-            Path(output_pattern.format(f.stem)) for f in self.input_pattern
+            Path(output_pattern.format(f.stem)) for f in self.input_files
         ]
 
         logger.info(f"Found {len(self.input_files)} input files")
         logger.info(f"Transform config: {self.config}")
-        logger.info(f"Output CRS\n{self.config.t_crs.to_wkt(pretty=True)}")
+        logger.info(f"Input CRS\n{self.config.origin.crs.to_wkt(pretty=True)}")
+        logger.info(f"Output CRS\n{self.config.destination.crs.to_wkt(pretty=True)}")
         logger.debug(f"Will read points in chunk size of {CHUNK_SIZE}")
         logger.info("Calculating total number of iterations")
 
@@ -81,7 +84,7 @@ class TransformWorker(QThread):
 
     def _do_transform(self):
         self.check_file_names()
-        config = self.config.dict(exclude_none=True)
+        config = self.config.to_csrspy().model_dump(exclude_none=True)
         self.futs = {}
         for input_file, output_file in zip(self.input_files, self.output_files):
             if not Path(output_file).suffix:
