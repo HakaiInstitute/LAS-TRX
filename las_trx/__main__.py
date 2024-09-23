@@ -47,6 +47,22 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.cw)
         uic.loadUi(resource_path("resources/mainwindow.ui"), self.cw)
 
+        # Create Dialogs
+        self.done_msg_box = QMessageBox(self)
+        self.done_msg_box.setText("File(s) converted successfully")
+        self.done_msg_box.setWindowTitle("Success")
+        self.err_msg_box = QErrorMessage(self)
+        self.err_msg_box.setWindowTitle("Error")
+        self.help_msg_box = QMessageBox(self)
+        self.help_msg_box.setText(
+            "<h3>Batch Processing</h3>"
+            "<p>Use '*' in the input file to select multiple files, <i>e.g.</i>"
+            "<pre>C:\\\\path\\to\\files\\*.laz</pre>"
+            "<p>Use '{}' in the output file to generate a name from the input name, <i>e.g.</i></p>"
+            "<pre>C:\\\\path\\to\\files\\{}_nad83.laz</pre>"
+        )
+        self.help_msg_box.setWindowTitle("Help")
+
         # Setup window
         self.setWindowIcon(QIcon(resource_path("resources/las-trx.ico")))
         self.setWindowTitle(f"LAS TRX v{__version__}")
@@ -58,11 +74,14 @@ class MainWindow(QMainWindow):
         # Create File menu
         file_menu = QMenu("File", self)
         self.menu_bar.addMenu(file_menu)
+        export_log_action = file_menu.addAction("Export Logs")
+        export_log_action.triggered.connect(self.export_logs)
+        file_menu.addSeparator()
         exit_action = file_menu.addAction("Exit")
         exit_action.setShortcut(QKeySequence("Ctrl+Q"))
         exit_action.triggered.connect(self.close)
 
-        # Create config menu
+        # Create Config menu
         config_menu = QMenu("Config", self)
         self.menu_bar.addMenu(config_menu)
         save_config_action = config_menu.addAction("Save")
@@ -72,14 +91,14 @@ class MainWindow(QMainWindow):
         load_config_action.setShortcut(QKeySequence.StandardKey.Open)
         load_config_action.triggered.connect(self.load_config)
 
-        # Create Log menu
-        log_menu = QMenu("Logs", self)
-        self.menu_bar.addMenu(log_menu)
-        save_log_action = log_menu.addAction("Save")
-        save_log_action.triggered.connect(self.save_log)
-        clear_log_action = log_menu.addAction("Clear")
-        clear_log_action.triggered.connect(self.clear_log)
+        # Create Help menu
+        help_menu = QMenu("Help", self)
+        self.menu_bar.addMenu(help_menu)
+        help_action = help_menu.addAction("Help")
+        help_action.setShortcut(QKeySequence("Ctrl+?"))
+        help_action.triggered.connect(self.help_msg_box.exec)
 
+        # Check for updates
         upgrade_version = get_upgrade_version(__version__)
         if upgrade_version is None:
             self.cw.label_upgrade_link.hide()
@@ -91,20 +110,7 @@ class MainWindow(QMainWindow):
                 f"</span></a>"
             )
 
-        self.done_msg_box = QMessageBox(self)
-        self.done_msg_box.setText("File(s) converted successfully")
-        self.done_msg_box.setWindowTitle("Success")
-        self.err_msg_box = QErrorMessage(self)
-        self.err_msg_box.setWindowTitle("Error")
-        self.help_msg_box = QMessageBox(self)
-        self.help_msg_box.setText(
-            "Use '*' in the input file to select multiple files.\n"
-            "e.g. `C:\\\\path\\to\\files\\*.laz`\n\n"
-            "Use '{}' in the output file to generate a name from the input name.\n"
-            "e.g. `C:\\\\path\\to\\files\\{}_nad83.laz`"
-        )
-        self.help_msg_box.setWindowTitle("Help")
-
+        # Connect signals
         self.cw.toolButton_input_file.clicked.connect(self.handle_select_input_file)
         self.cw.toolButton_output_file.clicked.connect(self.handle_select_output_file)
         self.cw.checkBox_epoch_trans.clicked.connect(self.enable_epoch_trans)
@@ -136,10 +142,7 @@ class MainWindow(QMainWindow):
     def load_config(self):
         logger.info("Loading config")
 
-    def save_log(self):
-        pass
-
-    def clear_log(self):
+    def export_logs(self):
         pass
 
     def maybe_update_output_epoch(self, new_date: date):
