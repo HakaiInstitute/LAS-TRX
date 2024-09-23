@@ -1,5 +1,4 @@
 import copy
-import logging
 import math
 import multiprocessing
 import os
@@ -15,11 +14,10 @@ from pyproj import CRS
 
 from csrspy import CSRSTransformer
 from las_trx.config import TransformConfig
+from las_trx.logger import logger
 from las_trx.vlr import GeoAsciiParamsVlr, GeoKeyDirectoryVlr
 
 CHUNK_SIZE = 10_000
-
-logger = logging.getLogger(__name__)
 
 
 class TransformWorker(QThread):
@@ -30,7 +28,7 @@ class TransformWorker(QThread):
     error = Signal(BaseException)
 
     def __init__(
-        self, config: TransformConfig, input_pattern: str, output_pattern: str
+            self, config: TransformConfig, input_pattern: str, output_pattern: str
     ):
         super().__init__(parent=None)
         self.config = config
@@ -127,12 +125,12 @@ class TransformWorker(QThread):
 
 
 def transform(
-    config: dict,
-    input_file: Path,
-    output_file: Path,
-    lock: multiprocessing.RLock,
-    cur: multiprocessing.Value,
-):
+        config: dict,
+        input_file: Path,
+        output_file: Path,
+        lock: multiprocessing.RLock,
+        cur: multiprocessing.Value,
+    ):
     transformer = CSRSTransformer(**config)
     config = TransformConfig(**config)
 
@@ -168,8 +166,8 @@ def transform(
 
 
 def write_header_offsets(
-    header: "LasHeader", input_file: Path, transformer: "CSRSTransformer"
-) -> "LasHeader":
+        header: "LasHeader", input_file: Path, transformer: "CSRSTransformer"
+    ) -> "LasHeader":
     with laspy.open(str(input_file)) as in_las:
         points = next(in_las.chunk_iterator(CHUNK_SIZE))
         data = stack_dims(points)

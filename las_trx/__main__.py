@@ -28,9 +28,8 @@ from las_trx.utils import (
     resource_path,
     get_upgrade_version
 )
+from las_trx.logger import logger
 from las_trx.worker import TransformWorker
-
-logger = logging.getLogger(__name__)
 
 
 class MainWindow(QMainWindow):
