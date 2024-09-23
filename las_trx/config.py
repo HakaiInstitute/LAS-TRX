@@ -253,12 +253,12 @@ class TransformConfig(BaseModel):
         t = self.destination.to_csrspy()
 
         return CSRSPYConfig(
-            s_ref_frame=s['ref_frame'],
-            s_coords=s['coords'],
-            s_vd=s['vd'],
-            s_epoch=s['epoch'],
-            t_ref_frame=t['ref_frame'],
-            t_coords=t['coords'],
-            t_vd=t['vd'],
-            t_epoch=t['epoch'],
+            s_ref_frame=s["ref_frame"],
+            s_coords=s["coords"],
+            s_vd=s["vd"],
+            s_epoch=s["epoch"],
+            t_ref_frame=t["ref_frame"],
+            t_coords=t["coords"],
+            t_vd=t["vd"],
+            t_epoch=t["epoch"],
         )

@@ -1,10 +1,6 @@
-import logging
 import sys
 from os import path
-from typing import TypeVar, List, Mapping, Any, Optional
-from las_trx.logger import logger
-
-T = TypeVar("T")
+from typing import Any, List, Mapping, Optional
 
 
 def resource_path(relative_path):

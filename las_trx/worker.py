@@ -28,14 +28,16 @@ class TransformWorker(QThread):
     error = Signal(BaseException)
 
     def __init__(
-            self, config: TransformConfig, input_pattern: str, output_pattern: str
+        self, config: TransformConfig, input_pattern: str, output_pattern: str
     ):
         super().__init__(parent=None)
         self.config = config
         self.input_pattern = Path(input_pattern)
         self.output_pattern = output_pattern
         self.input_files = [
-            f for f in self.input_pattern.parent.glob(self.input_pattern.name) if f.is_file()
+            f
+            for f in self.input_pattern.parent.glob(self.input_pattern.name)
+            if f.is_file()
         ]
         self.output_files = [
             Path(output_pattern.format(f.stem)) for f in self.input_files
@@ -125,12 +127,12 @@ class TransformWorker(QThread):
 
 
 def transform(
-        config: dict,
-        input_file: Path,
-        output_file: Path,
-        lock: multiprocessing.RLock,
-        cur: multiprocessing.Value,
-    ):
+    config: dict,
+    input_file: Path,
+    output_file: Path,
+    lock: multiprocessing.RLock,
+    cur: multiprocessing.Value,
+):
     transformer = CSRSTransformer(**config)
     config = TransformConfig(**config)
 
@@ -166,8 +168,8 @@ def transform(
 
 
 def write_header_offsets(
-        header: "LasHeader", input_file: Path, transformer: "CSRSTransformer"
-    ) -> "LasHeader":
+    header: "LasHeader", input_file: Path, transformer: "CSRSTransformer"
+) -> "LasHeader":
     with laspy.open(str(input_file)) as in_las:
         points = next(in_las.chunk_iterator(CHUNK_SIZE))
         data = stack_dims(points)

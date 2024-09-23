@@ -8,27 +8,30 @@ from queue import Queue
 
 from PyQt6 import uic
 from PyQt6.QtCore import QThread, pyqtSignal as Signal
-from PyQt6.QtGui import QIcon, QTextCursor, QKeySequence
+from PyQt6.QtGui import QIcon, QKeySequence, QTextCursor
 from PyQt6.QtWidgets import (
-    QMainWindow,
     QApplication,
     QErrorMessage,
     QFileDialog,
+    QMainWindow,
+    QMenu,
+    QMenuBar,
     QMessageBox,
     QWidget,
-    QMenuBar,
-    QMenu,
 )
 from pydantic import ValidationError
 
 from csrspy.utils import sync_missing_grid_files
 from las_trx import __version__
-from las_trx.config import TransformConfig, ReferenceConfig, TrxReference, TrxVd, TrxCoordType
-from las_trx.utils import (
-    resource_path,
-    get_upgrade_version
+from las_trx.config import (
+    ReferenceConfig,
+    TransformConfig,
+    TrxCoordType,
+    TrxReference,
+    TrxVd,
 )
 from las_trx.logger import logger
+from las_trx.utils import get_upgrade_version, resource_path
 from las_trx.worker import TransformWorker
 
 
@@ -305,17 +308,27 @@ class MainWindow(QMainWindow):
             self.cw.spinBox_input_utm_zone.setValue(config.origin.coord_type.utm_zone)
             self.cw.comboBox_input_coordinates.setCurrentText("UTM")
         else:
-            self.cw.comboBox_input_coordinates.setCurrentText(config.origin.coord_type.value)
+            self.cw.comboBox_input_coordinates.setCurrentText(
+                config.origin.coord_type.value
+            )
         self.cw.comboBox_input_vertical_reference.setCurrentText(config.origin.vd.value)
 
-        self.cw.comboBox_output_reference.setCurrentText(config.destination.ref_frame.value)
+        self.cw.comboBox_output_reference.setCurrentText(
+            config.destination.ref_frame.value
+        )
         self.cw.dateEdit_output_epoch.setDate(config.destination.epoch)
         if config.destination.coord_type.is_utm():
-            self.cw.spinBox_output_utm_zone.setValue(config.destination.coord_type.utm_zone)
+            self.cw.spinBox_output_utm_zone.setValue(
+                config.destination.coord_type.utm_zone
+            )
             self.cw.comboBox_output_coordinates.setCurrentText("UTM")
         else:
-            self.cw.comboBox_output_coordinates.setCurrentText(config.destination.coord_type.value)
-        self.cw.comboBox_output_vertical_reference.setCurrentText(config.destination.vd.value)
+            self.cw.comboBox_output_coordinates.setCurrentText(
+                config.destination.coord_type.value
+            )
+        self.cw.comboBox_output_vertical_reference.setCurrentText(
+            config.destination.vd.value
+        )
 
         if config.origin.epoch != config.destination.epoch:
             self.cw.checkBox_epoch_trans.setChecked(True)
