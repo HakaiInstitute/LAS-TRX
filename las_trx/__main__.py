@@ -172,7 +172,18 @@ class MainWindow(QMainWindow):
                     self.err_msg_box.exec()
 
     def export_logs(self):
-        pass
+        # Get output file path
+        path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Export Logs",
+            directory=self.dialog_directory,
+            filter="Log Files (*.log)",
+        )
+        if path:
+            # Save logs to file
+            logger.info(f"Exporting logs to {path}")
+            with open(path, "w") as f:
+                f.write(self.cw.textBrowser_log_output.toPlainText())
 
     def maybe_update_output_epoch(self, new_date: date):
         if not self.cw.checkBox_epoch_trans.isChecked():
