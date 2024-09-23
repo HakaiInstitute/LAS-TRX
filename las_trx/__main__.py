@@ -19,6 +19,7 @@ from PyQt6.QtWidgets import (
     QMenuBar,
     QMenu,
 )
+from pydantic import ValidationError
 
 from csrspy.utils import sync_missing_grid_files
 from las_trx import __version__
@@ -151,7 +152,24 @@ class MainWindow(QMainWindow):
                 f.write(self.transform_config.model_dump_json(indent=2))
 
     def load_config(self):
-        logger.info("Loading config")
+        # Get config file path
+        path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Load Config",
+            directory=self.dialog_directory,
+            filter="Config Files (*.json)",
+        )
+        if path:
+            # Load config from file
+            logger.info(f"Loading config from {path}")
+            with open(path, "r") as f:
+                config = f.read()
+                try:
+                    self.transform_config = TransformConfig.model_validate_json(config)
+                except ValidationError as e:
+                    logger.error(e)
+                    self.err_msg_box.showMessage(str(e))
+                    self.err_msg_box.exec()
 
     def export_logs(self):
         pass
@@ -268,6 +286,29 @@ class MainWindow(QMainWindow):
             coord_type=self.t_coords,
         )
         return TransformConfig(origin=origin, destination=destination)
+
+    @transform_config.setter
+    def transform_config(self, config: TransformConfig):
+        self.cw.comboBox_input_reference.setCurrentText(config.origin.ref_frame.value)
+        self.cw.dateEdit_input_epoch.setDate(config.origin.epoch)
+        if config.origin.coord_type.is_utm():
+            self.cw.spinBox_input_utm_zone.setValue(config.origin.coord_type.utm_zone)
+            self.cw.comboBox_input_coordinates.setCurrentText("UTM")
+        else:
+            self.cw.comboBox_input_coordinates.setCurrentText(config.origin.coord_type.value)
+        self.cw.comboBox_input_vertical_reference.setCurrentText(config.origin.vd.value)
+
+        self.cw.comboBox_output_reference.setCurrentText(config.destination.ref_frame.value)
+        self.cw.dateEdit_output_epoch.setDate(config.destination.epoch)
+        if config.destination.coord_type.is_utm():
+            self.cw.spinBox_output_utm_zone.setValue(config.destination.coord_type.utm_zone)
+            self.cw.comboBox_output_coordinates.setCurrentText("UTM")
+        else:
+            self.cw.comboBox_output_coordinates.setCurrentText(config.destination.coord_type.value)
+        self.cw.comboBox_output_vertical_reference.setCurrentText(config.destination.vd.value)
+
+        if config.origin.epoch != config.destination.epoch:
+            self.cw.checkBox_epoch_trans.setChecked(True)
 
     @property
     def input_pattern(self) -> str:
