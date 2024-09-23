@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="ProjectModuleManager">
-    <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/Las-TRX.iml" filepath="$PROJECT_DIR$/.idea/Las-TRX.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../csrspy/.idea/csrspy.iml" filepath="$PROJECT_DIR$/../csrspy/.idea/csrspy.iml" />
-    </modules>
-  </component>
-</project>
