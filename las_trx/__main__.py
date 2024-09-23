@@ -264,14 +264,12 @@ class MainWindow(QMainWindow):
         )
 
     @property
-    def input_files(self) -> list[Path]:
-        p = Path(self.cw.lineEdit_input_file.text())
-        return [f for f in p.parent.glob(p.name) if f.is_file()]
+    def input_pattern(self) -> str:
+        return self.cw.lineEdit_input_file.text()
 
     @property
-    def output_files(self) -> list[Path]:
-        out_path = self.cw.lineEdit_output_file.text()
-        return [Path(out_path.format(f.stem)) for f in self.input_files]
+    def output_pattern(self) -> str:
+        return self.cw.lineEdit_output_file.text()
 
     def append_text(self, text):
         self.cw.textBrowser_log_output.moveCursor(QTextCursor.MoveOperation.End)
@@ -290,7 +288,7 @@ class MainWindow(QMainWindow):
         logger.debug("Starting worker thread.")
 
         self.thread = TransformWorker(
-            self.transform_config, self.input_files, self.output_files
+            self.transform_config, self.input_pattern, self.output_pattern
         )
 
         self.thread.progress.connect(self.cw.progressBar.setValue)

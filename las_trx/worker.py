@@ -30,12 +30,16 @@ class TransformWorker(QThread):
     error = Signal(BaseException)
 
     def __init__(
-        self, config: TransformConfig, input_files: list[Path], output_files: list[Path]
+        self, config: TransformConfig, input_pattern: str, output_pattern: str
     ):
         super().__init__(parent=None)
         self.config = config
-        self.input_files = input_files
-        self.output_files = output_files
+        self.input_files = [
+            f for f in input_pattern.parent.glob(input_pattern.name) if f.is_file()
+        ]
+        self.output_files = [
+            Path(output_pattern.format(f.stem)) for f in self.input_pattern
+        ]
 
         logger.info(f"Found {len(self.input_files)} input files")
         logger.info(f"Transform config: {self.config}")
