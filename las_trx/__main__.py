@@ -97,9 +97,8 @@ class MainWindow(QMainWindow):
         # Create Help menu
         help_menu = QMenu("Help", self)
         self.menu_bar.addMenu(help_menu)
-        help_action = help_menu.addAction("Help")
-        help_action.setShortcut(QKeySequence("Ctrl+?"))
-        help_action.triggered.connect(self.help_msg_box.exec)
+        batch_mode_action = help_menu.addAction("Batch Processing")
+        batch_mode_action.triggered.connect(self.help_msg_box.exec)
 
         # Check for updates
         upgrade_version = get_upgrade_version(__version__)
