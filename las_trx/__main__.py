@@ -137,7 +137,18 @@ class MainWindow(QMainWindow):
         sync_missing_grid_files()
 
     def save_config(self):
-        logger.info("Saving config")
+        # Get output file path
+        path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Save Config",
+            directory=self.dialog_directory,
+            filter="Config Files (*.json)",
+        )
+        if path:
+            # Save config to file
+            logger.info(f"Saving config to {path}")
+            with open(path, "w") as f:
+                f.write(self.transform_config.model_dump_json(indent=2))
 
     def load_config(self):
         logger.info("Loading config")
