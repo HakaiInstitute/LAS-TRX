@@ -334,11 +334,11 @@ class MainWindow(QMainWindow):
 
     @property
     def input_pattern(self) -> str:
-        return self.cw.lineEdit_input_file.text()
+        return rf"{self.cw.lineEdit_input_file.text()}"
 
     @property
     def output_pattern(self) -> str:
-        return self.cw.lineEdit_output_file.text()
+        return rf"{self.cw.lineEdit_output_file.text()}"
 
     def append_text(self, text):
         self.cw.textBrowser_log_output.moveCursor(QTextCursor.MoveOperation.End)
