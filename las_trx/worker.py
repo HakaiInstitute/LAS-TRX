@@ -84,14 +84,18 @@ class TransformWorker(QThread):
 
     def _do_transform(self):
         self.check_file_names()
-        config = self.config.to_csrspy().model_dump(exclude_none=True)
         self.futs = {}
         for input_file, output_file in zip(self.input_files, self.output_files):
             if not Path(output_file).suffix:
                 output_file += ".laz"
-            # logger.info(f"{input_file} -> {output_file}")
+
             fut = self.pool.submit(
-                transform, config, input_file, output_file, self.lock, self.current_iter
+                transform,
+                self.config,
+                input_file,
+                output_file,
+                self.lock,
+                self.current_iter,
             )
             fut.add_done_callback(self.on_process_complete)
             self.futs[fut] = (input_file, output_file)
@@ -127,19 +131,18 @@ class TransformWorker(QThread):
 
 
 def transform(
-    config: dict,
+    config: TransformConfig,
     input_file: Path,
     output_file: Path,
     lock: multiprocessing.RLock,
     cur: multiprocessing.Value,
 ):
-    transformer = CSRSTransformer(**config)
-    config = TransformConfig(**config)
+    transformer = CSRSTransformer(**config.to_csrspy().model_dump(exclude_none=True))
 
     with laspy.open(str(input_file)) as in_las:
         new_header = copy.deepcopy(in_las.header)
         new_header = clear_header_geokeys(new_header)
-        new_header = write_header_geokeys_from_crs(new_header, config.t_crs)
+        new_header = write_header_geokeys_from_crs(new_header, config.destination.crs)
         new_header = write_header_scales(new_header)
         new_header = write_header_offsets(new_header, input_file, transformer)
 
