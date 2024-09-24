@@ -1,5 +1,4 @@
 import copy
-import logging
 import math
 import multiprocessing
 import os
@@ -15,11 +14,10 @@ from pyproj import CRS
 
 from csrspy import CSRSTransformer
 from las_trx.config import TransformConfig
+from las_trx.logger import logger
 from las_trx.vlr import GeoAsciiParamsVlr, GeoKeyDirectoryVlr
 
 CHUNK_SIZE = 10_000
-
-logger = logging.getLogger(__name__)
 
 
 class TransformWorker(QThread):
@@ -30,16 +28,25 @@ class TransformWorker(QThread):
     error = Signal(BaseException)
 
     def __init__(
-        self, config: TransformConfig, input_files: list[Path], output_files: list[Path]
+        self, config: TransformConfig, input_pattern: str, output_pattern: str
     ):
         super().__init__(parent=None)
         self.config = config
-        self.input_files = input_files
-        self.output_files = output_files
+        self.input_pattern = Path(input_pattern)
+        self.output_pattern = output_pattern
+        self.input_files = [
+            f
+            for f in self.input_pattern.parent.glob(self.input_pattern.name)
+            if f.is_file()
+        ]
+        self.output_files = [
+            Path(output_pattern.format(f.stem)) for f in self.input_files
+        ]
 
         logger.info(f"Found {len(self.input_files)} input files")
         logger.info(f"Transform config: {self.config}")
-        logger.info(f"Output CRS\n{self.config.t_crs.to_wkt(pretty=True)}")
+        logger.info(f"Input CRS\n{self.config.origin.crs.to_wkt(pretty=True)}")
+        logger.info(f"Output CRS\n{self.config.destination.crs.to_wkt(pretty=True)}")
         logger.debug(f"Will read points in chunk size of {CHUNK_SIZE}")
         logger.info("Calculating total number of iterations")
 
@@ -77,7 +84,7 @@ class TransformWorker(QThread):
 
     def _do_transform(self):
         self.check_file_names()
-        config = self.config.dict(exclude_none=True)
+        config = self.config.to_csrspy().model_dump(exclude_none=True)
         self.futs = {}
         for input_file, output_file in zip(self.input_files, self.output_files):
             if not Path(output_file).suffix:

@@ -4,56 +4,53 @@ import queue
 import sys
 from datetime import date
 from multiprocessing import freeze_support
-from pathlib import Path
 from queue import Queue
 
 from PyQt6 import uic
 from PyQt6.QtCore import QThread, pyqtSignal as Signal
-from PyQt6.QtGui import QIcon, QTextCursor
+from PyQt6.QtGui import QIcon, QKeySequence, QTextCursor
 from PyQt6.QtWidgets import (
     QApplication,
     QErrorMessage,
     QFileDialog,
+    QMainWindow,
+    QMenu,
+    QMenuBar,
     QMessageBox,
     QWidget,
 )
+from pydantic import ValidationError
 
-from csrspy.enums import CoordType, Reference, VerticalDatum
 from csrspy.utils import sync_missing_grid_files
 from las_trx import __version__
-from las_trx.config import TransformConfig
-from las_trx.utils import (
-    REFERENCE_LOOKUP,
-    VD_LOOKUP,
-    utm_zone_to_coord_type,
-    resource_path,
-    get_upgrade_version,
+from las_trx.config import (
+    ReferenceConfig,
+    TransformConfig,
+    TrxCoordType,
+    TrxReference,
+    TrxVd,
 )
+from las_trx.logger import logger
+from las_trx.utils import get_upgrade_version, resource_path
 from las_trx.worker import TransformWorker
 
-logger = logging.getLogger(__name__)
 
-
-class MainWindow(QWidget):
+class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi(resource_path("resources/mainwindow.ui"), self)
 
-        # Setup window
-        self.setWindowIcon(QIcon(resource_path("resources/las-trx.ico")))
-        self.setWindowTitle(f"LAS TRX v{__version__}")
+        # Set window size
+        rect = self.frameGeometry()
+        rect.setWidth(600)
+        rect.setHeight(780)
+        self.setProperty("geometry", rect)
 
-        upgrade_version = get_upgrade_version(__version__)
-        if upgrade_version is None:
-            self.label_upgrade_link.hide()
-        else:
-            self.label_upgrade_link.setText(
-                f"<a href=\"{upgrade_version['html_url']}\">"
-                "<span style=\"text-decoration: underline; color:rgb(153, 193, 241)\">"
-                f"New version available (v{upgrade_version['tag_name']})"
-                f"</span></a>"
-            )
+        # Load UI
+        self.cw = QWidget()
+        self.setCentralWidget(self.cw)
+        uic.loadUi(resource_path("resources/mainwindow.ui"), self.cw)
 
+        # Create Dialogs
         self.done_msg_box = QMessageBox(self)
         self.done_msg_box.setText("File(s) converted successfully")
         self.done_msg_box.setWindowTitle("Success")
@@ -61,31 +58,79 @@ class MainWindow(QWidget):
         self.err_msg_box.setWindowTitle("Error")
         self.help_msg_box = QMessageBox(self)
         self.help_msg_box.setText(
-            "Use '*' in the input file to select multiple files.\n"
-            "e.g. `C:\\\\path\\to\\files\\*.laz`\n\n"
-            "Use '{}' in the output file to generate a name from the input name.\n"
-            "e.g. `C:\\\\path\\to\\files\\{}_nad83.laz`"
+            "<h3>Batch Processing</h3>"
+            "<p>Use '*' in the input file to select multiple files, <i>e.g.</i>"
+            "<pre>C:\\\\path\\to\\files\\*.laz</pre>"
+            "<p>Use '{}' in the output file to generate a name from the input name, <i>e.g.</i></p>"
+            "<pre>C:\\\\path\\to\\files\\{}_nad83.laz</pre>"
         )
         self.help_msg_box.setWindowTitle("Help")
 
-        self.toolButton_input_file.clicked.connect(self.handle_select_input_file)
-        self.toolButton_output_file.clicked.connect(self.handle_select_output_file)
-        self.checkBox_epoch_trans.clicked.connect(self.enable_epoch_trans)
-        self.pushButton_convert.clicked.connect(self.convert)
-        self.comboBox_input_reference.currentTextChanged.connect(
+        # Setup window
+        self.setWindowIcon(QIcon(resource_path("resources/las-trx.ico")))
+        self.setWindowTitle(f"LAS TRX v{__version__}")
+
+        # Create menu bar
+        self.menu_bar = QMenuBar(self)
+        self.setMenuBar(self.menu_bar)
+
+        # Create File menu
+        file_menu = QMenu("File", self)
+        self.menu_bar.addMenu(file_menu)
+        export_log_action = file_menu.addAction("Export Logs")
+        export_log_action.triggered.connect(self.export_logs)
+        file_menu.addSeparator()
+        exit_action = file_menu.addAction("Exit")
+        exit_action.setShortcut(QKeySequence("Ctrl+Q"))
+        exit_action.triggered.connect(self.close)
+
+        # Create Config menu
+        config_menu = QMenu("Config", self)
+        self.menu_bar.addMenu(config_menu)
+        save_config_action = config_menu.addAction("Save")
+        save_config_action.setShortcut(QKeySequence.StandardKey.Save)
+        save_config_action.triggered.connect(self.save_config)
+        load_config_action = config_menu.addAction("Load")
+        load_config_action.setShortcut(QKeySequence.StandardKey.Open)
+        load_config_action.triggered.connect(self.load_config)
+
+        # Create Help menu
+        help_menu = QMenu("Help", self)
+        self.menu_bar.addMenu(help_menu)
+        batch_mode_action = help_menu.addAction("Batch Processing")
+        batch_mode_action.triggered.connect(self.help_msg_box.exec)
+
+        # Check for updates
+        upgrade_version = get_upgrade_version(__version__)
+        if upgrade_version is None:
+            self.cw.label_upgrade_link.hide()
+        else:
+            self.cw.label_upgrade_link.setText(
+                f"<a href=\"{upgrade_version['html_url']}\">"
+                "<span style=\"text-decoration: underline; color:rgb(153, 193, 241)\">"
+                f"New version available (v{upgrade_version['tag_name']})"
+                f"</span></a>"
+            )
+
+        # Connect signals
+        self.cw.toolButton_input_file.clicked.connect(self.handle_select_input_file)
+        self.cw.toolButton_output_file.clicked.connect(self.handle_select_output_file)
+        self.cw.checkBox_epoch_trans.clicked.connect(self.enable_epoch_trans)
+        self.cw.pushButton_convert.clicked.connect(self.convert)
+        self.cw.comboBox_input_reference.currentTextChanged.connect(
             self.update_input_vd_options
         )
-        self.comboBox_output_reference.currentTextChanged.connect(
+        self.cw.comboBox_output_reference.currentTextChanged.connect(
             self.update_output_vd_options
         )
-        self.dateEdit_input_epoch.dateChanged.connect(self.maybe_update_output_epoch)
-        self.comboBox_output_coordinates.currentTextChanged.connect(
+        self.cw.dateEdit_input_epoch.dateChanged.connect(self.maybe_update_output_epoch)
+        self.cw.comboBox_output_coordinates.currentTextChanged.connect(
             self.activate_output_utm_zone_picker
         )
-        self.comboBox_input_coordinates.currentTextChanged.connect(
+        self.cw.comboBox_input_coordinates.currentTextChanged.connect(
             self.activate_input_utm_zone_picker
         )
-        self.toolButton_help.clicked.connect(self.help_msg_box.exec)
+        self.cw.toolButton_help.clicked.connect(self.help_msg_box.exec)
 
         self.dialog_directory = os.path.expanduser("~")
 
@@ -93,9 +138,57 @@ class MainWindow(QWidget):
 
         sync_missing_grid_files()
 
+    def save_config(self):
+        # Get output file path
+        path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Save Config",
+            directory=self.dialog_directory,
+            filter="Config Files (*.json)",
+        )
+        if path:
+            # Save config to file
+            logger.info(f"Saving config to {path}")
+            with open(path, "w") as f:
+                f.write(self.transform_config.model_dump_json(indent=2))
+
+    def load_config(self):
+        # Get config file path
+        path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Load Config",
+            directory=self.dialog_directory,
+            filter="Config Files (*.json)",
+        )
+        if path:
+            # Load config from file
+            logger.info(f"Loading config from {path}")
+            with open(path, "r") as f:
+                config = f.read()
+                try:
+                    self.transform_config = TransformConfig.model_validate_json(config)
+                except ValidationError as e:
+                    logger.error(e)
+                    self.err_msg_box.showMessage(str(e))
+                    self.err_msg_box.exec()
+
+    def export_logs(self):
+        # Get output file path
+        path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Export Logs",
+            directory=self.dialog_directory,
+            filter="Log Files (*.log)",
+        )
+        if path:
+            # Save logs to file
+            logger.info(f"Exporting logs to {path}")
+            with open(path, "w") as f:
+                f.write(self.cw.textBrowser_log_output.toPlainText())
+
     def maybe_update_output_epoch(self, new_date: date):
-        if not self.checkBox_epoch_trans.isChecked():
-            self.dateEdit_output_epoch.setDate(new_date)
+        if not self.cw.checkBox_epoch_trans.isChecked():
+            self.cw.dateEdit_output_epoch.setDate(new_date)
 
     def handle_select_input_file(self):
         path, _ = QFileDialog.getOpenFileName(
@@ -105,7 +198,7 @@ class MainWindow(QWidget):
             filter="LAS Files (*.las *.laz)",
         )
         if path:
-            self.lineEdit_input_file.setText(path)
+            self.cw.lineEdit_input_file.setText(path)
             self.dialog_directory = os.path.dirname(path)
 
     def handle_select_output_file(self):
@@ -116,20 +209,20 @@ class MainWindow(QWidget):
             filter="LAS Files (*.las *.laz)",
         )
         if path:
-            self.lineEdit_output_file.setText(path)
+            self.cw.lineEdit_output_file.setText(path)
             self.dialog_directory = os.path.dirname(path)
 
     def enable_epoch_trans(self, checked):
-        self.dateEdit_output_epoch.setEnabled(checked)
+        self.cw.dateEdit_output_epoch.setEnabled(checked)
 
         if not checked:
-            self.dateEdit_output_epoch.setDate(self.dateEdit_input_epoch.date())
+            self.cw.dateEdit_output_epoch.setDate(self.cw.dateEdit_input_epoch.date())
 
     def activate_input_utm_zone_picker(self, text):
-        self.spinBox_input_utm_zone.setEnabled(text == "UTM")
+        self.cw.spinBox_input_utm_zone.setEnabled(text == "UTM")
 
     def activate_output_utm_zone_picker(self, text):
-        self.spinBox_output_utm_zone.setEnabled(text == "UTM")
+        self.cw.spinBox_output_utm_zone.setEnabled(text == "UTM")
 
     @staticmethod
     def update_vd_options(text, combo_box):
@@ -144,84 +237,112 @@ class MainWindow(QWidget):
             combo_box.addItems(["GRS80"])
 
     def update_input_vd_options(self, text):
-        self.update_vd_options(text, self.comboBox_input_vertical_reference)
+        self.update_vd_options(text, self.cw.comboBox_input_vertical_reference)
 
     def update_output_vd_options(self, text):
-        self.update_vd_options(text, self.comboBox_output_vertical_reference)
+        self.update_vd_options(text, self.cw.comboBox_output_vertical_reference)
 
     @property
-    def s_ref_frame(self) -> Reference:
-        return REFERENCE_LOOKUP[self.comboBox_input_reference.currentText()]
+    def s_ref_frame(self) -> TrxReference:
+        return TrxReference(self.cw.comboBox_input_reference.currentText())
 
     @property
-    def t_ref_frame(self) -> Reference:
-        return REFERENCE_LOOKUP[self.comboBox_output_reference.currentText()]
+    def t_ref_frame(self) -> TrxReference:
+        return TrxReference(self.cw.comboBox_output_reference.currentText())
 
     @property
     def s_epoch(self) -> date:
-        return self.dateEdit_input_epoch.date().toPyDate()
+        return self.cw.dateEdit_input_epoch.date().toPyDate()
 
     @property
     def t_epoch(self) -> date:
-        if self.checkBox_epoch_trans.isChecked():
-            return self.dateEdit_output_epoch.date().toPyDate()
+        if self.cw.checkBox_epoch_trans.isChecked():
+            return self.cw.dateEdit_output_epoch.date().toPyDate()
         else:
             return self.s_epoch
 
     @property
-    def s_coords(self) -> CoordType:
-        out_type = self.comboBox_input_coordinates.currentText()
+    def s_coords(self) -> TrxCoordType:
+        out_type = self.cw.comboBox_input_coordinates.currentText()
         if out_type == "UTM":
-            return utm_zone_to_coord_type(self.spinBox_output_utm_zone.value())
-        elif out_type == "Cartesian":
-            return CoordType.CART
-        else:
-            return CoordType.GEOG
+            return TrxCoordType.from_utm_zone(self.cw.spinBox_output_utm_zone.value())
+        return TrxCoordType(out_type)
 
     @property
-    def t_coords(self) -> CoordType:
-        out_type = self.comboBox_output_coordinates.currentText()
+    def t_coords(self) -> TrxCoordType:
+        out_type = self.cw.comboBox_output_coordinates.currentText()
         if out_type == "UTM":
-            return utm_zone_to_coord_type(self.spinBox_output_utm_zone.value())
-        elif out_type == "Cartesian":
-            return CoordType.CART
-        else:
-            return CoordType.GEOG
+            return TrxCoordType.from_utm_zone(self.cw.spinBox_output_utm_zone.value())
+        return TrxCoordType(out_type)
 
     @property
-    def s_vd(self) -> VerticalDatum:
-        return VD_LOOKUP[self.comboBox_input_vertical_reference.currentText()]
+    def s_vd(self) -> TrxVd:
+        return TrxVd(self.cw.comboBox_input_vertical_reference.currentText())
 
     @property
-    def t_vd(self) -> VerticalDatum:
-        return VD_LOOKUP[self.comboBox_output_vertical_reference.currentText()]
+    def t_vd(self) -> TrxVd:
+        return TrxVd(self.cw.comboBox_output_vertical_reference.currentText())
 
     @property
     def transform_config(self) -> TransformConfig:
-        return TransformConfig(
-            s_ref_frame=self.s_ref_frame,
-            t_ref_frame=self.t_ref_frame,
-            s_epoch=self.s_epoch,
-            t_epoch=self.t_epoch,
-            s_vd=self.s_vd,
-            t_vd=self.t_vd,
-            s_coords=self.s_coords,
-            t_coords=self.t_coords,
+        origin = ReferenceConfig(
+            ref_frame=self.s_ref_frame,
+            epoch=self.s_epoch,
+            vd=self.s_vd,
+            coord_type=self.s_coords,
+        )
+        destination = ReferenceConfig(
+            ref_frame=self.t_ref_frame,
+            epoch=self.t_epoch,
+            vd=self.t_vd,
+            coord_type=self.t_coords,
+        )
+        return TransformConfig(origin=origin, destination=destination)
+
+    @transform_config.setter
+    def transform_config(self, config: TransformConfig):
+        self.cw.comboBox_input_reference.setCurrentText(config.origin.ref_frame.value)
+        self.cw.dateEdit_input_epoch.setDate(config.origin.epoch)
+        if config.origin.coord_type.is_utm():
+            self.cw.spinBox_input_utm_zone.setValue(config.origin.coord_type.utm_zone)
+            self.cw.comboBox_input_coordinates.setCurrentText("UTM")
+        else:
+            self.cw.comboBox_input_coordinates.setCurrentText(
+                config.origin.coord_type.value
+            )
+        self.cw.comboBox_input_vertical_reference.setCurrentText(config.origin.vd.value)
+
+        self.cw.comboBox_output_reference.setCurrentText(
+            config.destination.ref_frame.value
+        )
+        self.cw.dateEdit_output_epoch.setDate(config.destination.epoch)
+        if config.destination.coord_type.is_utm():
+            self.cw.spinBox_output_utm_zone.setValue(
+                config.destination.coord_type.utm_zone
+            )
+            self.cw.comboBox_output_coordinates.setCurrentText("UTM")
+        else:
+            self.cw.comboBox_output_coordinates.setCurrentText(
+                config.destination.coord_type.value
+            )
+        self.cw.comboBox_output_vertical_reference.setCurrentText(
+            config.destination.vd.value
         )
 
-    @property
-    def input_files(self) -> list[Path]:
-        p = Path(self.lineEdit_input_file.text())
-        return [f for f in p.parent.glob(p.name) if f.is_file()]
+        if config.origin.epoch != config.destination.epoch:
+            self.cw.checkBox_epoch_trans.setChecked(True)
 
     @property
-    def output_files(self) -> list[Path]:
-        out_path = self.lineEdit_output_file.text()
-        return [Path(out_path.format(f.stem)) for f in self.input_files]
+    def input_pattern(self) -> str:
+        return self.cw.lineEdit_input_file.text()
+
+    @property
+    def output_pattern(self) -> str:
+        return self.cw.lineEdit_output_file.text()
 
     def append_text(self, text):
-        self.textBrowser_log_output.moveCursor(QTextCursor.MoveOperation.End)
-        self.textBrowser_log_output.insertPlainText(text)
+        self.cw.textBrowser_log_output.moveCursor(QTextCursor.MoveOperation.End)
+        self.cw.textBrowser_log_output.insertPlainText(text)
 
     def on_process_success(self):
         logger.info("Processing complete")
@@ -236,15 +357,19 @@ class MainWindow(QWidget):
         logger.debug("Starting worker thread.")
 
         self.thread = TransformWorker(
-            self.transform_config, self.input_files, self.output_files
+            self.transform_config, self.input_pattern, self.output_pattern
         )
 
-        self.thread.progress.connect(self.progressBar.setValue)
+        self.thread.progress.connect(self.cw.progressBar.setValue)
         self.thread.success.connect(self.on_process_success)
         self.thread.error.connect(self.on_process_error)
-        self.thread.started.connect(lambda: self.pushButton_convert.setEnabled(False))
-        self.thread.finished.connect(lambda: self.pushButton_convert.setEnabled(True))
-        self.thread.finished.connect(lambda: self.progressBar.setValue(0))
+        self.thread.started.connect(
+            lambda: self.cw.pushButton_convert.setEnabled(False)
+        )
+        self.thread.finished.connect(
+            lambda: self.cw.pushButton_convert.setEnabled(True)
+        )
+        self.thread.finished.connect(lambda: self.cw.progressBar.setValue(0))
 
         self.thread.start()
 
