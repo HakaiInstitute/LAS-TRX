@@ -2,6 +2,8 @@ import enum
 from datetime import date
 from typing import Optional
 
+from csrspy.enums import CoordType, Reference, VerticalDatum
+from csrspy.utils import date_to_decimal_year
 from pydantic import BaseModel
 from pyproj.crs import (
     CRS,
@@ -13,9 +15,6 @@ from pyproj.crs import (
 )
 from pyproj.crs.coordinate_operation import UTMConversion
 from pyproj.crs.coordinate_system import Cartesian2DCS
-
-from csrspy.enums import CoordType, Reference, VerticalDatum
-from csrspy.utils import date_to_decimal_year
 
 
 class CSRSPYConfig(BaseModel):
@@ -38,9 +37,39 @@ class TrxVd(str, enum.Enum):
 
     @property
     def vertical_crs(self) -> Optional[VerticalCRS]:
-        if self in [TrxVd.CGG2013A, TrxVd.CGG2013]:
-            # Seems to be no distinction between 2013 and 2013a
+        if self == TrxVd.CGG2013:
             return VerticalCRS.from_epsg(6647)
+        elif self == TrxVd.CGG2013A:
+            return VerticalCRS.from_dict(
+                {
+                    "$schema": "https://proj.org/schemas/v0.7/projjson.schema.json",
+                    "type": "VerticalCRS",
+                    "name": "CGVD2013(CGG2013a) height",
+                    "datum": {
+                        "type": "VerticalReferenceFrame",
+                        "name": "Canadian Geodetic Vertical Datum of 2013 (CGG2013a)",
+                    },
+                    "coordinate_system": {
+                        "subtype": "vertical",
+                        "axis": [
+                            {
+                                "name": "Gravity-related height",
+                                "abbreviation": "H",
+                                "direction": "up",
+                                "unit": "metre",
+                            }
+                        ],
+                    },
+                    "scope": "Geodesy, engineering survey, topographic mapping.",
+                    "area": "Canada - onshore and offshore - Alberta; British Columbia; Manitoba; New Brunswick; Newfoundland and Labrador; Northwest Territories; Nova Scotia; Nunavut; Ontario; Prince Edward Island; Quebec; Saskatchewan; Yukon.",
+                    "bbox": {
+                        "south_latitude": 38.21,
+                        "west_longitude": -141.01,
+                        "north_latitude": 86.46,
+                        "east_longitude": -40.73,
+                    },
+                }
+            )
         elif self == TrxVd.HT2_2010v70:
             return VerticalCRS.from_epsg(5713)
         return None
