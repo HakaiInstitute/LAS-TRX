@@ -10,6 +10,7 @@ import laspy
 import numpy as np
 from PyQt6.QtCore import QThread, pyqtSignal as Signal
 from laspy import LasHeader
+from laspy.vlrs.known import WktCoordinateSystemVlr
 from pyproj import CRS
 
 from csrspy import CSRSTransformer
@@ -205,6 +206,7 @@ def clear_header_geokeys(header: "LasHeader") -> "LasHeader":
 def write_header_geokeys_from_crs(header: "LasHeader", crs: "CRS") -> "LasHeader":
     header.vlrs.append(GeoAsciiParamsVlr.from_crs(crs))
     header.vlrs.append(GeoKeyDirectoryVlr.from_crs(crs))
+    header.vlrs.append(WktCoordinateSystemVlr(crs.to_wkt()))
     logger.debug(f"{header.vlrs=}")
     return header
 
