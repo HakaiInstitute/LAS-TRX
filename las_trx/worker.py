@@ -16,7 +16,7 @@ from pyproj import CRS
 from csrspy import CSRSTransformer
 from las_trx.config import TransformConfig
 from las_trx.logger import logger
-from las_trx.vlr import GeoAsciiParamsVlr, GeoKeyDirectoryVlr
+from las_trx.vlr import TrxGeoAsciiParamsVlr, TrxGeoKeyDirectoryVlr
 
 CHUNK_SIZE = 10_000
 
@@ -204,8 +204,8 @@ def clear_header_geokeys(header: "LasHeader") -> "LasHeader":
 
 
 def write_header_geokeys_from_crs(header: "LasHeader", crs: "CRS") -> "LasHeader":
-    header.vlrs.append(GeoAsciiParamsVlr.from_crs(crs))
-    header.vlrs.append(GeoKeyDirectoryVlr.from_crs(crs))
+    header.vlrs.append(TrxGeoAsciiParamsVlr.from_crs(crs))
+    header.vlrs.append(TrxGeoKeyDirectoryVlr.from_crs(crs))
     header.vlrs.append(WktCoordinateSystemVlr(crs.to_wkt()))
     logger.debug(f"{header.vlrs=}")
     return header
