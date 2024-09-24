@@ -19,12 +19,12 @@ from PyQt6.QtWidgets import (
 )
 
 from csrspy.enums import CoordType, Reference, VerticalDatum
+from csrspy.utils import sync_missing_grid_files
 from las_trx import __version__
 from las_trx.config import TransformConfig
 from las_trx.utils import (
     REFERENCE_LOOKUP,
     VD_LOOKUP,
-    sync_missing_grid_files,
     utm_zone_to_coord_type,
     resource_path,
     get_upgrade_version,

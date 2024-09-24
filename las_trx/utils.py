@@ -1,23 +1,13 @@
 import logging
 import sys
-from datetime import date
 from os import path
 from typing import TypeVar, List, Mapping, Any, Optional
-
-import pyproj.sync
 
 from csrspy.enums import CoordType, Reference, VerticalDatum
 
 T = TypeVar("T")
 
 logger = logging.getLogger(__name__)
-
-
-def date_to_decimal_year(d: date) -> float:
-    year_part = d - date(d.year, 1, 1)
-    year_length = date(d.year + 1, 1, 1) - date(d.year, 1, 1)
-    return d.year + year_part / year_length
-
 
 VD_LOOKUP = {
     "WGS84": VerticalDatum.WGS84,
@@ -44,24 +34,6 @@ REFERENCE_LOOKUP = {
     "ITRF89": Reference.ITRF89,
     "ITRF88": Reference.ITRF88,
 }
-
-
-def sync_missing_grid_files():
-    target_directory = pyproj.sync.get_user_data_dir(True)
-    endpoint = pyproj.sync.get_proj_endpoint()
-    grids = pyproj.sync.get_transform_grid_list(area_of_use="Canada")
-
-    if len(grids):
-        logger.info("Syncing PROJ grid files.")
-
-    for grid in grids:
-        filename = grid["properties"]["name"]
-        pyproj.sync._download_resource_file(
-            file_url=f"{endpoint}/{filename}",
-            short_name=filename,
-            directory=target_directory,
-            sha256=grid["properties"]["sha256sum"],
-        )
 
 
 def is_utm_coord_type(coords: CoordType) -> bool:

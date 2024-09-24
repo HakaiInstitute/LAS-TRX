@@ -14,7 +14,8 @@ from pyproj.crs.coordinate_operation import UTMConversion
 from pyproj.crs.coordinate_system import Cartesian2DCS
 
 from csrspy import enums
-from las_trx.utils import date_to_decimal_year, get_utm_zone, is_utm_coord_type
+from csrspy.utils import date_to_decimal_year
+from las_trx.utils import get_utm_zone, is_utm_coord_type
 
 
 class TransformConfig(BaseModel):
@@ -29,9 +30,7 @@ class TransformConfig(BaseModel):
 
     @field_validator("s_epoch", "t_epoch")
     @classmethod
-    def date2decimal(
-        cls, v: Union[float, date], info: FieldValidationInfo
-    ) -> float:
+    def date2decimal(cls, v: Union[float, date], info: FieldValidationInfo) -> float:
         if isinstance(v, float):
             return v
         elif isinstance(v, date):
