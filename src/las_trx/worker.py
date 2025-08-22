@@ -1,211 +1,117 @@
-import copy
-import math
-import multiprocessing
-import os
-from concurrent import futures
-from pathlib import Path
+"""Improved worker thread with proper resource management and separation of concerns."""
+
 from time import sleep
 
-import laspy
-import numpy as np
-from csrspy import CSRSTransformer
-from laspy import LasHeader
-from laspy.vlrs.known import WktCoordinateSystemVlr
-from pyproj import CRS
-from PyQt6.QtCore import QThread
-from PyQt6.QtCore import pyqtSignal as Signal
+from PyQt6.QtCore import QThread, pyqtSignal as Signal
 
 from las_trx.config import TransformConfig
+from las_trx.constants import UIConstants
 from las_trx.logger import logger
-from las_trx.vlr import TrxGeoAsciiParamsVlr, TrxGeoKeyDirectoryVlr
-
-CHUNK_SIZE = 10_000
+from las_trx.transformation import TransformationError, TransformationManager
 
 
 class TransformWorker(QThread):
+    """Worker thread for coordinate transformations."""
+
+    # Signals
     started = Signal()
     finished = Signal()
-    progress = Signal(int)
+    progress = Signal(int)  # Progress percentage (0-100)
     success = Signal()
-    error = Signal(BaseException)
+    error = Signal(Exception)
+    file_completed = Signal(str, str)  # input_file, output_file
 
-    def __init__(self, config: TransformConfig, input_pattern: str, output_pattern: str) -> None:
-        super().__init__(parent=None)
+    def __init__(
+        self, config: TransformConfig, input_pattern: str, output_pattern: str, parent: object | None = None
+    ) -> None:
+        """Initialize the worker thread.
+
+        Args:
+            config: Transformation configuration
+            input_pattern: Input file pattern (supports wildcards)
+            output_pattern: Output file pattern (supports {} formatting)
+            parent: Parent QObject
+        """
+        super().__init__(parent)
         self.config = config
-        self.input_pattern = Path(input_pattern)
+        self.input_pattern = input_pattern
         self.output_pattern = output_pattern
-        self.input_files = [f for f in self.input_pattern.parent.glob(self.input_pattern.name) if f.is_file()]
-        self.output_files = [Path(output_pattern.format(f.stem)) for f in self.input_files]
+        self.transformation_manager: TransformationManager | None = None
+        self._should_stop = False
 
-        logger.info(f"Found {len(self.input_files)} input files")
-        logger.info(f"Transform config: {self.config}")
-        logger.info(f"Input CRS\n{self.config.origin.crs.to_wkt(pretty=True)}")
-        logger.info(f"Output CRS\n{self.config.destination.crs.to_wkt(pretty=True)}")
-        logger.debug(f"Will read points in chunk size of {CHUNK_SIZE}")
-        logger.info("Calculating total number of iterations")
-
-        num_workers = min(config.max_workers, os.cpu_count())
-        self.pool = futures.ProcessPoolExecutor(max_workers=num_workers)
-        self.manager = multiprocessing.Manager()
-        self.lock = self.manager.RLock()
-        self.current_iter = self.manager.Value("i", 0)
-        logger.info(f"CPU process pool size: {num_workers}")
-
-        self.total_iters = 0
-        for input_file in self.input_files:
-            with laspy.open(str(input_file)) as in_las:
-                logger.debug(f"{input_file.name}: {in_las.header.point_count} points")
-                self.total_iters += math.ceil(in_las.header.point_count / CHUNK_SIZE)
-        logger.info(f"Total iterations until complete: {self.total_iters}")
-
-        self.futs = {}
-
-    def check_file_names(self) -> None:
-        for in_file in self.input_files:
-            if in_file in self.output_files:
-                raise AssertionError(
-                    "One of in files matches name of output files. "
-                    "Aborting because this would overwrite that input file."
-                )
-
-        if len(self.output_files) != len(list(set(self.output_files))):
-            raise AssertionError(
-                "Duplicate output file name detected. "
-                "Use a format string for the output path to output a file based on the "
-                "stem of the corresponding input file. "
-                r"e.g. 'C:\\some\path\{}_nad83csrs.laz'"
-            )
-
-    def _do_transform(self) -> None:
-        self.check_file_names()
-        self.futs = {}
-        for input_file, output_file in zip(self.input_files, self.output_files):
-            if not Path(output_file).suffix:
-                output_file += ".laz"
-
-            fut = self.pool.submit(
-                transform,
-                self.config,
-                input_file,
-                output_file,
-                self.lock,
-                self.current_iter,
-            )
-            fut.add_done_callback(self.on_process_complete)
-            self.futs[fut] = (input_file, output_file)
-
-        while any([f.running() for f in self.futs.keys()]):
-            self.progress.emit(self.progress_val)
-            sleep(0.1)
-        self.progress.emit(self.progress_val)
-
-    def on_process_complete(self, fut: futures.Future) -> None:
-        input_file, output_file = self.futs[fut]
-        err = fut.exception()
-        if err is not None:
-            logger.error(f"Error transforming {input_file}")
-            raise err
-        else:
-            logger.info(f"{input_file} -> {output_file}")
-
-    @property
-    def progress_val(self) -> int:
-        return int(100 * self.current_iter.value / float(self.total_iters))
+    def stop_transformation(self) -> None:
+        """Request transformation to stop."""
+        self._should_stop = True
+        logger.info("Stop requested for transformation")
 
     def run(self) -> None:
+        """Execute the transformation in the thread."""
         self.started.emit()
 
         try:
-            self._do_transform()
-            self.success.emit()
+            # Create transformation manager
+            self.transformation_manager = TransformationManager(self.config, self.input_pattern, self.output_pattern)
+
+            # Track if any transformation failed
+            has_errors = False
+            error_count = 0
+            success_count = 0
+
+            # Execute transformations
+            for input_file, output_file, exception in self.transformation_manager.execute_transformations(
+                progress_callback=self._update_progress
+            ):
+                # Check if stop was requested
+                if self._should_stop:
+                    logger.info("Transformation stopped by user request")
+                    return
+
+                if exception:
+                    has_errors = True
+                    error_count += 1
+                    logger.error(f"Failed to transform {input_file}: {exception}")
+                    self.error.emit(TransformationError(f"Failed to transform {input_file}: {exception}"))
+                else:
+                    success_count += 1
+                    self.file_completed.emit(str(input_file), str(output_file))
+
+                # Small delay to allow UI updates
+                sleep(UIConstants.PROGRESS_UPDATE_INTERVAL / 10)
+
+            # Emit final result
+            if not has_errors:
+                logger.info(f"All {success_count} file(s) transformed successfully")
+                self.success.emit()
+            else:
+                logger.warning(f"Transformation completed with errors: {success_count} succeeded, {error_count} failed")
+
         except Exception as e:
+            logger.error(f"Transformation failed: {e}")
             self.error.emit(e)
+        finally:
+            self.finished.emit()
 
-        self.finished.emit()
+    def _update_progress(self, progress: int) -> None:
+        """Update progress signal.
 
+        Args:
+            progress: Progress percentage (0-100)
+        """
+        self.progress.emit(progress)
 
-def transform(
-    config: TransformConfig,
-    input_file: Path,
-    output_file: Path,
-    lock: multiprocessing.RLock,
-    cur: multiprocessing.Value,
-) -> None:
-    transformer = CSRSTransformer(**config.to_csrspy().model_dump(exclude_none=True))
+    def cleanup(self) -> None:
+        """Clean up resources."""
+        if self.isRunning():
+            self.stop_transformation()
+            # Wait for thread to finish with timeout
+            if not self.wait(5000):  # 5 second timeout
+                logger.warning("Thread did not finish gracefully, terminating")
+                self.terminate()
+                self.wait()  # Wait for termination
 
-    with laspy.open(str(input_file)) as in_las:
-        new_header = copy.deepcopy(in_las.header)
-        new_header = clear_header_geokeys(new_header)
-        new_header = write_header_geokeys_from_crs(new_header, config.destination.crs)
-        new_header = write_header_scales(new_header)
-        new_header = write_header_offsets(new_header, input_file, transformer)
+        self.transformation_manager = None
+        logger.debug("Worker cleanup completed")
 
-        laz_backend = laspy.LazBackend.Laszip if output_file.suffix == ".laz" else None
-        logger.debug(f"{laz_backend=}")
-
-        with laspy.open(str(output_file), mode="w", header=new_header, laz_backend=laz_backend) as out_las:
-            for points in in_las.chunk_iterator(CHUNK_SIZE):
-                # Convert the coordinates
-                data = stack_dims(points)
-                data = np.array(list(transformer(data)))
-
-                # Create new point records
-                points.change_scaling(offsets=new_header.offsets, scales=new_header.scales)
-                points.x = data[:, 0]
-                points.y = data[:, 1]
-                points.z = data[:, 2]
-                out_las.write_points(points)
-
-                with lock:
-                    cur.value += 1
-
-
-def write_header_offsets(header: LasHeader, input_file: Path, transformer: CSRSTransformer) -> LasHeader:
-    with laspy.open(str(input_file)) as in_las:
-        points = next(in_las.chunk_iterator(CHUNK_SIZE))
-        data = stack_dims(points)
-
-        # Convert the coordinates
-        data = np.array(list(transformer(data)))
-
-        # Return estimated header offsets as min x,y,z of first batch
-        header.offsets = np.min(data, axis=0)
-    logger.debug(f"{header.offsets=}")
-    return header
-
-
-def clear_header_geokeys(header: LasHeader) -> LasHeader:
-    # Update GeoKeyDirectoryVLR
-    # check and remove any existing crs vlrs
-    for crs_vlr_name in (
-        "WktCoordinateSystemVlr",
-        "GeoKeyDirectoryVlr",
-        "GeoAsciiParamsVlr",
-        "GeoDoubleParamsVlr",
-    ):
-        try:
-            header.vlrs.extract(crs_vlr_name)
-        except IndexError:
-            pass
-    return header
-
-
-def write_header_geokeys_from_crs(header: LasHeader, crs: CRS) -> LasHeader:
-    header.vlrs.append(TrxGeoAsciiParamsVlr.from_crs(crs))
-    header.vlrs.append(TrxGeoKeyDirectoryVlr.from_crs(crs))
-    header.vlrs.append(WktCoordinateSystemVlr(crs.to_wkt()))
-    logger.debug(f"{header.vlrs=}")
-    return header
-
-
-def write_header_scales(header: LasHeader) -> LasHeader:
-    header.scales = np.array([0.01, 0.01, 0.01])
-    logger.debug(f"{header.scales=}")
-    return header
-
-
-def stack_dims(points: object) -> np.ndarray:
-    x = points.x.scaled_array().copy()
-    y = points.y.scaled_array().copy()
-    z = points.z.scaled_array().copy()
-    return np.stack((x, y, z)).T
+    def __del__(self) -> None:
+        """Destructor to ensure cleanup."""
+        self.cleanup()

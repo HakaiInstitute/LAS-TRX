@@ -63,3 +63,6 @@ select = [
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
