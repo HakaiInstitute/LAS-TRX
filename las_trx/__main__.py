@@ -6,8 +6,11 @@ from datetime import date
 from multiprocessing import freeze_support
 from queue import Queue
 
+from csrspy.utils import sync_missing_grid_files
+from pydantic import ValidationError
 from PyQt6 import uic
-from PyQt6.QtCore import QThread, pyqtSignal as Signal
+from PyQt6.QtCore import QThread
+from PyQt6.QtCore import pyqtSignal as Signal
 from PyQt6.QtGui import QIcon, QKeySequence, QTextCursor
 from PyQt6.QtWidgets import (
     QApplication,
@@ -19,9 +22,7 @@ from PyQt6.QtWidgets import (
     QMessageBox,
     QWidget,
 )
-from pydantic import ValidationError
 
-from csrspy.utils import sync_missing_grid_files
 from las_trx import __version__
 from las_trx.config import (
     ReferenceConfig,
@@ -106,8 +107,8 @@ class MainWindow(QMainWindow):
             self.cw.label_upgrade_link.hide()
         else:
             self.cw.label_upgrade_link.setText(
-                f"<a href=\"{upgrade_version['html_url']}\">"
-                "<span style=\"text-decoration: underline; color:rgb(153, 193, 241)\">"
+                f'<a href="{upgrade_version["html_url"]}">'
+                '<span style="text-decoration: underline; color:rgb(153, 193, 241)">'
                 f"New version available (v{upgrade_version['tag_name']})"
                 f"</span></a>"
             )
@@ -117,19 +118,11 @@ class MainWindow(QMainWindow):
         self.cw.toolButton_output_file.clicked.connect(self.handle_select_output_file)
         self.cw.checkBox_epoch_trans.clicked.connect(self.enable_epoch_trans)
         self.cw.pushButton_convert.clicked.connect(self.convert)
-        self.cw.comboBox_input_reference.currentTextChanged.connect(
-            self.update_input_vd_options
-        )
-        self.cw.comboBox_output_reference.currentTextChanged.connect(
-            self.update_output_vd_options
-        )
+        self.cw.comboBox_input_reference.currentTextChanged.connect(self.update_input_vd_options)
+        self.cw.comboBox_output_reference.currentTextChanged.connect(self.update_output_vd_options)
         self.cw.dateEdit_input_epoch.dateChanged.connect(self.maybe_update_output_epoch)
-        self.cw.comboBox_output_coordinates.currentTextChanged.connect(
-            self.activate_output_utm_zone_picker
-        )
-        self.cw.comboBox_input_coordinates.currentTextChanged.connect(
-            self.activate_input_utm_zone_picker
-        )
+        self.cw.comboBox_output_coordinates.currentTextChanged.connect(self.activate_output_utm_zone_picker)
+        self.cw.comboBox_input_coordinates.currentTextChanged.connect(self.activate_input_utm_zone_picker)
         self.cw.toolButton_help.clicked.connect(self.help_msg_box.exec)
 
         self.dialog_directory = os.path.expanduser("~")
@@ -163,7 +156,7 @@ class MainWindow(QMainWindow):
         if path:
             # Load config from file
             logger.info(f"Loading config from {path}")
-            with open(path, "r") as f:
+            with open(path) as f:
                 config = f.read()
                 try:
                     self.transform_config = TransformConfig.model_validate_json(config)
@@ -228,9 +221,7 @@ class MainWindow(QMainWindow):
     def update_vd_options(text, combo_box):
         combo_box.clear()
         if text == "NAD83(CSRS)":
-            combo_box.addItems(
-                ["GRS80", "CGVD2013/CGG2013a", "CGVD2013/CGG2013", "CGVD28/HT2_2010v70"]
-            )
+            combo_box.addItems(["GRS80", "CGVD2013/CGG2013a", "CGVD2013/CGG2013", "CGVD28/HT2_2010v70"])
         elif text == "WGS84":
             combo_box.addItems(["WGS84"])
         else:
@@ -307,27 +298,17 @@ class MainWindow(QMainWindow):
             self.cw.spinBox_input_utm_zone.setValue(config.origin.coord_type.utm_zone)
             self.cw.comboBox_input_coordinates.setCurrentText("UTM")
         else:
-            self.cw.comboBox_input_coordinates.setCurrentText(
-                config.origin.coord_type.value
-            )
+            self.cw.comboBox_input_coordinates.setCurrentText(config.origin.coord_type.value)
         self.cw.comboBox_input_vertical_reference.setCurrentText(config.origin.vd.value)
 
-        self.cw.comboBox_output_reference.setCurrentText(
-            config.destination.ref_frame.value
-        )
+        self.cw.comboBox_output_reference.setCurrentText(config.destination.ref_frame.value)
         self.cw.dateEdit_output_epoch.setDate(config.destination.epoch)
         if config.destination.coord_type.is_utm():
-            self.cw.spinBox_output_utm_zone.setValue(
-                config.destination.coord_type.utm_zone
-            )
+            self.cw.spinBox_output_utm_zone.setValue(config.destination.coord_type.utm_zone)
             self.cw.comboBox_output_coordinates.setCurrentText("UTM")
         else:
-            self.cw.comboBox_output_coordinates.setCurrentText(
-                config.destination.coord_type.value
-            )
-        self.cw.comboBox_output_vertical_reference.setCurrentText(
-            config.destination.vd.value
-        )
+            self.cw.comboBox_output_coordinates.setCurrentText(config.destination.coord_type.value)
+        self.cw.comboBox_output_vertical_reference.setCurrentText(config.destination.vd.value)
 
         if config.origin.epoch != config.destination.epoch:
             self.cw.checkBox_epoch_trans.setChecked(True)
@@ -356,25 +337,19 @@ class MainWindow(QMainWindow):
     def convert(self):
         logger.debug("Starting worker thread.")
 
-        self.thread = TransformWorker(
-            self.transform_config, self.input_pattern, self.output_pattern
-        )
+        self.thread = TransformWorker(self.transform_config, self.input_pattern, self.output_pattern)
 
         self.thread.progress.connect(self.cw.progressBar.setValue)
         self.thread.success.connect(self.on_process_success)
         self.thread.error.connect(self.on_process_error)
-        self.thread.started.connect(
-            lambda: self.cw.pushButton_convert.setEnabled(False)
-        )
-        self.thread.finished.connect(
-            lambda: self.cw.pushButton_convert.setEnabled(True)
-        )
+        self.thread.started.connect(lambda: self.cw.pushButton_convert.setEnabled(False))
+        self.thread.finished.connect(lambda: self.cw.pushButton_convert.setEnabled(True))
         self.thread.finished.connect(lambda: self.cw.progressBar.setValue(0))
 
         self.thread.start()
 
 
-class LogWriteStream(object):
+class LogWriteStream:
     def __init__(self, queue_):
         super().__init__()
         self.queue = queue_
@@ -414,9 +389,7 @@ if __name__ == "__main__":
     window = MainWindow()
 
     if os.getenv("DEBUG"):
-        window.lineEdit_input_file.setText(
-            "/home/taylor/PycharmProjects/Las-TRX/testfiles/20_3028_01/*.laz"
-        )
+        window.lineEdit_input_file.setText("/home/taylor/PycharmProjects/Las-TRX/testfiles/20_3028_01/*.laz")
         window.comboBox_input_reference.setCurrentText("ITRF2014")
         window.dateEdit_input_epoch.setDate(date(2020, 8, 12))
 

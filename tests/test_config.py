@@ -1,10 +1,11 @@
 from datetime import date
+
 from las_trx.config import (
-    TransformConfig,
     ReferenceConfig,
-    TrxVd,
-    TrxReference,
+    TransformConfig,
     TrxCoordType,
+    TrxReference,
+    TrxVd,
 )
 
 ORIGIN_REFERENCE = ReferenceConfig(
@@ -298,10 +299,7 @@ def test_t_crs_itrf_utm9_cgvd2013():
         ),
     )
     assert config.destination.crs.is_compound
-    assert (
-        config.destination.crs.name
-        == "ITRF2014 / UTM zone 9N + CGVD2013(CGG2013) height"
-    )
+    assert config.destination.crs.name == "ITRF2014 / UTM zone 9N + CGVD2013(CGG2013) height"
 
 
 def test_t_crs_itrf_utm9_cgvd28():
@@ -344,10 +342,7 @@ def test_t_crs_itrf_utm10_cgvd2013():
         ),
     )
     assert config.destination.crs.is_compound
-    assert (
-        config.destination.crs.name
-        == "ITRF2014 / UTM zone 10N + CGVD2013(CGG2013) height"
-    )
+    assert config.destination.crs.name == "ITRF2014 / UTM zone 10N + CGVD2013(CGG2013) height"
 
 
 def test_t_crs_itrf_utm10_cgvd28():
@@ -390,10 +385,7 @@ def test_t_crs_itrf_utm11_cgvd2013():
         ),
     )
     assert config.destination.crs.is_compound
-    assert (
-        config.destination.crs.name
-        == "ITRF2014 / UTM zone 11N + CGVD2013(CGG2013) height"
-    )
+    assert config.destination.crs.name == "ITRF2014 / UTM zone 11N + CGVD2013(CGG2013) height"
 
 
 def test_t_crs_itrf_utm11_cgvd28():

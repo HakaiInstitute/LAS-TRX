@@ -8,12 +8,13 @@ from time import sleep
 
 import laspy
 import numpy as np
-from PyQt6.QtCore import QThread, pyqtSignal as Signal
+from csrspy import CSRSTransformer
 from laspy import LasHeader
 from laspy.vlrs.known import WktCoordinateSystemVlr
 from pyproj import CRS
+from PyQt6.QtCore import QThread
+from PyQt6.QtCore import pyqtSignal as Signal
 
-from csrspy import CSRSTransformer
 from las_trx.config import TransformConfig
 from las_trx.logger import logger
 from las_trx.vlr import TrxGeoAsciiParamsVlr, TrxGeoKeyDirectoryVlr
@@ -28,21 +29,13 @@ class TransformWorker(QThread):
     success = Signal()
     error = Signal(BaseException)
 
-    def __init__(
-        self, config: TransformConfig, input_pattern: str, output_pattern: str
-    ):
+    def __init__(self, config: TransformConfig, input_pattern: str, output_pattern: str):
         super().__init__(parent=None)
         self.config = config
         self.input_pattern = Path(input_pattern)
         self.output_pattern = output_pattern
-        self.input_files = [
-            f
-            for f in self.input_pattern.parent.glob(self.input_pattern.name)
-            if f.is_file()
-        ]
-        self.output_files = [
-            Path(output_pattern.format(f.stem)) for f in self.input_files
-        ]
+        self.input_files = [f for f in self.input_pattern.parent.glob(self.input_pattern.name) if f.is_file()]
+        self.output_files = [Path(output_pattern.format(f.stem)) for f in self.input_files]
 
         logger.info(f"Found {len(self.input_files)} input files")
         logger.info(f"Transform config: {self.config}")
@@ -150,18 +143,14 @@ def transform(
         laz_backend = laspy.LazBackend.Laszip if output_file.suffix == ".laz" else None
         logger.debug(f"{laz_backend=}")
 
-        with laspy.open(
-            str(output_file), mode="w", header=new_header, laz_backend=laz_backend
-        ) as out_las:
+        with laspy.open(str(output_file), mode="w", header=new_header, laz_backend=laz_backend) as out_las:
             for points in in_las.chunk_iterator(CHUNK_SIZE):
                 # Convert the coordinates
                 data = stack_dims(points)
                 data = np.array(list(transformer(data)))
 
                 # Create new point records
-                points.change_scaling(
-                    offsets=new_header.offsets, scales=new_header.scales
-                )
+                points.change_scaling(offsets=new_header.offsets, scales=new_header.scales)
                 points.x = data[:, 0]
                 points.y = data[:, 1]
                 points.z = data[:, 2]
@@ -171,9 +160,7 @@ def transform(
                     cur.value += 1
 
 
-def write_header_offsets(
-    header: "LasHeader", input_file: Path, transformer: "CSRSTransformer"
-) -> "LasHeader":
+def write_header_offsets(header: "LasHeader", input_file: Path, transformer: "CSRSTransformer") -> "LasHeader":
     with laspy.open(str(input_file)) as in_las:
         points = next(in_las.chunk_iterator(CHUNK_SIZE))
         data = stack_dims(points)

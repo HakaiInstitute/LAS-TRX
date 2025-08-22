@@ -1,6 +1,5 @@
 import enum
 from datetime import date
-from typing import Optional
 
 from csrspy.enums import CoordType, Reference, VerticalDatum
 from csrspy.utils import date_to_decimal_year
@@ -36,40 +35,42 @@ class TrxVd(str, enum.Enum):
     HT2_2010v70 = "CGVD28/HT2_2010v70"
 
     @property
-    def vertical_crs(self) -> Optional[VerticalCRS]:
+    def vertical_crs(self) -> VerticalCRS | None:
         if self == TrxVd.CGG2013:
             return VerticalCRS.from_epsg(6647)
         elif self == TrxVd.CGG2013A:
-            return VerticalCRS.from_dict(
-                {
-                    "$schema": "https://proj.org/schemas/v0.7/projjson.schema.json",
-                    "type": "VerticalCRS",
-                    "name": "CGVD2013(CGG2013a) height",
-                    "datum": {
-                        "type": "VerticalReferenceFrame",
-                        "name": "Canadian Geodetic Vertical Datum of 2013 (CGG2013a)",
-                    },
-                    "coordinate_system": {
-                        "subtype": "vertical",
-                        "axis": [
-                            {
-                                "name": "Gravity-related height",
-                                "abbreviation": "H",
-                                "direction": "up",
-                                "unit": "metre",
-                            }
-                        ],
-                    },
-                    "scope": "Geodesy, engineering survey, topographic mapping.",
-                    "area": "Canada - onshore and offshore - Alberta; British Columbia; Manitoba; New Brunswick; Newfoundland and Labrador; Northwest Territories; Nova Scotia; Nunavut; Ontario; Prince Edward Island; Quebec; Saskatchewan; Yukon.",
-                    "bbox": {
-                        "south_latitude": 38.21,
-                        "west_longitude": -141.01,
-                        "north_latitude": 86.46,
-                        "east_longitude": -40.73,
-                    },
-                }
-            )
+            return VerticalCRS.from_dict({
+                "$schema": "https://proj.org/schemas/v0.7/projjson.schema.json",
+                "type": "VerticalCRS",
+                "name": "CGVD2013(CGG2013a) height",
+                "datum": {
+                    "type": "VerticalReferenceFrame",
+                    "name": "Canadian Geodetic Vertical Datum of 2013 (CGG2013a)",
+                },
+                "coordinate_system": {
+                    "subtype": "vertical",
+                    "axis": [
+                        {
+                            "name": "Gravity-related height",
+                            "abbreviation": "H",
+                            "direction": "up",
+                            "unit": "metre",
+                        }
+                    ],
+                },
+                "scope": "Geodesy, engineering survey, topographic mapping.",
+                "area": (
+                    "Canada - onshore and offshore - Alberta; British Columbia; Manitoba; New Brunswick; "
+                    "Newfoundland and Labrador; Northwest Territories; Nova Scotia; Nunavut; Ontario; "
+                    "Prince Edward Island; Quebec; Saskatchewan; Yukon."
+                ),
+                "bbox": {
+                    "south_latitude": 38.21,
+                    "west_longitude": -141.01,
+                    "north_latitude": 86.46,
+                    "east_longitude": -40.73,
+                },
+            })
         elif self == TrxVd.HT2_2010v70:
             return VerticalCRS.from_epsg(5713)
         return None
@@ -256,9 +257,7 @@ class ReferenceConfig(BaseModel):
         z_crs = self.vd.vertical_crs
 
         if z_crs is not None and not xy_crs.is_geocentric:
-            return CompoundCRS(
-                name=f"{xy_crs.name} + {z_crs.name}", components=[xy_crs, z_crs]
-            )
+            return CompoundCRS(name=f"{xy_crs.name} + {z_crs.name}", components=[xy_crs, z_crs])
         elif xy_crs.is_geographic:
             return xy_crs.to_3d()
 

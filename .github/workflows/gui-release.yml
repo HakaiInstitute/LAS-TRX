@@ -20,20 +20,22 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - name: Set up Python 3.11
+      - name: Get tag
+        id: tag
+        run: echo "tag=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.5.26"
+          enable-cache: true
+
+      - name: "Set up Python"
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
-
-      - name: Setup Poetry
-        uses: abatilo/actions-poetry@v3
-        with:
-          poetry-version: 1.8.3
-
-      - name: Get version tag
-        run: echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+          python-version-file: "pyproject.toml"
 
       - name: Install Linux dependencies
         if: ${{ runner.os == 'Linux' }}
@@ -49,15 +51,14 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry version ${{ env.tag }}
+          uv version ${{ env.tag }}
           sed -i "s/0.0.0/${{ env.tag }}/g" las_trx/__init__.py
-          poetry run pip install --upgrade pip setuptools
-          poetry install
+          uv sync --all-extras --dev
 
       - name: Build Linux GUI Executable
         if: ${{ runner.os == 'Linux' }}
         run: >
-          poetry run pyinstaller
+          uv run pyinstaller
           --onefile
           --icon="las_trx/resources/las-trx.ico"
           --add-data="las_trx/resources/las-trx.ico:resources"
@@ -68,7 +69,7 @@ jobs:
       - name: Build Windows GUI Executable
         if: ${{ runner.os == 'Windows' }}
         run: >
-          poetry run pyinstaller
+          uv run pyinstaller
           --onefile
           --windowed
           --icon="las_trx\resources\las-trx.ico"
