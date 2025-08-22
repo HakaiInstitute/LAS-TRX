@@ -34,7 +34,7 @@ class FileConstants:
 class NetworkConstants:
     """Network-related constants."""
 
-    GITHUB_API_TIMEOUT = 10  # seconds
+    GITHUB_API_TIMEOUT = 1  # seconds
     GITHUB_API_HEADERS = {
         "Accept": "application/vnd.github+json",
         "X-GitHub-Api-Version": "2022-11-28",
