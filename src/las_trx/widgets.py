@@ -1,7 +1,6 @@
 """Custom widgets for the application."""
 
 import os
-import platform
 
 from PyQt6.QtWidgets import QSpinBox, QWidget
 
@@ -17,11 +16,8 @@ class WorkerCoresSpinBox(QSpinBox):
             new_value = min(self.maximum(), max(current * 2, current + 1))
         else:
             # Step down: halve the value (minimum 1)
-            new_value = max(1, current // 2) if current > 1 else 1
-
-        # Only change if the value actually changes
-        if new_value != current:
-            self.setValue(new_value)
+            new_value = max(1, current // 2)
+        self.setValue(new_value)
 
 
 class WidgetFactory:
@@ -52,33 +48,6 @@ class WidgetFactory:
         spinbox.setMaximum(max_cores)
         spinbox.setValue(default_cores)
 
-        # Apply platform-specific styling
-        if platform.system() == "Windows":
-            # Minimal Windows-specific styling - let Qt handle the layout
-            spinbox.setStyleSheet("""
-                QSpinBox {
-                    border: 1px solid black;
-                    padding-right: 15px;
-                }
-                QSpinBox::up-button {
-                    subcontrol-origin: border;
-                    subcontrol-position: top right;
-                    width: 15px;
-                }
-                QSpinBox::down-button {
-                    subcontrol-origin: border;
-                    subcontrol-position: bottom right;
-                    width: 15px;
-                }
-            """)
-        else:
-            # Standard styling for Mac/Linux
-            spinbox.setStyleSheet("border: 1px solid black;")
-
-        # Ensure proper button behavior
-        spinbox.setButtonSymbols(QSpinBox.ButtonSymbols.UpDownArrows)
-        spinbox.setCorrectionMode(QSpinBox.CorrectionMode.CorrectToNearestValue)
-
         return spinbox
 
     @staticmethod
@@ -106,9 +75,7 @@ class WidgetFactory:
             if item and item.widget() == old_widget:
                 # Copy properties
                 new_widget.setObjectName(old_widget.objectName())
-                # Only copy stylesheet if new widget doesn't have one
-                if not new_widget.styleSheet():
-                    new_widget.setStyleSheet(old_widget.styleSheet())
+                new_widget.setStyleSheet(old_widget.styleSheet())
 
                 # Replace in layout
                 layout.removeWidget(old_widget)
