@@ -21,6 +21,7 @@ from PyQt6.QtWidgets import (
     QMenu,
     QMenuBar,
     QMessageBox,
+    QSpinBox,
     QWidget,
 )
 
@@ -35,6 +36,18 @@ from las_trx.config import (
 from las_trx.logger import logger
 from las_trx.utils import get_upgrade_version, resource_path
 from las_trx.worker import TransformWorker
+
+
+class WorkerCoresSpinBox(QSpinBox):
+    def stepBy(self, steps: int) -> None:  # noqa: N802
+        current = self.value()
+        if steps > 0:
+            # Step up: double the value (capped at maximum)
+            new_value = min(self.maximum(), max(current * 2, current + 1))
+        else:
+            # Step down: halve the value (minimum 1)
+            new_value = max(1, current // 2)
+        self.setValue(new_value)
 
 
 class MainWindow(QMainWindow):
@@ -125,18 +138,39 @@ class MainWindow(QMainWindow):
         self.cw.comboBox_output_coordinates.currentTextChanged.connect(self.activate_output_utm_zone_picker)
         self.cw.comboBox_input_coordinates.currentTextChanged.connect(self.activate_input_utm_zone_picker)
         self.cw.toolButton_help.clicked.connect(self.help_msg_box.exec)
-        self.cw.toolButton_halve_cores.clicked.connect(self.halve_cores)
-        self.cw.toolButton_double_cores.clicked.connect(self.double_cores)
         self.cw.spinBox_worker_cores.valueChanged.connect(self.validate_core_count)
 
         self.dialog_directory = os.path.expanduser("~")
 
         self.thread = None
 
-        # Initialize worker cores spinbox
+        # Replace standard spinbox with custom worker cores spinbox
         max_cores = os.cpu_count()
-        self.cw.spinBox_worker_cores.setMaximum(max_cores)
-        self.cw.spinBox_worker_cores.setValue(max_cores)
+        default_cores = max(1, max_cores // 2) if max_cores else 1
+        
+        # Find the parent layout and replace the spinbox
+        old_spinbox = self.cw.spinBox_worker_cores
+        parent_layout = old_spinbox.parent().layout()
+        
+        # Create new custom spinbox with same properties
+        new_spinbox = WorkerCoresSpinBox()
+        new_spinbox.setObjectName("spinBox_worker_cores")
+        new_spinbox.setStyleSheet(old_spinbox.styleSheet())
+        new_spinbox.setMinimum(1)
+        new_spinbox.setMaximum(max_cores)
+        new_spinbox.setValue(default_cores)
+        
+        # Replace in layout
+        for i in range(parent_layout.count()):
+            if parent_layout.itemAt(i).widget() == old_spinbox:
+                parent_layout.removeWidget(old_spinbox)
+                parent_layout.insertWidget(i, new_spinbox)
+                old_spinbox.deleteLater()
+                break
+        
+        # Update reference
+        self.cw.spinBox_worker_cores = new_spinbox
+        new_spinbox.valueChanged.connect(self.validate_core_count)
 
         sync_missing_grid_files()
 
@@ -225,17 +259,6 @@ class MainWindow(QMainWindow):
 
     def activate_output_utm_zone_picker(self, text: str) -> None:
         self.cw.spinBox_output_utm_zone.setEnabled(text == "UTM")
-
-    def halve_cores(self) -> None:
-        current_value = self.cw.spinBox_worker_cores.value()
-        new_value = max(1, current_value // 2)
-        self.cw.spinBox_worker_cores.setValue(new_value)
-
-    def double_cores(self) -> None:
-        current_value = self.cw.spinBox_worker_cores.value()
-        max_cores = os.cpu_count()
-        new_value = min(max_cores, current_value * 2)
-        self.cw.spinBox_worker_cores.setValue(new_value)
 
     def validate_core_count(self, value: int) -> None:
         max_cores = os.cpu_count()
@@ -418,17 +441,17 @@ if __name__ == "__main__":
     window = MainWindow()
 
     if os.getenv("DEBUG"):
-        window.lineEdit_input_file.setText("/home/taylor/PycharmProjects/Las-TRX/testfiles/20_3028_01/*.laz")
-        window.comboBox_input_reference.setCurrentText("ITRF2014")
-        window.dateEdit_input_epoch.setDate(date(2020, 8, 12))
+        window.cw.lineEdit_input_file.setText("/home/taylor/PycharmProjects/Las-TRX/testfiles/20_3028_01/*.laz")
+        window.cw.comboBox_input_reference.setCurrentText("ITRF2014")
+        window.cw.dateEdit_input_epoch.setDate(date(2020, 8, 12))
 
-        window.lineEdit_output_file.setText(
+        window.cw.lineEdit_output_file.setText(
             "/home/taylor/PycharmProjects/Las-TRX/testfiles/20_3028_01_converted/{}.laz"
         )
-        window.checkBox_epoch_trans.setChecked(True)
-        window.dateEdit_output_epoch.setEnabled(True)
-        window.dateEdit_output_epoch.setDate(date(2002, 1, 1))
-        window.comboBox_output_vertical_reference.setCurrentText("CGVD2013/CGG2013a")
+        window.cw.checkBox_epoch_trans.setChecked(True)
+        window.cw.dateEdit_output_epoch.setEnabled(True)
+        window.cw.dateEdit_output_epoch.setDate(date(2002, 1, 1))
+        window.cw.comboBox_output_vertical_reference.setCurrentText("CGVD2013/CGG2013a")
 
     window.show()
 
