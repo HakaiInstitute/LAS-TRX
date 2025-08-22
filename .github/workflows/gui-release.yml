@@ -52,7 +52,6 @@ jobs:
       - name: Install dependencies
         run: |
           uv version ${{ env.tag }}
-          sed -i "s/0.0.0/${{ env.tag }}/g" las_trx/__init__.py
           uv sync --all-extras --dev
 
       - name: Build Linux GUI Executable
