@@ -358,7 +358,7 @@ class LogDisplayThread(QThread):
         """Run the log display loop."""
         while not self.isInterruptionRequested():
             try:
-                text = self.queue.get(block=False)
+                text = self.queue.get(timeout=0.1)
                 self.on_msg.emit(text)
             except queue.Empty:
                 continue

@@ -6,6 +6,7 @@ import sys
 from multiprocessing import freeze_support
 from queue import Queue
 
+from loguru import logger
 from PyQt6.QtWidgets import QApplication
 
 from las_trx.main_window import LogDisplayThread, LogWriteStream, MainWindow
@@ -21,6 +22,9 @@ def main() -> None:
 
     log_level = logging.DEBUG if os.getenv("DEBUG") else logging.INFO
     logging.basicConfig(level=log_level, handlers=[log_handler])
+
+    # Configure loguru to use both the queue and stdout
+    logger.add(log_write_stream, level="DEBUG" if os.getenv("DEBUG") else "INFO", format="{level}: {message}")
 
     # Create application
     app = QApplication(sys.argv)
