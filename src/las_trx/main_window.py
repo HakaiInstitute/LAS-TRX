@@ -46,6 +46,7 @@ class MainWindow(QMainWindow):
         self._setup_ui_interface()
         self._setup_controllers()
         self._setup_worker_spinbox()
+        self._setup_platform_specific_styling()
 
         # Connect signals
         self._connect_signals()
@@ -159,6 +160,31 @@ class MainWindow(QMainWindow):
             new_spinbox.valueChanged.connect(self._validate_core_count)
         else:
             logger.warning("Failed to replace worker cores spinbox")
+
+    def _setup_platform_specific_styling(self) -> None:
+        """Apply platform-specific styling fixes."""
+        import platform
+
+        if platform.system() == "Windows":
+            # Windows-specific styling for UTM zone spinboxes
+            utm_spinbox_style = """
+                QSpinBox {
+                    border: 1px solid black;
+                    padding-right: 15px;
+                }
+                QSpinBox::up-button {
+                    subcontrol-origin: border;
+                    subcontrol-position: top right;
+                    width: 15px;
+                }
+                QSpinBox::down-button {
+                    subcontrol-origin: border;
+                    subcontrol-position: bottom right;
+                    width: 15px;
+                }
+            """
+            self.cw.spinBox_input_utm_zone.setStyleSheet(utm_spinbox_style)
+            self.cw.spinBox_output_utm_zone.setStyleSheet(utm_spinbox_style)
 
     def _connect_signals(self) -> None:
         """Connect UI signals to handlers."""
