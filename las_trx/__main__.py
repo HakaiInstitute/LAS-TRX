@@ -124,10 +124,18 @@ class MainWindow(QMainWindow):
         self.cw.comboBox_output_coordinates.currentTextChanged.connect(self.activate_output_utm_zone_picker)
         self.cw.comboBox_input_coordinates.currentTextChanged.connect(self.activate_input_utm_zone_picker)
         self.cw.toolButton_help.clicked.connect(self.help_msg_box.exec)
+        self.cw.toolButton_halve_cores.clicked.connect(self.halve_cores)
+        self.cw.toolButton_double_cores.clicked.connect(self.double_cores)
+        self.cw.spinBox_worker_cores.valueChanged.connect(self.validate_core_count)
 
         self.dialog_directory = os.path.expanduser("~")
 
         self.thread = None
+        
+        # Initialize worker cores spinbox
+        max_cores = os.cpu_count()
+        self.cw.spinBox_worker_cores.setMaximum(max_cores)
+        self.cw.spinBox_worker_cores.setValue(max_cores)
 
         sync_missing_grid_files()
 
@@ -217,6 +225,24 @@ class MainWindow(QMainWindow):
     def activate_output_utm_zone_picker(self, text):
         self.cw.spinBox_output_utm_zone.setEnabled(text == "UTM")
 
+    def halve_cores(self):
+        current_value = self.cw.spinBox_worker_cores.value()
+        new_value = max(1, current_value // 2)
+        self.cw.spinBox_worker_cores.setValue(new_value)
+
+    def double_cores(self):
+        current_value = self.cw.spinBox_worker_cores.value()
+        max_cores = os.cpu_count()
+        new_value = min(max_cores, current_value * 2)
+        self.cw.spinBox_worker_cores.setValue(new_value)
+
+    def validate_core_count(self, value):
+        max_cores = os.cpu_count()
+        if value > max_cores:
+            self.cw.spinBox_worker_cores.setValue(max_cores)
+        elif value < 1:
+            self.cw.spinBox_worker_cores.setValue(1)
+
     @staticmethod
     def update_vd_options(text, combo_box):
         combo_box.clear()
@@ -288,7 +314,11 @@ class MainWindow(QMainWindow):
             vd=self.t_vd,
             coord_type=self.t_coords,
         )
-        return TransformConfig(origin=origin, destination=destination)
+        return TransformConfig(
+            origin=origin, 
+            destination=destination, 
+            max_workers=self.cw.spinBox_worker_cores.value()
+        )
 
     @transform_config.setter
     def transform_config(self, config: TransformConfig):
@@ -309,6 +339,8 @@ class MainWindow(QMainWindow):
         else:
             self.cw.comboBox_output_coordinates.setCurrentText(config.destination.coord_type.value)
         self.cw.comboBox_output_vertical_reference.setCurrentText(config.destination.vd.value)
+        
+        self.cw.spinBox_worker_cores.setValue(config.max_workers)
 
         if config.origin.epoch != config.destination.epoch:
             self.cw.checkBox_epoch_trans.setChecked(True)

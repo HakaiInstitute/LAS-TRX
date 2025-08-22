@@ -44,7 +44,7 @@ class TransformWorker(QThread):
         logger.debug(f"Will read points in chunk size of {CHUNK_SIZE}")
         logger.info("Calculating total number of iterations")
 
-        num_workers = min(os.cpu_count(), 61)
+        num_workers = min(config.max_workers, os.cpu_count())
         self.pool = futures.ProcessPoolExecutor(max_workers=num_workers)
         self.manager = multiprocessing.Manager()
         self.lock = self.manager.RLock()

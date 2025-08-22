@@ -1,4 +1,5 @@
 import enum
+import os
 from datetime import date
 
 from csrspy.enums import CoordType, Reference, VerticalDatum
@@ -275,6 +276,7 @@ class ReferenceConfig(BaseModel):
 class TransformConfig(BaseModel):
     origin: ReferenceConfig
     destination: ReferenceConfig
+    max_workers: int = os.cpu_count()
 
     def to_csrspy(self) -> CSRSPYConfig:
         s = self.origin.to_csrspy()
