@@ -205,10 +205,8 @@ dependencies = [
 [package.dev-dependencies]
 dev = [
     { name = "pre-commit" },
-    { name = "ruff" },
-]
-test = [
     { name = "pytest" },
+    { name = "ruff" },
 ]
 
 [package.metadata]
@@ -227,9 +225,9 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "pre-commit", specifier = ">=4.3.0" },
+    { name = "pytest", specifier = ">=7.4.4" },
     { name = "ruff", specifier = ">=0.6.9" },
 ]
-test = [{ name = "pytest", specifier = ">=7.4.4" }]
 
 [[package]]
 name = "laspy"
