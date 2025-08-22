@@ -5,8 +5,8 @@ on:
     branches-ignore:
       - '**'
     tags:
-      - '[0-9]+.[0-9]+.[0-9]+'
-      - '[0-9]+.[0-9]+.[0-9]+rc[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+rc[0-9]+'
 jobs:
   build-binaries:
     defaults:
@@ -52,7 +52,7 @@ jobs:
       - name: Install dependencies
         run: |
           uv version ${{ env.tag }}
-          uv sync --all-extras --dev
+          uv sync
 
       - name: Build Linux GUI Executable
         if: ${{ runner.os == 'Linux' }}
@@ -88,11 +88,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Get tag
         id: tag
-        run: echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+        run: echo "tag=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
 
       - name: Detect prerelease
         id: prerelease
