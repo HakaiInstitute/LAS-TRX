@@ -163,7 +163,31 @@
                                                 <bool>true</bool>
                                             </property>
                                             <property name="styleSheet">
-                                                <string notr="true">border : 1px solid black;</string>
+                                                <string notr="true">
+                                                    QSpinBox {
+                                                    color: rgb(87, 227, 137);
+                                                    background-color: rgb(36, 31, 49);
+                                                    border: 1px solid black;
+                                                    width: 60px;
+                                                    padding-right: 40px; /* Make space for the buttons */
+                                                    }
+
+                                                    QSpinBox::up-button {
+                                                    subcontrol-origin: border;
+                                                    subcontrol-position: center right;
+                                                    width: 20px;
+                                                    height: 20px;
+                                                    right: 0px; /* Position at far right */
+                                                    }
+
+                                                    QSpinBox::down-button {
+                                                    subcontrol-origin: border;
+                                                    subcontrol-position: center right;
+                                                    width: 20px;
+                                                    height: 20px;
+                                                    right: 20px; /* Position next to down button */
+                                                    }
+                                                </string>
                                             </property>
                                             <property name="minimum">
                                                 <number>7</number>
@@ -635,7 +659,31 @@
                                                 <bool>true</bool>
                                             </property>
                                             <property name="styleSheet">
-                                                <string notr="true">border : 1px solid black;</string>
+                                                <string notr="true">
+                                                    QSpinBox {
+                                                    color: rgb(87, 227, 137);
+                                                    background-color: rgb(36, 31, 49);
+                                                    border: 1px solid black;
+                                                    width: 60px;
+                                                    padding-right: 40px; /* Make space for the buttons */
+                                                    }
+
+                                                    QSpinBox::up-button {
+                                                    subcontrol-origin: border;
+                                                    subcontrol-position: center right;
+                                                    width: 20px;
+                                                    height: 20px;
+                                                    right: 0px; /* Position at far right */
+                                                    }
+
+                                                    QSpinBox::down-button {
+                                                    subcontrol-origin: border;
+                                                    subcontrol-position: center right;
+                                                    width: 20px;
+                                                    height: 20px;
+                                                    right: 20px; /* Position next to down button */
+                                                    }
+                                                </string>
                                             </property>
                                             <property name="minimum">
                                                 <number>7</number>
@@ -832,7 +880,31 @@
                                     <item>
                                         <widget class="QSpinBox" name="spinBox_worker_cores">
                                             <property name="styleSheet">
-                                                <string notr="true">border : 1px solid black;</string>
+                                                <string notr="true">
+                                                    QSpinBox {
+                                                    color: rgb(87, 227, 137);
+                                                    background-color: rgb(36, 31, 49);
+                                                    border: 1px solid black;
+                                                    width: 60px;
+                                                    padding-right: 40px; /* Make space for the buttons */
+                                                    }
+
+                                                    QSpinBox::up-button {
+                                                    subcontrol-origin: border;
+                                                    subcontrol-position: center right;
+                                                    width: 20px;
+                                                    height: 20px;
+                                                    right: 0px; /* Position at far right */
+                                                    }
+
+                                                    QSpinBox::down-button {
+                                                    subcontrol-origin: border;
+                                                    subcontrol-position: center right;
+                                                    width: 20px;
+                                                    height: 20px;
+                                                    right: 20px; /* Position next to down button */
+                                                    }
+                                                </string>
                                             </property>
                                             <property name="minimum">
                                                 <number>1</number>
