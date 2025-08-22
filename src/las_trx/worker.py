@@ -2,11 +2,11 @@
 
 from time import sleep
 
+from loguru import logger
 from PyQt6.QtCore import QThread, pyqtSignal as Signal
 
 from las_trx.config import TransformConfig
 from las_trx.constants import UIConstants
-from las_trx.logger import logger
 from las_trx.transformation import TransformationError, TransformationManager
 
 

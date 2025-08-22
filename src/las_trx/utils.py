@@ -4,9 +4,9 @@ from os import path
 from typing import Any
 
 import requests
+from loguru import logger
 
 from las_trx.constants import NetworkConstants
-from las_trx.logger import logger
 
 
 def resource_path(relative_path: str) -> str:

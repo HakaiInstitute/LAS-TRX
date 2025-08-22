@@ -193,6 +193,7 @@ dependencies = [
     { name = "csrspy" },
     { name = "laspy" },
     { name = "laszip" },
+    { name = "loguru" },
     { name = "pydantic" },
     { name = "pyinstaller" },
     { name = "pyproj", version = "3.7.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
@@ -215,6 +216,7 @@ requires-dist = [
     { name = "csrspy", specifier = ">=0.7.0" },
     { name = "laspy", specifier = ">=2.6.1" },
     { name = "laszip", specifier = ">=0.2.3" },
+    { name = "loguru", specifier = ">=0.7.3" },
     { name = "pydantic", specifier = ">=2.9.2" },
     { name = "pyinstaller", specifier = ">=6.10.0" },
     { name = "pyproj", specifier = ">=3.7.1" },
@@ -267,6 +269,19 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/85/45/5158a2d8d2c5aee8b6a07810c928768a77280ca28fa27a7fec2b104e1a86/laszip-0.2.3-cp313-cp313-musllinux_1_2_i686.whl", hash = "sha256:3a8054ecfb7243bcd273ea79bcffc02e356ae615933a04ab091087319362c8c7", size = 1678541, upload-time = "2024-10-27T12:16:20.005Z" },
     { url = "https://files.pythonhosted.org/packages/1f/30/1c36fd149a6484b818711035d424479356a4378778c80c22f7838e6fa620/laszip-0.2.3-cp313-cp313-musllinux_1_2_x86_64.whl", hash = "sha256:02aa28613c063e90e20cd8258e586d3ada7a75cd127aa598c2fb79d59e0d44c7", size = 1528906, upload-time = "2024-10-27T12:16:22.018Z" },
     { url = "https://files.pythonhosted.org/packages/5e/a4/584c22ac9847af0560938125495b56ca85ec3d94c99a937716185f736168/laszip-0.2.3-cp313-cp313-win_amd64.whl", hash = "sha256:f4043ed6e98226a7bb87646d0789d0ff04842a89eac4ff1f4b0bd96b3844a848", size = 664753, upload-time = "2024-10-27T12:16:23.51Z" },
+]
+
+[[package]]
+name = "loguru"
+version = "0.7.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "win32-setctime", marker = "sys_platform == 'win32'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/3a/05/a1dae3dffd1116099471c643b8924f5aa6524411dc6c63fdae648c4f1aca/loguru-0.7.3.tar.gz", hash = "sha256:19480589e77d47b8d85b2c827ad95d49bf31b0dcde16593892eb51dd18706eb6", size = 63559, upload-time = "2024-12-06T11:20:56.608Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/0c/29/0348de65b8cc732daa3e33e67806420b2ae89bdce2b04af740289c5c6c8c/loguru-0.7.3-py3-none-any.whl", hash = "sha256:31a33c10c8e1e10422bfd431aeb5d351c7cf7fa671e3c4df004162264b28220c", size = 61595, upload-time = "2024-12-06T11:20:54.538Z" },
 ]
 
 [[package]]
@@ -1017,4 +1032,13 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/1c/14/37fcdba2808a6c615681cd216fecae00413c9dab44fb2e57805ecf3eaee3/virtualenv-20.34.0.tar.gz", hash = "sha256:44815b2c9dee7ed86e387b842a84f20b93f7f417f95886ca1996a72a4138eb1a", size = 6003808, upload-time = "2025-08-13T14:24:07.464Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/76/06/04c8e804f813cf972e3262f3f8584c232de64f0cde9f703b46cf53a45090/virtualenv-20.34.0-py3-none-any.whl", hash = "sha256:341f5afa7eee943e4984a9207c025feedd768baff6753cd660c857ceb3e36026", size = 5983279, upload-time = "2025-08-13T14:24:05.111Z" },
+]
+
+[[package]]
+name = "win32-setctime"
+version = "1.2.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/b3/8f/705086c9d734d3b663af0e9bb3d4de6578d08f46b1b101c2442fd9aecaa2/win32_setctime-1.2.0.tar.gz", hash = "sha256:ae1fdf948f5640aae05c511ade119313fb6a30d7eabe25fef9764dca5873c4c0", size = 4867, upload-time = "2024-12-07T15:28:28.314Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e1/07/c6fe3ad3e685340704d314d765b7912993bcb8dc198f0e7a89382d37974b/win32_setctime-1.2.0-py3-none-any.whl", hash = "sha256:95d644c4e708aba81dc3704a116d8cbc974d70b3bdb8be1d150e36be6e9d1390", size = 4083, upload-time = "2024-12-07T15:28:26.465Z" },
 ]
