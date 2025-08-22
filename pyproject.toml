@@ -25,6 +25,9 @@ dev = [
     "ruff>=0.6.9",
 ]
 
+[project.scripts]
+las-trx = "las_trx.__main__:main"
+
 [project.urls]
 Repository = "https://github.com/HakaiInstitute/LAS-TRX"
 

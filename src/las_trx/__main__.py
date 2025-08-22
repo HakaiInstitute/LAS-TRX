@@ -10,7 +10,8 @@ from PyQt6.QtWidgets import QApplication
 
 from las_trx.main_window import LogDisplayThread, LogWriteStream, MainWindow
 
-if __name__ == "__main__":
+
+def main() -> None:
     freeze_support()
 
     # Configure logging
@@ -34,3 +35,7 @@ if __name__ == "__main__":
 
     # Run application
     sys.exit(app.exec())
+
+
+if __name__ == "__main__":
+    main()
