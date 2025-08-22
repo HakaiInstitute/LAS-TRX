@@ -16,7 +16,7 @@ ORIGIN_REFERENCE = ReferenceConfig(
 )
 
 
-def test_t_crs_nad83_geog_grs80():
+def test_t_crs_nad83_geog_grs80() -> None:
     config = TransformConfig(
         origin=ORIGIN_REFERENCE,
         destination=ReferenceConfig(
@@ -29,7 +29,7 @@ def test_t_crs_nad83_geog_grs80():
     assert config.destination.crs.to_epsg() == 4955
 
 
-def test_t_crs_nad83_geog_cgvd2013():
+def test_t_crs_nad83_geog_cgvd2013() -> None:
     config = TransformConfig(
         origin=ORIGIN_REFERENCE,
         destination=ReferenceConfig(
@@ -42,7 +42,7 @@ def test_t_crs_nad83_geog_cgvd2013():
     assert config.destination.crs.to_epsg() == 6649
 
 
-def test_t_crs_nad83_geog_cgvd28():
+def test_t_crs_nad83_geog_cgvd28() -> None:
     config = TransformConfig(
         origin=ORIGIN_REFERENCE,
         destination=ReferenceConfig(
@@ -57,7 +57,7 @@ def test_t_crs_nad83_geog_cgvd28():
     assert config.destination.crs.to_epsg() is None
 
 
-def test_t_crs_nad83_utm9_grs80():
+def test_t_crs_nad83_utm9_grs80() -> None:
     config = TransformConfig(
         origin=ORIGIN_REFERENCE,
         destination=ReferenceConfig(
@@ -72,7 +72,7 @@ def test_t_crs_nad83_utm9_grs80():
     assert config.destination.crs.ellipsoid.name == "GRS 1980"
 
 
-def test_t_crs_nad83_utm9_cgvd2013():
+def test_t_crs_nad83_utm9_cgvd2013() -> None:
     config = TransformConfig(
         origin=ORIGIN_REFERENCE,
         destination=ReferenceConfig(
@@ -85,7 +85,7 @@ def test_t_crs_nad83_utm9_cgvd2013():
     assert config.destination.crs.to_epsg() == 6652
 
 
-def test_t_crs_nad83_utm9_cgvd28():
+def test_t_crs_nad83_utm9_cgvd28() -> None:
     config = TransformConfig(
         origin=ORIGIN_REFERENCE,
         destination=ReferenceConfig(
@@ -99,7 +99,7 @@ def test_t_crs_nad83_utm9_cgvd28():
     assert config.destination.crs.name == "NAD83(CSRS) / UTM zone 9N + CGVD28 height"
 
 
-def test_t_crs_nad83_utm10_grs80():
+def test_t_crs_nad83_utm10_grs80() -> None:
     config = TransformConfig(
         origin=ORIGIN_REFERENCE,
         destination=ReferenceConfig(
@@ -114,7 +114,7 @@ def test_t_crs_nad83_utm10_grs80():
     assert config.destination.crs.ellipsoid.name == "GRS 1980"
 
 
-def test_t_crs_nad83_utm10_cgvd2013():
+def test_t_crs_nad83_utm10_cgvd2013() -> None:
     config = TransformConfig(
         origin=ORIGIN_REFERENCE,
         destination=ReferenceConfig(
@@ -127,7 +127,7 @@ def test_t_crs_nad83_utm10_cgvd2013():
     assert config.destination.crs.to_epsg() == 6653
 
 
-def test_t_crs_nad83_utm10_cgvd28():
+def test_t_crs_nad83_utm10_cgvd28() -> None:
     config = TransformConfig(
         origin=ORIGIN_REFERENCE,
         destination=ReferenceConfig(
@@ -141,7 +141,7 @@ def test_t_crs_nad83_utm10_cgvd28():
     assert config.destination.crs.name == "NAD83(CSRS) / UTM zone 10N + CGVD28 height"
 
 
-def test_t_crs_nad83_utm11_grs80():
+def test_t_crs_nad83_utm11_grs80() -> None:
     config = TransformConfig(
         origin=ORIGIN_REFERENCE,
         destination=ReferenceConfig(
@@ -156,7 +156,7 @@ def test_t_crs_nad83_utm11_grs80():
     assert config.destination.crs.ellipsoid.name == "GRS 1980"
 
 
-def test_t_crs_nad83_utm11_cgvd2013():
+def test_t_crs_nad83_utm11_cgvd2013() -> None:
     config = TransformConfig(
         origin=ORIGIN_REFERENCE,
         destination=ReferenceConfig(
@@ -169,7 +169,7 @@ def test_t_crs_nad83_utm11_cgvd2013():
     assert config.destination.crs.to_epsg() == 6654
 
 
-def test_t_crs_nad83_utm11_cgvd28():
+def test_t_crs_nad83_utm11_cgvd28() -> None:
     config = TransformConfig(
         origin=ORIGIN_REFERENCE,
         destination=ReferenceConfig(
@@ -183,7 +183,7 @@ def test_t_crs_nad83_utm11_cgvd28():
     assert config.destination.crs.name == "NAD83(CSRS) / UTM zone 11N + CGVD28 height"
 
 
-def test_t_crs_nad83_cart_grs80():
+def test_t_crs_nad83_cart_grs80() -> None:
     config = TransformConfig(
         origin=ORIGIN_REFERENCE,
         destination=ReferenceConfig(
@@ -198,7 +198,7 @@ def test_t_crs_nad83_cart_grs80():
     assert config.destination.crs.to_epsg() == 4954
 
 
-def test_t_crs_nad83_cart_cgvd2013():
+def test_t_crs_nad83_cart_cgvd2013() -> None:
     config = TransformConfig(
         origin=ORIGIN_REFERENCE,
         destination=ReferenceConfig(
@@ -213,7 +213,7 @@ def test_t_crs_nad83_cart_cgvd2013():
     assert config.destination.crs.to_epsg() == 4954
 
 
-def test_t_crs_nad83_cart_cgvd28():
+def test_t_crs_nad83_cart_cgvd28() -> None:
     config = TransformConfig(
         origin=ORIGIN_REFERENCE,
         destination=ReferenceConfig(
@@ -228,7 +228,7 @@ def test_t_crs_nad83_cart_cgvd28():
     assert config.destination.crs.to_epsg() == 4954
 
 
-def test_t_crs_itrf14_geog_grs80():
+def test_t_crs_itrf14_geog_grs80() -> None:
     config = TransformConfig(
         origin=ORIGIN_REFERENCE,
         destination=ReferenceConfig(
@@ -243,7 +243,7 @@ def test_t_crs_itrf14_geog_grs80():
     assert config.destination.crs.to_epsg() == 7912
 
 
-def test_t_crs_itrf14_geog_cgvd2013():
+def test_t_crs_itrf14_geog_cgvd2013() -> None:
     config = TransformConfig(
         origin=ORIGIN_REFERENCE,
         destination=ReferenceConfig(
@@ -258,7 +258,7 @@ def test_t_crs_itrf14_geog_cgvd2013():
     assert config.destination.crs.to_epsg() is None
 
 
-def test_t_crs_itrf14_geog_cgvd28():
+def test_t_crs_itrf14_geog_cgvd28() -> None:
     config = TransformConfig(
         origin=ORIGIN_REFERENCE,
         destination=ReferenceConfig(
@@ -273,7 +273,7 @@ def test_t_crs_itrf14_geog_cgvd28():
     assert config.destination.crs.to_epsg() is None
 
 
-def test_t_crs_itrf_utm9_grs80():
+def test_t_crs_itrf_utm9_grs80() -> None:
     config = TransformConfig(
         origin=ORIGIN_REFERENCE,
         destination=ReferenceConfig(
@@ -288,7 +288,7 @@ def test_t_crs_itrf_utm9_grs80():
     assert config.destination.crs.ellipsoid.name == "GRS 1980"
 
 
-def test_t_crs_itrf_utm9_cgvd2013():
+def test_t_crs_itrf_utm9_cgvd2013() -> None:
     config = TransformConfig(
         origin=ORIGIN_REFERENCE,
         destination=ReferenceConfig(
@@ -302,7 +302,7 @@ def test_t_crs_itrf_utm9_cgvd2013():
     assert config.destination.crs.name == "ITRF2014 / UTM zone 9N + CGVD2013(CGG2013a) height"
 
 
-def test_t_crs_itrf_utm9_cgvd28():
+def test_t_crs_itrf_utm9_cgvd28() -> None:
     config = TransformConfig(
         origin=ORIGIN_REFERENCE,
         destination=ReferenceConfig(
@@ -316,7 +316,7 @@ def test_t_crs_itrf_utm9_cgvd28():
     assert config.destination.crs.name == "ITRF2014 / UTM zone 9N + CGVD28 height"
 
 
-def test_t_crs_itrf_utm10_grs80():
+def test_t_crs_itrf_utm10_grs80() -> None:
     config = TransformConfig(
         origin=ORIGIN_REFERENCE,
         destination=ReferenceConfig(
@@ -331,7 +331,7 @@ def test_t_crs_itrf_utm10_grs80():
     assert config.destination.crs.ellipsoid.name == "GRS 1980"
 
 
-def test_t_crs_itrf_utm10_cgvd2013():
+def test_t_crs_itrf_utm10_cgvd2013() -> None:
     config = TransformConfig(
         origin=ORIGIN_REFERENCE,
         destination=ReferenceConfig(
@@ -345,7 +345,7 @@ def test_t_crs_itrf_utm10_cgvd2013():
     assert config.destination.crs.name == "ITRF2014 / UTM zone 10N + CGVD2013(CGG2013a) height"
 
 
-def test_t_crs_itrf_utm10_cgvd28():
+def test_t_crs_itrf_utm10_cgvd28() -> None:
     config = TransformConfig(
         origin=ORIGIN_REFERENCE,
         destination=ReferenceConfig(
@@ -359,7 +359,7 @@ def test_t_crs_itrf_utm10_cgvd28():
     assert config.destination.crs.name == "ITRF2014 / UTM zone 10N + CGVD28 height"
 
 
-def test_t_crs_itrf_utm11_grs80():
+def test_t_crs_itrf_utm11_grs80() -> None:
     config = TransformConfig(
         origin=ORIGIN_REFERENCE,
         destination=ReferenceConfig(
@@ -374,7 +374,7 @@ def test_t_crs_itrf_utm11_grs80():
     assert config.destination.crs.ellipsoid.name == "GRS 1980"
 
 
-def test_t_crs_itrf_utm11_cgvd2013():
+def test_t_crs_itrf_utm11_cgvd2013() -> None:
     config = TransformConfig(
         origin=ORIGIN_REFERENCE,
         destination=ReferenceConfig(
@@ -388,7 +388,7 @@ def test_t_crs_itrf_utm11_cgvd2013():
     assert config.destination.crs.name == "ITRF2014 / UTM zone 11N + CGVD2013(CGG2013a) height"
 
 
-def test_t_crs_itrf_utm11_cgvd28():
+def test_t_crs_itrf_utm11_cgvd28() -> None:
     config = TransformConfig(
         origin=ORIGIN_REFERENCE,
         destination=ReferenceConfig(
@@ -402,7 +402,7 @@ def test_t_crs_itrf_utm11_cgvd28():
     assert config.destination.crs.name == "ITRF2014 / UTM zone 11N + CGVD28 height"
 
 
-def test_t_crs_itrf_cart_grs80():
+def test_t_crs_itrf_cart_grs80() -> None:
     config = TransformConfig(
         origin=ORIGIN_REFERENCE,
         destination=ReferenceConfig(
@@ -417,7 +417,7 @@ def test_t_crs_itrf_cart_grs80():
     assert config.destination.crs.ellipsoid.name == "GRS 1980"
 
 
-def test_t_crs_itrf_cart_cgvd2013():
+def test_t_crs_itrf_cart_cgvd2013() -> None:
     config = TransformConfig(
         origin=ORIGIN_REFERENCE,
         destination=ReferenceConfig(
@@ -431,7 +431,7 @@ def test_t_crs_itrf_cart_cgvd2013():
     # assert config.destination.crs.name == "ITRF2014 + CGVD2013(CGG2013) height"
 
 
-def test_t_crs_itrf_cart_cgvd28():
+def test_t_crs_itrf_cart_cgvd28() -> None:
     config = TransformConfig(
         origin=ORIGIN_REFERENCE,
         destination=ReferenceConfig(

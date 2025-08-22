@@ -47,11 +47,11 @@ select = [
     "S",
     "T",
     "UP",
-    #    "ANN",
-    #    "TC",
+    "ANN",
+    "TC",
+    "NPY",
     #    "DOC",
     #    "D",
-    #    "NPY",
 ]
 
 [tool.ruff.lint.per-file-ignores]

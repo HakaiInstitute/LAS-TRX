@@ -16,7 +16,7 @@ from laspy.vlrs.known import (
 
 
 class TrxGeoAsciiParamsVlr(GeoAsciiParamsVlr):
-    def record_from_crs(self, crs):
+    def record_from_crs(self, crs: pyproj.CRS) -> None:
         if crs.geodetic_crs is not None:
             self.strings.append(crs.geodetic_crs.name)
 
@@ -38,7 +38,7 @@ class TrxGeoAsciiParamsVlr(GeoAsciiParamsVlr):
 
 
 class TrxGeoKeyDirectoryVlr(GeoKeyDirectoryVlr):
-    def record_from_crs(self, crs: pyproj.CRS):
+    def record_from_crs(self, crs: pyproj.CRS) -> None:
         all_keys = {
             "GTModelTypeGeoKey": GeoKeyEntryStruct(id=1024, count=1),
             "GTRasterTypeGeoKey": GeoKeyEntryStruct(id=1025, count=1, value_offset=2),
@@ -113,7 +113,7 @@ class TrxGeoKeyDirectoryVlr(GeoKeyDirectoryVlr):
         self.geo_keys = [all_keys[k] for k in added_keys]
         self.geo_keys_header.number_of_keys = len(self.geo_keys)
 
-    def parse_crs(self):
+    def parse_crs(self) -> pyproj.CRS | None:
         for key in self.geo_keys:
             # get ProjectedCRSGeoKey by id
             if key.id == 3072:

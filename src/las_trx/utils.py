@@ -4,7 +4,7 @@ from os import path
 from typing import Any
 
 
-def resource_path(relative_path):
+def resource_path(relative_path: str) -> str:
     """Get absolute path to resource, works for dev and for PyInstaller"""
     base_path = getattr(sys, "_MEIPASS", path.dirname(__file__))
     return path.abspath(path.join(base_path, relative_path))
@@ -32,7 +32,7 @@ def _get_available_versions() -> list[Mapping[str, Any]] | None:
         return None
 
 
-def get_upgrade_version(version) -> Mapping[str, str] | None:
+def get_upgrade_version(version: str) -> Mapping[str, str] | None:
     available_versions = _get_available_versions()
     if available_versions is None or len(available_versions) == 0:
         # Error fetching versions, assume no upgrade available

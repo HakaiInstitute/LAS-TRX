@@ -14,6 +14,7 @@ from PyQt6.QtCore import pyqtSignal as Signal
 from PyQt6.QtGui import QIcon, QKeySequence, QTextCursor
 from PyQt6.QtWidgets import (
     QApplication,
+    QComboBox,
     QErrorMessage,
     QFileDialog,
     QMainWindow,
@@ -37,7 +38,7 @@ from las_trx.worker import TransformWorker
 
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         # Set window size
@@ -131,7 +132,7 @@ class MainWindow(QMainWindow):
         self.dialog_directory = os.path.expanduser("~")
 
         self.thread = None
-        
+
         # Initialize worker cores spinbox
         max_cores = os.cpu_count()
         self.cw.spinBox_worker_cores.setMaximum(max_cores)
@@ -139,7 +140,7 @@ class MainWindow(QMainWindow):
 
         sync_missing_grid_files()
 
-    def save_config(self):
+    def save_config(self) -> None:
         # Get output file path
         path, _ = QFileDialog.getSaveFileName(
             self,
@@ -153,7 +154,7 @@ class MainWindow(QMainWindow):
             with open(path, "w") as f:
                 f.write(self.transform_config.model_dump_json(indent=2))
 
-    def load_config(self):
+    def load_config(self) -> None:
         # Get config file path
         path, _ = QFileDialog.getOpenFileName(
             self,
@@ -173,7 +174,7 @@ class MainWindow(QMainWindow):
                     self.err_msg_box.showMessage(str(e))
                     self.err_msg_box.exec()
 
-    def export_logs(self):
+    def export_logs(self) -> None:
         # Get output file path
         path, _ = QFileDialog.getSaveFileName(
             self,
@@ -187,11 +188,11 @@ class MainWindow(QMainWindow):
             with open(path, "w") as f:
                 f.write(self.cw.textBrowser_log_output.toPlainText())
 
-    def maybe_update_output_epoch(self, new_date: date):
+    def maybe_update_output_epoch(self, new_date: date) -> None:
         if not self.cw.checkBox_epoch_trans.isChecked():
             self.cw.dateEdit_output_epoch.setDate(new_date)
 
-    def handle_select_input_file(self):
+    def handle_select_input_file(self) -> None:
         path, _ = QFileDialog.getOpenFileName(
             self,
             "Select input LAS file",
@@ -202,7 +203,7 @@ class MainWindow(QMainWindow):
             self.cw.lineEdit_input_file.setText(path)
             self.dialog_directory = os.path.dirname(path)
 
-    def handle_select_output_file(self):
+    def handle_select_output_file(self) -> None:
         path, _ = QFileDialog.getSaveFileName(
             self,
             "Select output LAS file",
@@ -213,30 +214,30 @@ class MainWindow(QMainWindow):
             self.cw.lineEdit_output_file.setText(path)
             self.dialog_directory = os.path.dirname(path)
 
-    def enable_epoch_trans(self, checked):
+    def enable_epoch_trans(self, checked: bool) -> None:
         self.cw.dateEdit_output_epoch.setEnabled(checked)
 
         if not checked:
             self.cw.dateEdit_output_epoch.setDate(self.cw.dateEdit_input_epoch.date())
 
-    def activate_input_utm_zone_picker(self, text):
+    def activate_input_utm_zone_picker(self, text: str) -> None:
         self.cw.spinBox_input_utm_zone.setEnabled(text == "UTM")
 
-    def activate_output_utm_zone_picker(self, text):
+    def activate_output_utm_zone_picker(self, text: str) -> None:
         self.cw.spinBox_output_utm_zone.setEnabled(text == "UTM")
 
-    def halve_cores(self):
+    def halve_cores(self) -> None:
         current_value = self.cw.spinBox_worker_cores.value()
         new_value = max(1, current_value // 2)
         self.cw.spinBox_worker_cores.setValue(new_value)
 
-    def double_cores(self):
+    def double_cores(self) -> None:
         current_value = self.cw.spinBox_worker_cores.value()
         max_cores = os.cpu_count()
         new_value = min(max_cores, current_value * 2)
         self.cw.spinBox_worker_cores.setValue(new_value)
 
-    def validate_core_count(self, value):
+    def validate_core_count(self, value: int) -> None:
         max_cores = os.cpu_count()
         if value > max_cores:
             self.cw.spinBox_worker_cores.setValue(max_cores)
@@ -244,7 +245,7 @@ class MainWindow(QMainWindow):
             self.cw.spinBox_worker_cores.setValue(1)
 
     @staticmethod
-    def update_vd_options(text, combo_box):
+    def update_vd_options(text: str, combo_box: QComboBox) -> None:
         combo_box.clear()
         if text == "NAD83(CSRS)":
             combo_box.addItems(["GRS80", "CGVD2013/CGG2013a", "CGVD2013/CGG2013", "CGVD28/HT2_2010v70"])
@@ -253,10 +254,10 @@ class MainWindow(QMainWindow):
         else:
             combo_box.addItems(["GRS80"])
 
-    def update_input_vd_options(self, text):
+    def update_input_vd_options(self, text: str) -> None:
         self.update_vd_options(text, self.cw.comboBox_input_vertical_reference)
 
-    def update_output_vd_options(self, text):
+    def update_output_vd_options(self, text: str) -> None:
         self.update_vd_options(text, self.cw.comboBox_output_vertical_reference)
 
     @property
@@ -314,14 +315,10 @@ class MainWindow(QMainWindow):
             vd=self.t_vd,
             coord_type=self.t_coords,
         )
-        return TransformConfig(
-            origin=origin, 
-            destination=destination, 
-            max_workers=self.cw.spinBox_worker_cores.value()
-        )
+        return TransformConfig(origin=origin, destination=destination, max_workers=self.cw.spinBox_worker_cores.value())
 
     @transform_config.setter
-    def transform_config(self, config: TransformConfig):
+    def transform_config(self, config: TransformConfig) -> None:
         self.cw.comboBox_input_reference.setCurrentText(config.origin.ref_frame.value)
         self.cw.dateEdit_input_epoch.setDate(config.origin.epoch)
         if config.origin.coord_type.is_utm():
@@ -339,7 +336,7 @@ class MainWindow(QMainWindow):
         else:
             self.cw.comboBox_output_coordinates.setCurrentText(config.destination.coord_type.value)
         self.cw.comboBox_output_vertical_reference.setCurrentText(config.destination.vd.value)
-        
+
         self.cw.spinBox_worker_cores.setValue(config.max_workers)
 
         if config.origin.epoch != config.destination.epoch:
@@ -353,20 +350,20 @@ class MainWindow(QMainWindow):
     def output_pattern(self) -> str:
         return rf"{self.cw.lineEdit_output_file.text()}"
 
-    def append_text(self, text):
+    def append_text(self, text: str) -> None:
         self.cw.textBrowser_log_output.moveCursor(QTextCursor.MoveOperation.End)
         self.cw.textBrowser_log_output.insertPlainText(text)
 
-    def on_process_success(self):
+    def on_process_success(self) -> None:
         logger.info("Processing complete")
         self.done_msg_box.exec()
 
-    def on_process_error(self, exception: BaseException):
+    def on_process_error(self, exception: BaseException) -> None:
         logger.error(str(exception))
         self.err_msg_box.showMessage(str(exception))
         self.err_msg_box.exec()
 
-    def convert(self):
+    def convert(self) -> None:
         logger.debug("Starting worker thread.")
 
         self.thread = TransformWorker(self.transform_config, self.input_pattern, self.output_pattern)
@@ -382,22 +379,22 @@ class MainWindow(QMainWindow):
 
 
 class LogWriteStream:
-    def __init__(self, queue_):
+    def __init__(self, queue_: Queue) -> None:
         super().__init__()
         self.queue = queue_
 
-    def write(self, text):
+    def write(self, text: str) -> None:
         self.queue.put(text)
 
 
 class LogDisplayThread(QThread):
     on_msg = Signal(str)
 
-    def __init__(self, queue_: Queue, *args, **kwargs):
+    def __init__(self, queue_: Queue, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
         self.queue = queue_
 
-    def run(self):
+    def run(self) -> None:
         while not self.isInterruptionRequested():
             try:
                 text = self.queue.get(block=False)

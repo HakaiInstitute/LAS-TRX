@@ -264,7 +264,7 @@ class ReferenceConfig(BaseModel):
 
         return xy_crs
 
-    def to_csrspy(self):
+    def to_csrspy(self) -> dict:
         return {
             "ref_frame": self.ref_frame.to_csrspy(),
             "epoch": date_to_decimal_year(self.epoch),

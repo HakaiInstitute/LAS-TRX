@@ -29,7 +29,7 @@ class TransformWorker(QThread):
     success = Signal()
     error = Signal(BaseException)
 
-    def __init__(self, config: TransformConfig, input_pattern: str, output_pattern: str):
+    def __init__(self, config: TransformConfig, input_pattern: str, output_pattern: str) -> None:
         super().__init__(parent=None)
         self.config = config
         self.input_pattern = Path(input_pattern)
@@ -60,7 +60,7 @@ class TransformWorker(QThread):
 
         self.futs = {}
 
-    def check_file_names(self):
+    def check_file_names(self) -> None:
         for in_file in self.input_files:
             if in_file in self.output_files:
                 raise AssertionError(
@@ -76,7 +76,7 @@ class TransformWorker(QThread):
                 r"e.g. 'C:\\some\path\{}_nad83csrs.laz'"
             )
 
-    def _do_transform(self):
+    def _do_transform(self) -> None:
         self.check_file_names()
         self.futs = {}
         for input_file, output_file in zip(self.input_files, self.output_files):
@@ -99,7 +99,7 @@ class TransformWorker(QThread):
             sleep(0.1)
         self.progress.emit(self.progress_val)
 
-    def on_process_complete(self, fut: futures.Future):
+    def on_process_complete(self, fut: futures.Future) -> None:
         input_file, output_file = self.futs[fut]
         err = fut.exception()
         if err is not None:
@@ -109,10 +109,10 @@ class TransformWorker(QThread):
             logger.info(f"{input_file} -> {output_file}")
 
     @property
-    def progress_val(self):
+    def progress_val(self) -> int:
         return int(100 * self.current_iter.value / float(self.total_iters))
 
-    def run(self):
+    def run(self) -> None:
         self.started.emit()
 
         try:
@@ -130,7 +130,7 @@ def transform(
     output_file: Path,
     lock: multiprocessing.RLock,
     cur: multiprocessing.Value,
-):
+) -> None:
     transformer = CSRSTransformer(**config.to_csrspy().model_dump(exclude_none=True))
 
     with laspy.open(str(input_file)) as in_las:
@@ -160,7 +160,7 @@ def transform(
                     cur.value += 1
 
 
-def write_header_offsets(header: "LasHeader", input_file: Path, transformer: "CSRSTransformer") -> "LasHeader":
+def write_header_offsets(header: LasHeader, input_file: Path, transformer: CSRSTransformer) -> LasHeader:
     with laspy.open(str(input_file)) as in_las:
         points = next(in_las.chunk_iterator(CHUNK_SIZE))
         data = stack_dims(points)
@@ -174,7 +174,7 @@ def write_header_offsets(header: "LasHeader", input_file: Path, transformer: "CS
     return header
 
 
-def clear_header_geokeys(header: "LasHeader") -> "LasHeader":
+def clear_header_geokeys(header: LasHeader) -> LasHeader:
     # Update GeoKeyDirectoryVLR
     # check and remove any existing crs vlrs
     for crs_vlr_name in (
@@ -190,7 +190,7 @@ def clear_header_geokeys(header: "LasHeader") -> "LasHeader":
     return header
 
 
-def write_header_geokeys_from_crs(header: "LasHeader", crs: "CRS") -> "LasHeader":
+def write_header_geokeys_from_crs(header: LasHeader, crs: CRS) -> LasHeader:
     header.vlrs.append(TrxGeoAsciiParamsVlr.from_crs(crs))
     header.vlrs.append(TrxGeoKeyDirectoryVlr.from_crs(crs))
     header.vlrs.append(WktCoordinateSystemVlr(crs.to_wkt()))
@@ -198,13 +198,13 @@ def write_header_geokeys_from_crs(header: "LasHeader", crs: "CRS") -> "LasHeader
     return header
 
 
-def write_header_scales(header: "LasHeader") -> "LasHeader":
+def write_header_scales(header: LasHeader) -> LasHeader:
     header.scales = np.array([0.01, 0.01, 0.01])
     logger.debug(f"{header.scales=}")
     return header
 
 
-def stack_dims(points: "laspy.ScaleAwarePointRecord") -> "np.array":
+def stack_dims(points: object) -> np.ndarray:
     x = points.x.scaled_array().copy()
     y = points.y.scaled_array().copy()
     z = points.z.scaled_array().copy()
