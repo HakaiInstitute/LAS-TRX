@@ -34,7 +34,7 @@ def test_t_crs_nad83_geog_cgvd2013():
         origin=ORIGIN_REFERENCE,
         destination=ReferenceConfig(
             ref_frame=TrxReference.NAD83CSRS,
-            vd=TrxVd.CGG2013A,
+            vd=TrxVd.CGG2013,
             coord_type=TrxCoordType.GEOG,
             epoch=date(2010, 1, 1),
         ),
@@ -77,7 +77,7 @@ def test_t_crs_nad83_utm9_cgvd2013():
         origin=ORIGIN_REFERENCE,
         destination=ReferenceConfig(
             ref_frame=TrxReference.NAD83CSRS,
-            vd=TrxVd.CGG2013A,
+            vd=TrxVd.CGG2013,
             coord_type=TrxCoordType.UTM9,
             epoch=date(2010, 1, 1),
         ),
@@ -119,7 +119,7 @@ def test_t_crs_nad83_utm10_cgvd2013():
         origin=ORIGIN_REFERENCE,
         destination=ReferenceConfig(
             ref_frame=TrxReference.NAD83CSRS,
-            vd=TrxVd.CGG2013A,
+            vd=TrxVd.CGG2013,
             coord_type=TrxCoordType.UTM10,
             epoch=date(2010, 1, 1),
         ),
@@ -161,7 +161,7 @@ def test_t_crs_nad83_utm11_cgvd2013():
         origin=ORIGIN_REFERENCE,
         destination=ReferenceConfig(
             ref_frame=TrxReference.NAD83CSRS,
-            vd=TrxVd.CGG2013A,
+            vd=TrxVd.CGG2013,
             coord_type=TrxCoordType.UTM11,
             epoch=date(2010, 1, 1),
         ),
@@ -254,7 +254,7 @@ def test_t_crs_itrf14_geog_cgvd2013():
         ),
     )
     assert config.destination.crs.is_geographic
-    assert config.destination.crs.name == "ITRF2014 + CGVD2013(CGG2013) height"
+    assert config.destination.crs.name == "ITRF2014 + CGVD2013(CGG2013a) height"
     assert config.destination.crs.to_epsg() is None
 
 
@@ -299,7 +299,7 @@ def test_t_crs_itrf_utm9_cgvd2013():
         ),
     )
     assert config.destination.crs.is_compound
-    assert config.destination.crs.name == "ITRF2014 / UTM zone 9N + CGVD2013(CGG2013) height"
+    assert config.destination.crs.name == "ITRF2014 / UTM zone 9N + CGVD2013(CGG2013a) height"
 
 
 def test_t_crs_itrf_utm9_cgvd28():
@@ -342,7 +342,7 @@ def test_t_crs_itrf_utm10_cgvd2013():
         ),
     )
     assert config.destination.crs.is_compound
-    assert config.destination.crs.name == "ITRF2014 / UTM zone 10N + CGVD2013(CGG2013) height"
+    assert config.destination.crs.name == "ITRF2014 / UTM zone 10N + CGVD2013(CGG2013a) height"
 
 
 def test_t_crs_itrf_utm10_cgvd28():
@@ -385,7 +385,7 @@ def test_t_crs_itrf_utm11_cgvd2013():
         ),
     )
     assert config.destination.crs.is_compound
-    assert config.destination.crs.name == "ITRF2014 / UTM zone 11N + CGVD2013(CGG2013) height"
+    assert config.destination.crs.name == "ITRF2014 / UTM zone 11N + CGVD2013(CGG2013a) height"
 
 
 def test_t_crs_itrf_utm11_cgvd28():

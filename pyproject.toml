@@ -2,8 +2,10 @@
 name = "las-trx"
 version = "0.0.0"
 description = "Convert lidar .las/.laz file coordinates between various ITRF realizations and NAD83 CSRS."
+readme = "README.md"
 authors = [{ name = "Taylor Denouden", email = "taylor.denouden@hakai.org" }]
 requires-python = ">=3.10"
+license = "MIT"
 dependencies = [
     "csrspy>=0.7.0",
     "laspy>=2.6.1",
