@@ -59,11 +59,11 @@ jobs:
         run: >
           uv run pyinstaller
           --onefile
-          --icon="las_trx/resources/las-trx.ico"
-          --add-data="las_trx/resources/las-trx.ico:resources"
-          --add-data="las_trx/resources/*.ui:resources"
+          --icon="src/las_trx/resources/las-trx.ico"
+          --add-data="src/las_trx/resources/las-trx.ico:resources"
+          --add-data="src/las_trx/resources/*.ui:resources"
           --name LAS-TRX-v${{ env.tag }}-linux
-          las_trx/__main__.py
+          src/las_trx/__main__.py
 
       - name: Build Windows GUI Executable
         if: ${{ runner.os == 'Windows' }}
@@ -71,11 +71,11 @@ jobs:
           uv run pyinstaller
           --onefile
           --windowed
-          --icon="las_trx\resources\las-trx.ico"
-          --add-data="las_trx\resources\las-trx.ico;resources"
-          --add-data="las_trx\resources\*.ui;resources"
+          --icon="src\las_trx\resources\las-trx.ico"
+          --add-data="src\las_trx\resources\las-trx.ico;resources"
+          --add-data="src\las_trx\resources\*.ui;resources"
           --name LAS-TRX-v${{ env.tag }}-win64.exe
-          las_trx/__main__.py
+          src/las_trx/__main__.py
 
       - name: Archive release artifacts
         uses: actions/upload-artifact@v4
