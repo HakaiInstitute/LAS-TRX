@@ -155,33 +155,3 @@ class ConfigurationController:
             logger.warning(f"Core count {value} below minimum 1, using 1")
             return 1
         return value
-
-
-class TransformationController:
-    """Controller for coordinate transformation operations."""
-
-    def __init__(self, ui_access: UIWidgetAccess) -> None:
-        self.ui_access = ui_access
-        self.worker_thread: object | None = None  # Will be TransformWorker
-
-    def start_transformation(self, config: TransformConfig, input_pattern: str, output_pattern: str) -> None:
-        """Start coordinate transformation process."""
-        # This will be implemented when we refactor the worker
-        logger.debug("Starting transformation process")
-        # TODO: Implement after worker refactoring
-
-    def stop_transformation(self) -> None:
-        """Stop ongoing transformation process."""
-        if self.worker_thread:
-            # TODO: Implement proper cleanup
-            logger.debug("Stopping transformation process")
-
-    def on_transformation_success(self) -> None:
-        """Handle successful transformation completion."""
-        logger.info("Processing complete")
-        self.ui_access.show_success_message("File(s) converted successfully")
-
-    def on_transformation_error(self, error: Exception) -> None:
-        """Handle transformation error."""
-        logger.error(f"Transformation error: {error}")
-        self.ui_access.show_error_message(str(error))

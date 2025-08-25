@@ -253,7 +253,7 @@ class ReferenceConfig(BaseModel):
                 cartesian_cs=Cartesian2DCS(),
             )
         else:
-            raise IndexError(f"Could not create horizont CRS for {self.coords}")
+            raise IndexError(f"Could not create horizontal CRS for {self.coord_type}")
 
         z_crs = self.vd.vertical_crs
 

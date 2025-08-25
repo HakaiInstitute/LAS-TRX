@@ -112,13 +112,6 @@ class TrxGeoKeyDirectoryVlr(GeoKeyDirectoryVlr):
         self.geo_keys = [all_keys[k] for k in added_keys]
         self.geo_keys_header.number_of_keys = len(self.geo_keys)
 
-    def parse_crs(self) -> pyproj.CRS | None:
-        for key in self.geo_keys:
-            # get ProjectedCRSGeoKey by id
-            if key.id == 3072:
-                return pyproj.CRS.from_epsg(key.value_offset)
-        return None
-
     @classmethod
     def from_crs(cls: type[GeoKeyDirectoryType], crs: pyproj.CRS) -> GeoKeyDirectoryType:
         self = cls()

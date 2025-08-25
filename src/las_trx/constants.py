@@ -1,6 +1,5 @@
 """Application constants and configuration values."""
 
-from enum import Enum
 from typing import ClassVar
 
 
@@ -40,12 +39,3 @@ class NetworkConstants:
         "Accept": "application/vnd.github+json",
         "X-GitHub-Api-Version": "2022-11-28",
     }
-
-
-class LogLevels(Enum):
-    """Logging levels."""
-
-    DEBUG = "DEBUG"
-    INFO = "INFO"
-    WARNING = "WARNING"
-    ERROR = "ERROR"

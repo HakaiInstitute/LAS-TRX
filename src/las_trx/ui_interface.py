@@ -64,7 +64,6 @@ class UIWidgetInterface(Protocol):
 
     # Log output
     def get_log_content(self) -> str: ...
-    def append_log_text(self, text: str) -> None: ...
 
     # Messages
     def show_success_message(self, message: str) -> None: ...
@@ -223,9 +222,6 @@ class UIWidgetAdapter:
     # Log output
     def get_log_content(self) -> str:
         return self.cw.textBrowser_log_output.toPlainText()
-
-    def append_log_text(self, text: str) -> None:
-        self.cw.textBrowser_log_output.append(text)
 
     # Messages
     def show_success_message(self, message: str) -> None:
