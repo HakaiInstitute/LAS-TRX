@@ -5,8 +5,8 @@ on:
     branches-ignore:
       - '**'
     tags:
-      - '[0-9]+.[0-9]+.[0-9]+'
-      - '[0-9]+.[0-9]+.[0-9]+rc[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+rc[0-9]+'
 jobs:
   build-binaries:
     defaults:
@@ -20,20 +20,22 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - name: Set up Python 3.11
+      - name: Get tag
+        id: tag
+        run: echo "tag=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.5.26"
+          enable-cache: true
+
+      - name: "Set up Python"
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
-
-      - name: Setup Poetry
-        uses: abatilo/actions-poetry@v3
-        with:
-          poetry-version: 1.8.3
-
-      - name: Get version tag
-        run: echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+          python-version-file: "pyproject.toml"
 
       - name: Install Linux dependencies
         if: ${{ runner.os == 'Linux' }}
@@ -49,33 +51,31 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry version ${{ env.tag }}
-          sed -i "s/0.0.0/${{ env.tag }}/g" las_trx/__init__.py
-          poetry run pip install --upgrade pip setuptools
-          poetry install
+          uv version ${{ env.tag }}
+          uv sync
 
       - name: Build Linux GUI Executable
         if: ${{ runner.os == 'Linux' }}
         run: >
-          poetry run pyinstaller
+          uv run pyinstaller
           --onefile
-          --icon="las_trx/resources/las-trx.ico"
-          --add-data="las_trx/resources/las-trx.ico:resources"
-          --add-data="las_trx/resources/*.ui:resources"
+          --icon="src/las_trx/resources/las-trx.ico"
+          --add-data="src/las_trx/resources/las-trx.ico:resources"
+          --add-data="src/las_trx/resources/*.ui:resources"
           --name LAS-TRX-v${{ env.tag }}-linux
-          las_trx/__main__.py
+          src/las_trx/__main__.py
 
       - name: Build Windows GUI Executable
         if: ${{ runner.os == 'Windows' }}
         run: >
-          poetry run pyinstaller
+          uv run pyinstaller
           --onefile
           --windowed
-          --icon="las_trx\resources\las-trx.ico"
-          --add-data="las_trx\resources\las-trx.ico;resources"
-          --add-data="las_trx\resources\*.ui;resources"
+          --icon="src\las_trx\resources\las-trx.ico"
+          --add-data="src\las_trx\resources\las-trx.ico;resources"
+          --add-data="src\las_trx\resources\*.ui;resources"
           --name LAS-TRX-v${{ env.tag }}-win64.exe
-          las_trx/__main__.py
+          src/las_trx/__main__.py
 
       - name: Archive release artifacts
         uses: actions/upload-artifact@v4
@@ -88,11 +88,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Get tag
         id: tag
-        run: echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+        run: echo "tag=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
 
       - name: Detect prerelease
         id: prerelease
