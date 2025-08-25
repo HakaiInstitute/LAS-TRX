@@ -37,7 +37,7 @@ class FileController:
     def __init__(self, parent: QWidget, ui_access: UIWidgetAccess) -> None:
         self.parent = parent
         self.ui_access = ui_access
-        self.dialog_directory = Path("~").expanduser()
+        self.dialog_directory = str(Path("~").expanduser())
 
     def select_input_file(self) -> None:
         """Handle input file selection."""
