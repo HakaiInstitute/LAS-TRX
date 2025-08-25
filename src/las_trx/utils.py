@@ -1,6 +1,6 @@
 import sys
 from collections.abc import Mapping
-from os import path
+from pathlib import Path
 from typing import Any
 
 import requests
@@ -18,8 +18,8 @@ def resource_path(relative_path: str) -> str:
     Returns:
         Absolute path to the resource
     """
-    base_path = getattr(sys, "_MEIPASS", path.dirname(__file__))
-    return path.abspath(path.join(base_path, relative_path))
+    base_path = getattr(sys, "_MEIPASS", Path(__file__).parent)
+    return str((Path(base_path) / relative_path).resolve())
 
 
 def _get_available_versions() -> list[Mapping[str, Any]] | None:

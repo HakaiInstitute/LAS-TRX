@@ -21,7 +21,7 @@ class TrxGeoAsciiParamsVlr(GeoAsciiParamsVlr):
             self.strings.append(crs.geodetic_crs.name)
 
         if crs.is_projected:
-            geo_name, coord_name = crs.name.split(" / ")
+            _, coord_name = crs.name.split(" / ")
             if crs.is_vertical:
                 [coord_name, _] = coord_name.split(" + ")
             self.strings.append(coord_name)
@@ -67,7 +67,7 @@ class TrxGeoKeyDirectoryVlr(GeoKeyDirectoryVlr):
             geo_coord_name = crs.name
             if crs.is_vertical:
                 [geo_coord_name, _] = crs.name.split(" + ")
-            geo_name, coord_name = geo_coord_name.split(" / ")
+            _, coord_name = geo_coord_name.split(" / ")
             all_keys["GTCitationGeoKey"].count = len((coord_name + "|").encode("ascii"))
             all_keys["GTCitationGeoKey"].value_offset = (
                 all_keys["GeodeticCitationGeoKey"].count + all_keys["GeodeticCitationGeoKey"].value_offset
@@ -83,8 +83,7 @@ class TrxGeoKeyDirectoryVlr(GeoKeyDirectoryVlr):
 
             # all_keys["VerticalCSTypeGeoKey"].value_offset = 2
             # added_keys.append("VerticalCSTypeGeoKey")
-            added_keys.append("VerticalCitationGeoKey")
-            added_keys.append("VerticalUnitsGeoKey")
+            added_keys.extend(["VerticalCitationGeoKey", "VerticalUnitsGeoKey"])
 
         epsg = crs.to_epsg()
 

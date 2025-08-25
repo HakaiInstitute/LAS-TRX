@@ -37,7 +37,7 @@ class FileController:
     def __init__(self, parent: QWidget, ui_access: UIWidgetAccess) -> None:
         self.parent = parent
         self.ui_access = ui_access
-        self.dialog_directory = os.path.expanduser("~")
+        self.dialog_directory = Path("~").expanduser()
 
     def select_input_file(self) -> None:
         """Handle input file selection."""
@@ -49,7 +49,7 @@ class FileController:
         )
         if file_path:
             self.ui_access.set_input_file_path(file_path)
-            self.dialog_directory = os.path.dirname(file_path)
+            self.dialog_directory = Path(file_path).parent
 
     def select_output_file(self) -> None:
         """Handle output file selection."""
@@ -61,7 +61,7 @@ class FileController:
         )
         if file_path:
             self.ui_access.set_output_file_path(file_path)
-            self.dialog_directory = os.path.dirname(file_path)
+            self.dialog_directory = Path(file_path).parent
 
     def save_config(self, config: TransformConfig) -> None:
         """Save configuration to file."""

@@ -1,5 +1,6 @@
 """Coordinate transformation logic separated from UI threading."""
 
+import contextlib
 import copy
 import math
 import multiprocessing
@@ -84,7 +85,7 @@ class TransformationManager:
         Yields:
             Tuples of (input_file, output_file, exception_or_none)
         """
-        manager, lock, current_iter = self.create_progress_tracker()
+        _, lock, current_iter = self.create_progress_tracker()
 
         with futures.ProcessPoolExecutor(max_workers=self.num_workers) as pool:
             # Submit all transformation jobs
@@ -199,10 +200,8 @@ def clear_header_geokeys(header: LasHeader) -> LasHeader:
     ]
 
     for vlr_name in crs_vlr_names:
-        try:
+        with contextlib.suppress(IndexError):
             header.vlrs.extract(vlr_name)
-        except IndexError:
-            pass  # VLR not present
 
     return header
 

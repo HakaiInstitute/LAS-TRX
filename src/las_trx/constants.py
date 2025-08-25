@@ -1,6 +1,7 @@
 """Application constants and configuration values."""
 
 from enum import Enum
+from typing import ClassVar
 
 
 class UIConstants:
@@ -35,7 +36,7 @@ class NetworkConstants:
     """Network-related constants."""
 
     GITHUB_API_TIMEOUT = 1  # seconds
-    GITHUB_API_HEADERS = {
+    GITHUB_API_HEADERS: ClassVar = {
         "Accept": "application/vnd.github+json",
         "X-GitHub-Api-Version": "2022-11-28",
     }
