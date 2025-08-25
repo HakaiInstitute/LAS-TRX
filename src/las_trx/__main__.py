@@ -24,7 +24,11 @@ def main() -> None:
     logging.basicConfig(level=log_level, handlers=[log_handler])
 
     # Configure loguru to use both the queue and stdout
-    logger.add(log_write_stream, level="DEBUG" if os.getenv("DEBUG") else "INFO", format="{level}: {message}")
+    logger.add(
+        log_write_stream,
+        level="DEBUG" if os.getenv("DEBUG") else "INFO",
+        format="{time:YYYY-MM-DD HH:mm:ss} | <level>{level: <8}</level> | <level>{message}</level>",
+    )
 
     # Create application
     app = QApplication(sys.argv)
