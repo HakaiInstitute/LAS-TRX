@@ -61,6 +61,7 @@ class TransformationManager:
 
     def _calculate_total_iterations(self) -> int:
         """Calculate total number of processing iterations."""
+        logger.info("Calculating total number of processing iterations")
         total = 0
         for input_file in self.input_files:
             with laspy.open(str(input_file)) as las_file:
