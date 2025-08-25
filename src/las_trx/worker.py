@@ -1,5 +1,6 @@
 """Improved worker thread with proper resource management and separation of concerns."""
 
+import threading
 from time import sleep
 
 from loguru import logger
@@ -52,15 +53,17 @@ class TransformWorker(QThread):
             # Create transformation manager
             self.transformation_manager = TransformationManager(self.config, self.input_pattern, self.output_pattern)
 
+            # Start progress monitoring thread
+            progress_thread = threading.Thread(target=self._monitor_progress, daemon=True)
+            progress_thread.start()
+
             # Track if any transformation failed
             has_errors = False
             error_count = 0
             success_count = 0
 
             # Execute transformations
-            for input_file, output_file, exception in self.transformation_manager.execute_transformations(
-                progress_callback=self._update_progress
-            ):
+            for input_file, output_file, exception in self.transformation_manager.execute_transformations():
                 # Check if stop was requested
                 if self._should_stop:
                     logger.info("Transformation stopped by user request")
@@ -90,6 +93,33 @@ class TransformWorker(QThread):
             self.error.emit(e)
         finally:
             self.finished.emit()
+
+    def _monitor_progress(self) -> None:
+        """Monitor progress in a separate thread and emit updates."""
+        if not self.transformation_manager:
+            return
+
+        last_progress = -1
+
+        while not self._should_stop and self.transformation_manager:
+            try:
+                # Get current progress from the shared counter
+                with self.transformation_manager.lock:
+                    current_value = self.transformation_manager.current_iter.value
+
+                if self.transformation_manager.total_iterations > 0:
+                    progress = int(100 * current_value / float(self.transformation_manager.total_iterations))
+                    # Only emit if progress changed to avoid flooding the UI
+                    if progress != last_progress:
+                        self.progress.emit(progress)
+                        last_progress = progress
+
+                # Sleep briefly to avoid excessive CPU usage
+                sleep(UIConstants.PROGRESS_UPDATE_INTERVAL / 1000)  # Convert ms to seconds
+
+            except Exception as e:
+                logger.debug(f"Progress monitoring error: {e}")
+                break
 
     def _update_progress(self, progress: int) -> None:
         """Update progress signal.

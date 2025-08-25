@@ -48,6 +48,9 @@ class TransformationManager:
         self.total_iterations = self._calculate_total_iterations()
         self.num_workers = min(config.max_workers, os.cpu_count() or 1)
 
+        # Progress tracking
+        self.manager, self.lock, self.current_iter = self.create_progress_tracker()
+
         # Logging
         logger.info(f"Found {len(self.input_files)} input files")
         logger.info(f"Transform config: {self.config}")
@@ -85,8 +88,6 @@ class TransformationManager:
         Yields:
             Tuples of (input_file, output_file, exception_or_none)
         """
-        _, lock, current_iter = self.create_progress_tracker()
-
         with futures.ProcessPoolExecutor(max_workers=self.num_workers) as pool:
             # Submit all transformation jobs
             future_to_files = {}
@@ -96,8 +97,8 @@ class TransformationManager:
                     self.config,
                     input_file,
                     output_file,
-                    lock,
-                    current_iter,
+                    self.lock,
+                    self.current_iter,
                 )
                 future_to_files[future] = (input_file, output_file)
 
@@ -110,11 +111,6 @@ class TransformationManager:
                     logger.error(f"Error transforming {input_file}: {exception}")
                 else:
                     logger.info(f"{input_file} -> {output_file}")
-
-                # Call progress callback if provided
-                if progress_callback:
-                    progress = int(100 * current_iter.value / float(self.total_iterations))
-                    progress_callback(progress)
 
                 yield input_file, output_file, exception
 
