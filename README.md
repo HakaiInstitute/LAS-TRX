@@ -1,5 +1,5 @@
 <div align="center">
-    <img src="las_trx/resources/las-trx.png" alt="LAS-TRX">
+    <img src="src/las_trx/resources/las-trx.png" alt="LAS-TRX">
 </div>
 
 ___
