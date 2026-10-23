@@ -28,7 +28,7 @@ class CSRSPYConfig(BaseModel):
     t_coords: CoordType
 
 
-class TrxVd(str, enum.Enum):
+class TrxVd(str, enum.Enum):  # noqa: UP042 - StrEnum would change str() output
     WGS84 = "WGS84"
     GRS80 = "GRS80"
     CGG2013A = "CGVD2013/CGG2013a"
@@ -86,7 +86,7 @@ class TrxVd(str, enum.Enum):
         }[self]
 
 
-class TrxReference(str, enum.Enum):
+class TrxReference(str, enum.Enum):  # noqa: UP042 - StrEnum would change str() output
     NAD83CSRS = "NAD83(CSRS)"
     WGS84 = "WGS84"
     ITRF20 = "ITRF2020"
@@ -162,7 +162,7 @@ class TrxReference(str, enum.Enum):
         }[self]
 
 
-class TrxCoordType(str, enum.Enum):
+class TrxCoordType(str, enum.Enum):  # noqa: UP042 - StrEnum would change str() output
     CART = "Cartesian"
     GEOG = "Geographic"
     UTM3 = "UTM3"

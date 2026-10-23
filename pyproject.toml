@@ -4,10 +4,10 @@ version = "0.7.0"
 description = "Convert lidar .las/.laz file coordinates between various ITRF realizations and NAD83 CSRS."
 readme = "README.md"
 authors = [{ name = "Taylor Denouden", email = "taylor.denouden@hakai.org" }]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 license = "MIT"
 dependencies = [
-    "csrspy>=0.7.0",
+    "csrspy>=0.8.0",
     "laspy>=2.6.1",
     "laszip>=0.2.3",
     "loguru>=0.7.3",
